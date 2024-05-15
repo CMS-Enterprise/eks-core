@@ -27,16 +27,6 @@ resource "aws_kms_key" "ebs" {
   }
 }
 
-resource "aws_kms_key" "ecr" {
-  description         = "Encrypt and decrypt data for ECR"
-  enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.ecr_kms.json
-
-  tags = {
-    Name = "ECR"
-  }
-}
-
 resource "aws_kms_key" "s3" {
   description         = "Encrypt and decrypt data for S3"
   enable_key_rotation = true
@@ -80,11 +70,6 @@ resource "aws_kms_alias" "cloudwatch" {
 resource "aws_kms_alias" "ebs" {
   name          = "alias/ebs"
   target_key_id = aws_kms_key.ebs.key_id
-}
-
-resource "aws_kms_alias" "ecr" {
-  name          = "alias/ecr"
-  target_key_id = aws_kms_key.ecr.key_id
 }
 
 resource "aws_kms_alias" "s3" {

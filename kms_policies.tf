@@ -103,33 +103,6 @@ data "aws_iam_policy_document" "ebs_kms" {
   }
 }
 
-data "aws_iam_policy_document" "ecr_kms" {
-  statement {
-    sid       = "Allow all kms access to terraform role"
-    actions   = ["kms:*"]
-    resources = ["*"]
-    principals {
-      type = "AWS"
-      identifiers = [local.role_to_assume]
-    }
-  }
-  statement {
-    sid = "Allow use of the key"
-    actions = [
-      "kms:Encrypt",
-      "kms:Decrypt",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*",
-      "kms:DescribeKey"
-    ]
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-    resources = ["*"]
-  }
-}
-
 data "aws_iam_policy_document" "s3" {
   statement {
     sid       = "Allow all kms access to admins"
