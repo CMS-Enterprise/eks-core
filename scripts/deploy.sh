@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-# Set logging functions for colored output
-red() { echo -e "\033[0;31m${*}\033[0m"; }
-green() { echo -e "\033[0;32m${*}\033[0m"; }
-yellow() { echo -e "\033[0;33m${*}\033[0m"; }
+# Parent directory of this script
+SCRIPT_DIR=$(realpath $(dirname $0))
+
+# Source common function
+source "${SCRIPT_DIR}"/common.sh
 
 # Check if running in CI/CD environment
 if [[ "${RUNNING_IN_CICD}" == "true" ]]; then
@@ -48,6 +49,12 @@ assume_role_and_execute_terraform() {
   access_key=$(echo "${credentials}" | jq -r '.Credentials.AccessKeyId')
   secret_key=$(echo "${credentials}" | jq -r '.Credentials.SecretAccessKey')
   session_token=$(echo "${credentials}" | jq -r '.Credentials.SessionToken')
+
+  # Check that credentials were successfully extracted
+  if [ -z "${access_key}" -o -z "${secret_key}" -o -z "${session_token}" ]; then
+    red "Failed to extract access credentials for ${account_name} (${account_id}). Exiting."
+    return 1
+  fi
 
   # Export credentials as environment variables
   export AWS_ACCESS_KEY_ID="${access_key}"

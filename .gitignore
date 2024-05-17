@@ -1,4 +1,8 @@
+# Terraform temporary files
 .terraform*
 k8s/.terraform
 *.tfvars
 .DS_Store
+
+# Editor backups
+.*.sw?
