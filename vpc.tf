@@ -1,6 +1,6 @@
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.8.0"
+  version = "5.8.1"
 
   cidr                                                       = local.vpc_cidr
   create_flow_log_cloudwatch_iam_role                        = false
@@ -63,7 +63,7 @@ module "vpc" {
 
 module "vpc_vpc-endpoints" {
   source  = "terraform-aws-modules/vpc/aws//modules"
-  version = "5.8.0"
+  version = "5.8.1"
 
   create                     = true
   create_security_group      = true

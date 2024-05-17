@@ -1,6 +1,6 @@
 module "s3_main" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.0"
+  version = "4.1.2"
 
   acl                                   = "private"
   allowed_kms_key_arn                   = aws_kms_key.s3.arn
@@ -43,7 +43,7 @@ module "s3_main" {
 
 module "s3_logs" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "4.1.0"
+  version = "4.1.2"
 
   acl                                   = "private"
   allowed_kms_key_arn                   = aws_kms_key.s3.arn

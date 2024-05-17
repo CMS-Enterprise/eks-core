@@ -1,6 +1,6 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.10.0"
+  version = "20.11.0"
 
   authentication_mode                          = "API_AND_CONFIG_MAP"
   cloudwatch_log_group_class                   = "STANDARD"
@@ -130,7 +130,7 @@ module "main_nodes" {
   ebs_optimized        = true
   instance_types       = ["c6a.large"]
   labels               = var.node_labels
-  launch_template_name = "eks-main-${var.cluster_name}"
+  launch_template_name = "eks-main-${local.cluster_name}"
   platform             = var.custom_ami_id != "" ? "linux" : "bottlerocket"
   taints               = var.node_taints
 
