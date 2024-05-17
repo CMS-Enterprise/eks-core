@@ -3,7 +3,7 @@ variable "cluster_custom_name" {
   type        = string
 
   validation {
-    condition     = can(regex("-", var.cluster_name))
+    condition     = can(regex("-", var.cluster_custom_name))
     error_message = "The Cluster Name must contain a '-'. Example: 'name-test'"
   }
 }
