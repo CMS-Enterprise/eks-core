@@ -1,11 +1,11 @@
 locals {
-  # Main Settings
+  ################################## Main Settings ##################################
   aws_region            = "us-east-1"
   terraform_bucket_name = "terraform-test"
   role_to_assume        = "arn:aws:iam::000000000000:role/terraform-test"
   role_name             = split("/", local.role_to_assume)[1]
 
-  # EKS Settings
+  ################################## EKS Settings ##################################
   cluster_bottlerocket_user_data = templatefile("${path.module}/utils/bottlerocket_config.toml.tpl",
     {
       cluster_name     = module.eks.cluster_name
@@ -24,7 +24,7 @@ locals {
     var.node_labels
   )
 
-  # VPC Settings
+  ################################## VPC Settings ##################################
   vpc_cidr        = "10.10.0.0/16"
   private_subnets = ["10.10.15.0/24", "10.10.25.0/24", "10.10.35.0/24"]
   public_subnets  = ["10.10.10.0/24"]
@@ -50,7 +50,7 @@ locals {
     }
   }
 
-  # Route Table Routes
+  ################################## Route Settings ##################################
   public_route_table_routes = [
     for subnet_cidr in module.vpc.public_subnets_cidr_blocks : {
       cidr_block = subnet_cidr,
@@ -64,7 +64,7 @@ locals {
     }
   ]
 
-  # NACL Rules
+  ################################## NACL Settings ##################################
   public_nacl_ingress_rules = [
     { from_port = 53, to_port = 53, protocol = "udp", cidr_block = local.vpc_cidr, action = "allow" },
     { from_port = 80, to_port = 80, protocol = "tcp", cidr_block = "0.0.0.0/0", action = "allow" },
@@ -83,7 +83,7 @@ locals {
     { from_port = 1024, to_port = 65535, protocol = "udp", cidr_block = "0.0.0.0/0", action = "allow" }
   ]
 
-  # Security Group Rules
+  ################################## Security Group Settings ##################################
   eks_local = [
     { description = "Allow all traffic from orchestrator nodes", from_port = 0, to_port = 0, protocol = "-1", self = true },
     { description = "Allow instances required to reach to the API server", from_port = 443, to_port = 443, protocol = "tcp", cidr_blocks = [local.vpc_cidr] },
