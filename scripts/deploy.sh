@@ -11,7 +11,6 @@ if [[ "${RUNNING_IN_CICD}" == "true" ]]; then
   account_name="${ACCOUNT_NAME}"
   account_id="${ACCOUNT_ID}"
   aws_role_arn="${AWS_ROLE_ARN}"
-  continue_apply="y"
 else
   # Prompt user for AWS account details
   read -r -p "Enter the AWS account name: " account_name
@@ -83,10 +82,7 @@ assume_role_and_execute_terraform() {
     return 1
   fi
 
-  if [[ "${RUNNING_IN_CICD}" != "true" ]]; then
-    read -r -p "Do you want to apply the changes? (y/n): " continue_apply
-    continue_apply=$(echo "${continue_apply}" | tr '[:upper:]' '[:lower:]')
-  fi
+  continue_apply=$(prompt_yn "Do you want to apply the changes?")
 
   if [[ "${continue_apply}" == "y" ]]; then
     green "Applying Terraform changes for account: ${account_name} (${account_id})"
