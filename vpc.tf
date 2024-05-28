@@ -2,9 +2,10 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.8.1"
 
+  azs                                                        = data.aws_availability_zones.available.names
   cidr                                                       = local.vpc_cidr
   create_flow_log_cloudwatch_iam_role                        = false
-  crete_flow_log_cloudwatch_log_group                        = true
+  create_flow_log_cloudwatch_log_group                       = true
   create_igw                                                 = true
   create_vpc                                                 = true
   default_network_acl_ingress                                = local.private_nacl_ingress_rules
@@ -27,15 +28,14 @@ module "vpc" {
   flow_log_cloudwatch_log_group_kms_key_id                   = aws_kms_key.cloudwatch.arn
   flow_log_cloudwatch_log_group_retention_in_days            = 365
   flow_log_cloudwatch_log_group_skip_destroy                 = false
-  flow_log_destination_arn                                   = module.s3_logs.s3_bucket_arn
-  flow_log_destination_type                                  = "s3"
+  flow_log_destination_type                                  = "cloud-watch-logs"
   flow_log_file_format                                       = "plain-text"
   flow_log_traffic_type                                      = "ALL"
   igw_tags                                                   = { Name = "${local.cluster_name}-igw" }
-  manage_default_network_acl                                 = true
-  manage_default_route_table                                 = true
-  manage_default_security_group                              = true
-  manage_default_vpc                                         = true
+  manage_default_network_acl                                 = false
+  manage_default_route_table                                 = false
+  manage_default_security_group                              = false
+  manage_default_vpc                                         = false
   name                                                       = local.cluster_name
   nat_eip_tags                                               = { Name = "${local.cluster_name}-nat-eip" }
   nat_gateway_tags                                           = { Name = "${local.cluster_name}-ngw" }
@@ -56,13 +56,13 @@ module "vpc" {
   public_subnet_tags                                         = { Name = "${local.cluster_name}-public" }
   public_subnets                                             = local.public_subnets
   single_nat_gateway                                         = true
-  tags                                                       = { Cluster = local.cluster_name }
+  tags                                                       = { cluster = local.cluster_name }
   vpc_flow_log_tags                                          = { Name = "${local.cluster_name}-flow-log" }
   vpc_tags                                                   = { Name = local.cluster_name }
 }
 
-module "vpc_vpc-endpoints" {
-  source  = "terraform-aws-modules/vpc/aws//modules"
+module "endpoints" {
+  source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
   version = "5.8.1"
 
   create                     = true
@@ -70,8 +70,6 @@ module "vpc_vpc-endpoints" {
   endpoints                  = local.endpoints
   security_group_description = "Allow traffic to VPC endpoints"
   security_group_name        = "${local.cluster_name}-vpce"
-  security_group_rules       = local.endpoint_sg_rules
-  security_group_tags        = { Name = "${local.cluster_name}-vpce" }
   subnet_ids                 = module.vpc.private_subnets
   tags                       = { Name = "${local.cluster_name}-vpce" }
   vpc_id                     = module.vpc.vpc_id

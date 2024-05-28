@@ -31,41 +31,6 @@ resource "aws_s3_bucket_versioning" "terraform" {
   }
 }
 
-resource "aws_s3_bucket_replication_configuration" "terraform" {
-  # Must have bucket versioning enabled first
-  depends_on = [aws_s3_bucket_versioning.terraform]
-
-  role   = aws_iam_role.s3_replication.arn
-  bucket = data.aws_s3_bucket.terraform.id
-
-  rule {
-    status = "Enabled"
-
-    filter {}
-
-    delete_marker_replication {
-      status = "Enabled"
-    }
-
-    source_selection_criteria {
-      replica_modifications {
-        status = "Enabled"
-      }
-      sse_kms_encrypted_objects {
-        status = "Enabled"
-      }
-    }
-
-    destination {
-      bucket        = module.s3_replication.s3_bucket_arn
-      storage_class = "GLACIER_IR"
-      encryption_configuration {
-        replica_kms_key_id = aws_kms_key.s3_replication.arn
-      }
-    }
-  }
-}
-
 resource "aws_s3_bucket_policy" "terraform" {
   bucket = local.terraform_bucket_name
 

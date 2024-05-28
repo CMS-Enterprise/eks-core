@@ -55,25 +55,25 @@ module "eks" {
 
   cluster_addons = {
     coredns = {
-      addon_version = "v1.10.1-eksbuild.7"
-      preserve      = false
+      most_recent = true
+      preserve    = false
     }
     aws-ebs-csi-driver = {
-      addon_version            = "v1.30.0-eksbuild.1"
+      most_recent              = true
       preserve                 = false
       service_account_role_arn = aws_iam_role.ebs_csi_driver.arn
     }
     kube-proxy = {
-      addon_version = "v1.28.8-eksbuild.2"
-      preserve      = false
+      most_recent = true
+      preserve    = false
     }
     vpc-cni = {
-      addon_version = "v1.18.1-eksbuild.1"
-      preserve      = false
+      most_recent = true
+      preserve    = false
     }
     eks-pod-identity-agent = {
-      addon_version = "v1.2.0-eksbuild.1"
-      preserve      = false
+      most_recent = true
+      preserve    = false
     }
   }
 
@@ -117,7 +117,7 @@ module "main_nodes" {
   cluster_primary_security_group_id = module.eks.cluster_security_group_id
   iam_role_additional_policies      = { ssm = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore" }
   iam_role_arn                      = module.eks.cluster_iam_role_arn
-  subnet_ids                        = var.subnet_ids
+  subnet_ids                        = module.vpc.private_subnets
   vpc_security_group_ids            = [module.eks.node_security_group_id]
 
   desired_size = 3
@@ -156,7 +156,7 @@ module "main_nodes" {
   ]
 
   tags = {
-    Name = "eks-main-${var.cluster_name}"
+    Name = "eks-main-${var.cluster_custom_name}"
   }
 }
 
@@ -176,7 +176,7 @@ module "eks_base" {
     atomic = true
 
     tags = {
-      Name = "secrets-store-csi-driver-${var.cluster_name}"
+      Name = "secrets-store-csi-driver-${var.cluster_custom_name}"
     }
   }
 
@@ -207,10 +207,12 @@ module "aws_node_termination_handler_sqs" {
   source  = "terraform-aws-modules/sqs/aws"
   version = "4.2.0"
 
-  name                      = local.node_termination_handler_name
-  message_retention_seconds = 300
-  policy                    = data.aws_iam_policy_document.aws_node_termination_handler_sqs.json
+  create = true
+  create_queue_policy = false
   kms_master_key_id         = aws_kms_key.sqs.id
+  message_retention_seconds = 300
+  name                      = local.node_termination_handler_name
+  queue_policy_statements   = data.aws_iam_policy_document.aws_node_termination_handler_sqs.statement
 
   tags = {
     service = "eks"
@@ -245,7 +247,7 @@ resource "null_resource" "gp2" {
     always_run = timestamp()
   }
   provisioner "local-exec" {
-    command = "${path.module}/utils/k8s_bootstrap.sh ${module.eks.cluster_name} ${var.region} ${local.role_to_assume}"
+    command = "${path.module}/utils/k8s_bootstrap.sh ${module.eks.cluster_name} ${local.aws_region} ${local.role_to_assume}"
   }
   depends_on = [
     kubernetes_storage_class_v1.gp3

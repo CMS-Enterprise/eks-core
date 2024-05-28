@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "aws_node_termination_handler" {
 data "aws_iam_policy_document" "aws_node_termination_handler_sqs" {
   statement {
     actions   = ["sqs:SendMessage"]
-    resources = ["arn:aws:sqs:${var.region}:${data.aws_caller_identity.current.account_id}:${local.node_termination_handler_name}"]
+    resources = ["arn:aws:sqs:${local.aws_region}:${data.aws_caller_identity.current.account_id}:${local.node_termination_handler_name}"]
 
     principals {
       type = "Service"

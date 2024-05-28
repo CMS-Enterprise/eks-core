@@ -18,7 +18,7 @@ locals {
 
   cluster_name                  = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
   cluster_version               = "1.29"
-  node_termination_handler_name = "node-termination-handler-${var.cluster_name}"
+  node_termination_handler_name = "node-termination-handler-${var.cluster_custom_name}"
 
   node_labels = merge(
     var.node_labels
@@ -28,8 +28,6 @@ locals {
   vpc_cidr        = "10.10.0.0/16"
   private_subnets = ["10.10.15.0/24", "10.10.25.0/24", "10.10.35.0/24"]
   public_subnets  = ["10.10.10.0/24"]
-
-  endpoint_sg_rules = { from_port = 443, to_port = 443, protocol = "tcp", type = "ingress" }
 
   endpoints = {
     s3 = {
@@ -66,21 +64,21 @@ locals {
 
   ################################## NACL Settings ##################################
   public_nacl_ingress_rules = [
-    { from_port = 53, to_port = 53, protocol = "udp", cidr_block = local.vpc_cidr, action = "allow" },
-    { from_port = 80, to_port = 80, protocol = "tcp", cidr_block = "0.0.0.0/0", action = "allow" },
-    { from_port = 443, to_port = 443, protocol = "tcp", cidr_block = "0.0.0.0/0", action = "allow" },
-    { from_port = 1024, to_port = 65535, protocol = "tcp", cidr_block = "0.0.0.0/0", action = "allow" },
-    { from_port = 22, to_port = 22, protocol = "tcp", cidr_block = "0.0.0.0/0", action = "deny" },
-    { from_port = 3389, to_port = 3389, protocol = "tcp", cidr_block = "0.0.0.0/0", action = "deny" }
+    { rule_number = 100, from_port = 53, to_port = 53, protocol = "udp", cidr_block = local.vpc_cidr, rule_action = "allow" },
+    { rule_number = 101, from_port = 80, to_port = 80, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "allow" },
+    { rule_number = 102, from_port = 443, to_port = 443, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "allow" },
+    { rule_number = 103, from_port = 1024, to_port = 65535, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "allow" },
+    { rule_number = 104, from_port = 22, to_port = 22, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "deny" },
+    { rule_number = 105, from_port = 3389, to_port = 3389, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "deny" }
   ]
   private_nacl_ingress_rules = [
-    { from_port = 22, to_port = 22, protocol = "tcp", cidr_block = local.vpc_cidr, action = "allow" },
-    { from_port = 53, to_port = 53, protocol = "tcp", cidr_block = local.vpc_cidr, action = "allow" },
-    { from_port = 53, to_port = 53, protocol = "udp", cidr_block = local.vpc_cidr, action = "allow" },
-    { from_port = 80, to_port = 80, protocol = "tcp", cidr_block = local.vpc_cidr, action = "allow" },
-    { from_port = 443, to_port = 443, protocol = "tcp", cidr_block = local.vpc_cidr, action = "allow" },
-    { from_port = 1024, to_port = 65535, protocol = "tcp", cidr_block = "0.0.0.0/0", action = "allow" },
-    { from_port = 1024, to_port = 65535, protocol = "udp", cidr_block = "0.0.0.0/0", action = "allow" }
+    { rule_number = 100, from_port = 22, to_port = 22, protocol = "tcp", cidr_block = local.vpc_cidr, rule_action = "allow" },
+    { rule_number = 101, from_port = 53, to_port = 53, protocol = "tcp", cidr_block = local.vpc_cidr, rule_action = "allow" },
+    { rule_number = 102, from_port = 53, to_port = 53, protocol = "udp", cidr_block = local.vpc_cidr, rule_action = "allow" },
+    { rule_number = 103, from_port = 80, to_port = 80, protocol = "tcp", cidr_block = local.vpc_cidr, rule_action = "allow" },
+    { rule_number = 104, from_port = 443, to_port = 443, protocol = "tcp", cidr_block = local.vpc_cidr, rule_action = "allow" },
+    { rule_number = 105, from_port = 1024, to_port = 65535, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "allow" },
+    { rule_number = 106, from_port = 1024, to_port = 65535, protocol = "udp", cidr_block = "0.0.0.0/0", rule_action = "allow" }
   ]
 
   ################################## Security Group Settings ##################################
@@ -90,6 +88,12 @@ locals {
     { description = "Allow necessary Kubelet and node communications", from_port = 10250, to_port = 10250, protocol = "tcp", cidr_blocks = [local.vpc_cidr] },
     { description = "Allow LB communication", from_port = 3000, to_port = 31237, protocol = "tcp", cidr_blocks = [local.vpc_cidr] }
   ]
+}
+
+resource "random_string" "s3" {
+  length  = 12
+  upper   = false
+  special = false
 }
 
 data "aws_s3_bucket" "terraform" {
@@ -103,6 +107,8 @@ data "aws_iam_roles" "all_roles" {}
 data "aws_eks_cluster_auth" "main" {
   name = module.eks.cluster_name
 }
+
+data "aws_availability_zones" "available" {}
 
 data "aws_eks_addon_version" "guardduty" {
   addon_name         = "aws-guardduty-agent"

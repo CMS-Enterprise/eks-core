@@ -2,13 +2,12 @@ module "s3_main" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.2"
 
-  acl                                   = "private"
   allowed_kms_key_arn                   = aws_kms_key.s3.arn
   attach_deny_insecure_transport_policy = true
   attach_policy                         = true
   block_public_acls                     = true
   block_public_policy                   = true
-  bucket                                = "${local.cluster_name}-main"
+  bucket                                = "${local.cluster_name}-main-${random_string.s3.result}"
   create_bucket                         = true
   control_object_ownership              = true
   force_destroy                         = true
@@ -45,7 +44,6 @@ module "s3_logs" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.2"
 
-  acl                                   = "private"
   allowed_kms_key_arn                   = aws_kms_key.s3.arn
   attach_access_log_delivery_policy     = true
   attach_deny_insecure_transport_policy = true
@@ -54,7 +52,7 @@ module "s3_logs" {
   attach_policy                         = true
   block_public_acls                     = true
   block_public_policy                   = true
-  bucket                                = "${local.cluster_name}-logs"
+  bucket                                = "${local.cluster_name}-logs-${random_string.s3.result}"
   create_bucket                         = true
   control_object_ownership              = true
   force_destroy                         = true

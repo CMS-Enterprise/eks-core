@@ -22,7 +22,7 @@ provider "aws" {
   }
   default_tags {
     tags = {
-      creator   = "terraform"
+      creator = "terraform"
     }
   }
 }
