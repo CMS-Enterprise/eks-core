@@ -3,15 +3,15 @@
 ## Overview
 
 This guide documents the branching strategy for this repository.
-Follow the instructinos in the sections below when creating or merging branches.
+Follow the instructions in the sections below when creating or merging branches.
 
 ## Branch Naming
 
-The following sections describe the naming shceme that will be used for branches.
+The following sections describe the naming scheme that will be used for branches.
 
 ### Topic Branch
 
-This branch is used to represnt active work on a ticket.
+This branch is used to represent active work on a ticket.
 It should be named with a prefix matching the Jira ticket ID with a short description
 (e.g. `JIRA-123-work-to-do`).
 
@@ -30,13 +30,13 @@ The branch named `emergency-test` will follow `main` and exist to test critical 
 
 The branch named `stable` will be hold all commits that have passed testing but
 that have not yet been deployed to the live system. This branch should hold only
-merge commits from the QA tesing system.
+merge commits from the QA testing system.
 
 ### Live State of Deployments
 
 The `main` branch will represent the live state of deployment. This branch should
 hold only merge commits from `stable` or `emergency-test`; each merge commit
-will betagged with the release version.
+will be tagged with the release version.
 
 ## Creating and Merging Branches
 
@@ -85,7 +85,7 @@ broken state or an emergency security patch needs to be deployed.
 
 #### Creating the Branch
 
-Create the branch directly from the deplyed tag:
+Create the branch directly from the deployed tag:
 
 ```bash
 git fetch
