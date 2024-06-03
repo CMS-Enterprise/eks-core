@@ -4,7 +4,7 @@ module "eks" {
 
   authentication_mode                          = "API_AND_CONFIG_MAP"
   cloudwatch_log_group_class                   = "STANDARD"
-  cloudwatch_log_group_kms_key_id              = aws_kms_key.cloudwatch.arn
+  cloudwatch_log_group_kms_key_id              = module.cloudwatch_kms.key_arn
   cloudwatch_log_group_retention_in_days       = 365
   cluster_endpoint_private_access              = true
   cluster_endpoint_public_access               = false
@@ -187,36 +187,6 @@ module "eks_base" {
   depends_on = [
     module.eks
   ]
-}
-
-module "aws_node_termination_handler_role" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.39.0"
-
-  create_role      = true
-  role_name_prefix = local.node_termination_handler_name
-  role_description = "IRSA role for node termination handler"
-
-  provider_url                   = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
-  role_policy_arns               = [aws_iam_policy.aws_node_termination_handler.arn]
-  oidc_fully_qualified_subjects  = ["system:serviceaccount:kube-system:aws-node-termination-handler"]
-  oidc_fully_qualified_audiences = ["sts.amazonaws.com"]
-}
-
-module "aws_node_termination_handler_sqs" {
-  source  = "terraform-aws-modules/sqs/aws"
-  version = "4.2.0"
-
-  create = true
-  create_queue_policy = false
-  kms_master_key_id         = aws_kms_key.sqs.id
-  message_retention_seconds = 300
-  name                      = local.node_termination_handler_name
-  queue_policy_statements   = data.aws_iam_policy_document.aws_node_termination_handler_sqs.statement
-
-  tags = {
-    service = "eks"
-  }
 }
 
 # This installs the gp3 storage class and makes it the default

@@ -2,7 +2,7 @@ module "s3_main" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.2"
 
-  allowed_kms_key_arn                   = aws_kms_key.s3.arn
+  allowed_kms_key_arn                   = module.s3_kms.key_arn
   attach_deny_insecure_transport_policy = true
   attach_policy                         = true
   block_public_acls                     = true
@@ -25,7 +25,7 @@ module "s3_main" {
     rule = {
       bucket_key_enabled = true
       apply_server_side_encryption_by_default = {
-        kms_master_key_id = aws_kms_key.s3.arn
+        kms_master_key_id = module.s3_kms.key_arn
         sse_algorithm     = "aws:kms"
       }
     }
@@ -44,7 +44,7 @@ module "s3_logs" {
   source  = "terraform-aws-modules/s3-bucket/aws"
   version = "4.1.2"
 
-  allowed_kms_key_arn                   = aws_kms_key.s3.arn
+  allowed_kms_key_arn                   = module.s3_kms.key_arn
   attach_access_log_delivery_policy     = true
   attach_deny_insecure_transport_policy = true
   attach_elb_log_delivery_policy        = true
@@ -107,7 +107,7 @@ module "s3_logs" {
     rule = {
       bucket_key_enabled = true
       apply_server_side_encryption_by_default = {
-        kms_master_key_id = aws_kms_key.s3.arn
+        kms_master_key_id = module.s3_kms.key_arn
         sse_algorithm     = "aws:kms"
       }
     }
