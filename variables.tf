@@ -25,3 +25,9 @@ variable "node_taints" {
   type        = map(string)
   default     = {}
 }
+
+variable "secrets" {
+  description = "The secrets to store in AWS Secrets Manager"
+  type        = map(string)
+  default     = {}
+}

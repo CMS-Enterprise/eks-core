@@ -89,7 +89,39 @@ locals {
 }
 ```
 
-### 5. Customize Settings (Optional)
+### 5. Customize Secrets (Optional)
+
+To store secrets in AWS Secrets Manager, you need to fill out the `secrets` variable in your Terraform configuration. This variable expects a map of key-value pairs where the key is the secret name and the value is the secret value.
+
+Edit the `variables.tf` file to include your secrets:
+
+```hcl
+variable "secrets" {
+  description = "The secrets to store in AWS Secrets Manager"
+  type        = map(string)
+  default     = {
+    "mySecretName1" = "mySecretValue1"
+    "mySecretName2" = "mySecretValue2"
+    # Add more secrets as needed
+  }
+}
+```
+
+### ⚠️ **Important Security Warning**
+
+**DO NOT** commit sensitive values such as secrets to the repository. This can lead to security vulnerabilities and exposure of sensitive information.
+
+**Highly Recommended:** Set the secret values in your CI environment to mask the values and keep them secure. For example, in a GitHub Actions workflow, you can set the secrets as environment variables:
+
+```yaml
+env:
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  MY_SECRET_NAME1: ${{ secrets.MY_SECRET_NAME1 }}
+  MY_SECRET_NAME2: ${{ secrets.MY_SECRET_NAME2 }}
+```
+
+### 6. Customize Settings (Optional)
 
 You may edit other values in the `settings.tf` file to customize the infrastructure according to your needs. However, please proceed with caution. Making changes without fully understanding their implications can lead to:
 
@@ -98,13 +130,13 @@ You may edit other values in the `settings.tf` file to customize the infrastruct
 
 Only make changes if you are confident in your understanding of the settings and their impact.
 
-### 6. Review the Deployment Script
+### 7. Review the Deployment Script
 
 The deployment script `deploy.sh` automates the process of assuming a role, initializing Terraform, planning, and applying the changes. It also handles the creation of the Terraform workspace if it does not exist.
 
 You can view the deployment script [here](./deploy.sh).
 
-### 7. Execute the Deployment Script
+### 8. Execute the Deployment Script
 
 Run the deployment script to deploy the EKS cluster:
 
