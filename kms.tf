@@ -1,88 +1,165 @@
-resource "aws_kms_key" "cloudwatch" {
-  description         = "Encrypt and decrypt data for cloudwatch"
-  enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.cloudwatch_kms.json
+module "cloudtrail_kms" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.0.0"
+
+  aliases                            = ["cloudtrail"]
+  bypass_policy_lockout_safety_check = false
+  create                             = true
+  deletion_window_in_days            = 7
+  description                        = "Encrypt and decrypt data for cloudtrail"
+  enable_default_policy              = true
+  enable_key_rotation                = true
+  is_enabled                         = true
+  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
+  key_owners                         = [local.role_to_assume]
+  rotation_period_in_days            = 90
+
+  key_statements = {
+    statement = {
+      sid     = "Enable CloudTrail Permissions"
+      actions = ["kms:GenerateDataKey*", "kms:DescribeKey"]
+      principals = {
+        type        = "Service"
+        identifiers = ["cloudtrail.amazonaws.com"]
+      }
+      resources = ["*"]
+      condition = {
+        test     = "StringLike"
+        variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+        values = [
+          "arn:aws:cloudtrail:${local.aws_region}:${data.aws_caller_identity.current.account_id}:trail/*"
+        ]
+      }
+    },
+    statement = {
+      sid     = "Enable users to decrypt"
+      actions = ["kms:Decrypt"]
+      principals = {
+        type        = "AWS"
+        identifiers = ["*"]
+      }
+      resources = [module.s3_logs.s3_bucket_arn]
+      condition = {
+        test     = "Null"
+        variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+        values   = ["false"]
+      }
+    }
+  }
+
+  tags = {
+    Name = "CloudTrail"
+  }
+}
+
+module "cloudwatch_kms" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.0.0"
+
+  aliases                            = ["cloudwatch"]
+  bypass_policy_lockout_safety_check = false
+  create                             = true
+  deletion_window_in_days            = 7
+  description                        = "Encrypt and decrypt data for cloudwatch"
+  enable_default_policy              = true
+  enable_key_rotation                = true
+  is_enabled                         = true
+  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
+  key_owners                         = [local.role_to_assume]
+  key_usage                          = "ENCRYPT_DECRYPT"
+  rotation_period_in_days            = 90
+
+  key_statements = {
+    statement = {
+      sid    = "AllowCloudwatchLogging",
+      effect = "Allow",
+      actions = [
+        "kms:Encrypt*",
+        "kms:Decrypt*",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:Describe*"
+      ],
+      resources = ["*"],
+      principals = {
+        type        = "Service",
+        identifiers = ["logs.${local.aws_region}.amazonaws.com"]
+      }
+    }
+  }
 
   tags = {
     Name = "CloudWatch"
   }
 }
 
-resource "aws_kms_key" "cloudtrail" {
-  description         = "Encrypt and decrypt data for cloudtrail"
-  enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.cloudtrail_kms.json
+module "ebs_kms" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.0.0"
 
-  tags = {
-    Name = "Cloudtrail"
-  }
-}
+  aliases                            = ["ebs"]
+  bypass_policy_lockout_safety_check = false
+  create                             = true
+  deletion_window_in_days            = 7
+  description                        = "Encrypt and decrypt data for EBS"
+  enable_default_policy              = true
+  enable_key_rotation                = true
+  is_enabled                         = true
+  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
+  key_owners                         = [local.role_to_assume]
+  key_usage                          = "ENCRYPT_DECRYPT"
+  key_users                          = ["*"]
+  rotation_period_in_days            = 90
 
-resource "aws_kms_key" "ebs" {
-  description         = "Encrypt and decrypt data for EBS"
-  enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.ebs_kms.json
   tags = {
     Name = "EBS"
   }
 }
 
-resource "aws_kms_key" "s3" {
-  description         = "Encrypt and decrypt data for S3"
-  enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.s3.json
+module "s3_kms" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.0.0"
+
+  aliases                            = ["s3"]
+  bypass_policy_lockout_safety_check = false
+  create                             = true
+  deletion_window_in_days            = 7
+  description                        = "Encrypt and decrypt data for S3"
+  enable_default_policy              = true
+  enable_key_rotation                = true
+  is_enabled                         = true
+  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
+  key_owners                         = [local.role_to_assume]
+  key_service_users                  = ["*"]
+  key_usage                          = "ENCRYPT_DECRYPT"
+  key_users                          = ["*"]
+  rotation_period_in_days            = 90
 
   tags = {
     Name = "S3"
   }
 }
 
-resource "aws_kms_key" "ssm" {
-  description         = "Encrypt and decrypt data for SSM"
-  enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.ssm_kms.json
+module "ssm_kms" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.0.0"
+
+  aliases                            = ["ssm"]
+  bypass_policy_lockout_safety_check = false
+  create                             = true
+  deletion_window_in_days            = 7
+  description                        = "Encrypt and decrypt data for SSM"
+  enable_default_policy              = true
+  enable_key_rotation                = true
+  is_enabled                         = true
+  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
+  key_owners                         = [local.role_to_assume]
+  key_service_users                  = ["*"]
+  key_usage                          = "ENCRYPT_DECRYPT"
+  key_users                          = ["*"]
+  rotation_period_in_days            = 90
 
   tags = {
     Name = "SSM"
   }
-}
-
-resource "aws_kms_key" "sqs" {
-  description         = "Encrypt and decrypt data for SQS"
-  enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.sqs_kms.json
-
-  tags = {
-    Name = "SQS"
-  }
-}
-
-resource "aws_kms_alias" "cloudtrail" {
-  name          = "alias/cloudtrail"
-  target_key_id = aws_kms_key.cloudtrail.key_id
-}
-
-resource "aws_kms_alias" "cloudwatch" {
-  name          = "alias/cloudwatch"
-  target_key_id = aws_kms_key.cloudwatch.key_id
-}
-
-resource "aws_kms_alias" "ebs" {
-  name          = "alias/ebs"
-  target_key_id = aws_kms_key.ebs.key_id
-}
-
-resource "aws_kms_alias" "s3" {
-  name          = "alias/s3"
-  target_key_id = aws_kms_key.s3.key_id
-}
-
-resource "aws_kms_alias" "ssm" {
-  name          = "alias/ssm"
-  target_key_id = aws_kms_key.ssm.key_id
-}
-
-resource "aws_kms_alias" "sqs" {
-  name          = "alias/sqs"
-  target_key_id = aws_kms_key.sqs.key_id
 }

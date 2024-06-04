@@ -11,18 +11,13 @@ locals {
       cluster_name     = module.eks.cluster_name
       cluster_endpoint = module.eks.cluster_endpoint
       cluster_ca_data  = module.eks.cluster_certificate_authority_data
-      node_labels      = join("\n", [for label, value in local.node_labels : "\"${label}\" = \"${value}\""])
+      node_labels      = join("\n", [for label, value in var.node_labels : "\"${label}\" = \"${value}\""])
       node_taints      = join("\n", [for taint, value in var.node_taints : "\"${taint}\" = \"${value}\""])
     }
   )
 
   cluster_name                  = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
-  cluster_version               = "1.29"
-  node_termination_handler_name = "node-termination-handler-${var.cluster_custom_name}"
-
-  node_labels = merge(
-    var.node_labels
-  )
+  cluster_version               = var.eks_version
 
   ################################## VPC Settings ##################################
   vpc_cidr        = "10.10.0.0/16"

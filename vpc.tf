@@ -25,7 +25,7 @@ module "vpc" {
   enable_nat_gateway                                         = true
   flow_log_cloudwatch_iam_role_arn                           = aws_iam_role.vpc.arn
   flow_log_cloudwatch_log_group_class                        = "STANDARD"
-  flow_log_cloudwatch_log_group_kms_key_id                   = aws_kms_key.cloudwatch.arn
+  flow_log_cloudwatch_log_group_kms_key_id                   = module.cloudwatch_kms.key_arn
   flow_log_cloudwatch_log_group_retention_in_days            = 365
   flow_log_cloudwatch_log_group_skip_destroy                 = false
   flow_log_destination_type                                  = "cloud-watch-logs"
