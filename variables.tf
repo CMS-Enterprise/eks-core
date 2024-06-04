@@ -14,6 +14,12 @@ variable "custom_ami_id" {
   default     = ""
 }
 
+variable "eks_version" {
+  description = "The version of the EKS cluster"
+  type        = string
+  default     = "1.29"
+}
+
 variable "node_labels" {
   description = "The labels to apply to the EKS nodes"
   type        = map(string)
