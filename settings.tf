@@ -18,7 +18,6 @@ locals {
 
   cluster_name                  = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
   cluster_version               = "1.29"
-  node_termination_handler_name = "node-termination-handler-${var.cluster_custom_name}"
 
   node_labels = merge(
     var.node_labels

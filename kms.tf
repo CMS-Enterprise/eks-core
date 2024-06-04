@@ -140,29 +140,6 @@ module "s3_kms" {
   }
 }
 
-module "secretsmanager_kms" {
-  source  = "terraform-aws-modules/kms/aws"
-  version = "3.0.0"
-
-  aliases                            = ["secretsmanager"]
-  bypass_policy_lockout_safety_check = false
-  create                             = true
-  deletion_window_in_days            = 7
-  description                        = "Encrypt and decrypt data for Secrets Manager"
-  enable_default_policy              = true
-  enable_key_rotation                = true
-  is_enabled                         = true
-  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
-  key_owners                         = [local.role_to_assume]
-  key_usage                          = "ENCRYPT_DECRYPT"
-  key_users                          = ["*"]
-  rotation_period_in_days            = 90
-
-  tags = {
-    Name = "SecretsManager"
-  }
-}
-
 module "ssm_kms" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
