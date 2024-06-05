@@ -52,8 +52,3 @@ variable "node_termination_handler_sqs_arns" {
   type    = list(any)
   default = []
 }
-
-variable "velero_bucket_arn" {
-  type    = string
-  default = ""
-}

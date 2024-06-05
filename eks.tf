@@ -196,16 +196,12 @@ module "eks_base" {
 module "karpenter" {
   source = "terraform-aws-modules/eks/aws//modules/karpenter"
 
-  cluster_name = module.eks.cluster_name
-
-  create_node_iam_role = false
-  node_iam_role_arn    = module.eks.cluster_iam_role_arn
-
-  create_access_entry = false
-
-  enable_pod_identity = true
-
+  cluster_name            = module.eks.cluster_name
+  create_access_entry     = false
+  create_node_iam_role    = false
+  enable_pod_identity     = true
   enable_spot_termination = true
+  node_iam_role_arn       = module.eks.cluster_iam_role_arn
 
 
   tags = var.tags
@@ -320,23 +316,7 @@ module "aws_node_termination_handler_pod_identity" {
 
   attach_aws_node_termination_handler_policy  = true
   aws_node_termination_handler_sqs_queue_arns = var.node_termination_handler_sqs_arns
-  aws_node_termination_handler_policy_name    = "EKS_node_termination_hanlder_policy"
-
-  tags = var.tags
-}
-
-module "velero_pod_identity" {
-  count  = var.enable_eks_pod_identities ? 1 : 0
-  source = "terraform-aws-modules/eks-pod-identity/aws"
-
-  name            = "velero"
-  use_name_prefix = false
-  description     = "Velero role"
-
-  attach_velero_policy       = true
-  velero_s3_bucket_arns      = var.velero_bucket_arn
-  velero_s3_bucket_path_arns = ["${var.velero_bucket_arn}/*"]
-  velero_policy_name         = "EKS_velero_policy"
+  aws_node_termination_handler_policy_name    = "EKS_node_termination_handler_policy"
 
   tags = var.tags
 }
