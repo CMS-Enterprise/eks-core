@@ -10,8 +10,8 @@ module "cloudtrail_kms" {
   enable_default_policy              = true
   enable_key_rotation                = true
   is_enabled                         = true
-  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
-  key_owners                         = [local.role_to_assume]
+  key_administrators                 = [data.aws_caller_identity.current.arn] # Needs to change to the specific need-to-know roles
+  key_owners                         = [data.aws_caller_identity.current.arn]
   rotation_period_in_days            = 90
 
   key_statements = {
@@ -27,7 +27,7 @@ module "cloudtrail_kms" {
         test     = "StringLike"
         variable = "kms:EncryptionContext:aws:cloudtrail:arn"
         values = [
-          "arn:aws:cloudtrail:${local.aws_region}:${data.aws_caller_identity.current.account_id}:trail/*"
+          "arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/*"
         ]
       }
     },
@@ -64,8 +64,8 @@ module "cloudwatch_kms" {
   enable_default_policy              = true
   enable_key_rotation                = true
   is_enabled                         = true
-  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
-  key_owners                         = [local.role_to_assume]
+  key_administrators                 = [data.aws_caller_identity.current.arn] # Needs to change to the specific need-to-know roles
+  key_owners                         = [data.aws_caller_identity.current.arn]
   key_usage                          = "ENCRYPT_DECRYPT"
   rotation_period_in_days            = 90
 
@@ -83,7 +83,7 @@ module "cloudwatch_kms" {
       resources = ["*"],
       principals = {
         type        = "Service",
-        identifiers = ["logs.${local.aws_region}.amazonaws.com"]
+        identifiers = ["logs.${data.aws_region.current.name}.amazonaws.com"]
       }
     }
   }
@@ -105,8 +105,8 @@ module "ebs_kms" {
   enable_default_policy              = true
   enable_key_rotation                = true
   is_enabled                         = true
-  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
-  key_owners                         = [local.role_to_assume]
+  key_administrators                 = [data.aws_caller_identity.current.arn] # Needs to change to the specific need-to-know roles
+  key_owners                         = [data.aws_caller_identity.current.arn]
   key_usage                          = "ENCRYPT_DECRYPT"
   key_users                          = ["*"]
   rotation_period_in_days            = 90
@@ -128,8 +128,8 @@ module "s3_kms" {
   enable_default_policy              = true
   enable_key_rotation                = true
   is_enabled                         = true
-  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
-  key_owners                         = [local.role_to_assume]
+  key_administrators                 = [data.aws_caller_identity.current.arn] # Needs to change to the specific need-to-know roles
+  key_owners                         = [data.aws_caller_identity.current.arn]
   key_service_users                  = ["*"]
   key_usage                          = "ENCRYPT_DECRYPT"
   key_users                          = ["*"]
@@ -152,8 +152,8 @@ module "ssm_kms" {
   enable_default_policy              = true
   enable_key_rotation                = true
   is_enabled                         = true
-  key_administrators                 = [local.role_to_assume] # Needs to change to the specific need-to-know roles
-  key_owners                         = [local.role_to_assume]
+  key_administrators                 = [data.aws_caller_identity.current.arn] # Needs to change to the specific need-to-know roles
+  key_owners                         = [data.aws_caller_identity.current.arn]
   key_service_users                  = ["*"]
   key_usage                          = "ENCRYPT_DECRYPT"
   key_users                          = ["*"]

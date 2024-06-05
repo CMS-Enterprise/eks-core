@@ -1,10 +1,4 @@
 locals {
-  ################################## Main Settings ##################################
-  aws_region            = "us-east-1"
-  terraform_bucket_name = "terraform-test"
-  role_to_assume        = "arn:aws:iam::000000000000:role/terraform-test"
-  role_name             = split("/", local.role_to_assume)[1]
-
   ################################## EKS Settings ##################################
   cluster_bottlerocket_user_data = templatefile("${path.module}/utils/bottlerocket_config.toml.tpl",
     {
@@ -91,9 +85,7 @@ resource "random_string" "s3" {
   special = false
 }
 
-data "aws_s3_bucket" "terraform" {
-  bucket = local.terraform_bucket_name
-}
+data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
