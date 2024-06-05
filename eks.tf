@@ -315,7 +315,7 @@ module "aws_node_termination_handler_pod_identity" {
   description     = "AWS EKS node termination hanlder role"
 
   attach_aws_node_termination_handler_policy  = true
-  aws_node_termination_handler_sqs_queue_arns = var.node_termination_handler_sqs_arns
+  aws_node_termination_handler_sqs_queue_arns = coalesce(var.node_termination_handler_sqs_arns, module.eks_base.aws_node_termination_handler.sqs)
   aws_node_termination_handler_policy_name    = "EKS_node_termination_handler_policy"
 
   tags = var.tags
