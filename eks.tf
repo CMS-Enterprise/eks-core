@@ -217,7 +217,7 @@ resource "null_resource" "gp2" {
     always_run = timestamp()
   }
   provisioner "local-exec" {
-    command = "${path.module}/utils/k8s_bootstrap.sh ${module.eks.cluster_name} ${local.aws_region} ${local.role_to_assume}"
+    command = "${path.module}/utils/k8s_bootstrap.sh ${module.eks.cluster_name} ${data.aws_region.current.name} ${data.aws_caller_identity.current.arn}"
   }
   depends_on = [
     kubernetes_storage_class_v1.gp3
