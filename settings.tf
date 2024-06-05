@@ -77,6 +77,10 @@ locals {
     { description = "Allow necessary Kubelet and node communications", from_port = 10250, to_port = 10250, protocol = "tcp", cidr_blocks = [local.vpc_cidr] },
     { description = "Allow LB communication", from_port = 3000, to_port = 31237, protocol = "tcp", cidr_blocks = [local.vpc_cidr] }
   ]
+
+  ################################## Misc Config ##################################
+  asg_names = module.main_nodes.node_group_autoscaling_group_names
+  asg_arns  = [for name in local.asg_names : "arn:aws:autoscaling:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:autoScalingGroupName/${name}"]
 }
 
 resource "random_string" "s3" {

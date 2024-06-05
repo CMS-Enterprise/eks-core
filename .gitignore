@@ -1,3 +1,4 @@
 .terraform*
 k8s/.terraform
 *.tfvars
+.DS_Store

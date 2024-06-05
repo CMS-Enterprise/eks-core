@@ -31,3 +31,24 @@ variable "node_taints" {
   type        = map(string)
   default     = {}
 }
+
+variable "tags" {
+  type    = map(any)
+  default = {}
+}
+
+#EKS Pod Identities
+variable "enable_eks_pod_identities" {
+  type    = bool
+  default = true
+}
+
+variable "ebs_encryption_key" {
+  type    = string
+  default = ""
+}
+
+variable "node_termination_handler_sqs_arns" {
+  type    = list(any)
+  default = []
+}

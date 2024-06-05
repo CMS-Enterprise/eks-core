@@ -171,6 +171,9 @@ module "eks_base" {
 
   enable_aws_load_balancer_controller          = false
   enable_secrets_store_csi_driver_provider_aws = true
+  enable_aws_node_termination_handler          = true
+
+  aws_node_termination_handler_asg_arns = local.asg_arns
 
   secrets_store_csi_driver_provider_aws = {
     atomic = true
@@ -187,6 +190,21 @@ module "eks_base" {
   depends_on = [
     module.eks
   ]
+}
+
+
+module "karpenter" {
+  source = "terraform-aws-modules/eks/aws//modules/karpenter"
+
+  cluster_name            = module.eks.cluster_name
+  create_access_entry     = false
+  create_node_iam_role    = false
+  enable_pod_identity     = true
+  enable_spot_termination = true
+  node_iam_role_arn       = module.eks.cluster_iam_role_arn
+
+
+  tags = var.tags
 }
 
 # This installs the gp3 storage class and makes it the default
@@ -241,4 +259,64 @@ resource "aws_eks_addon" "guardduty" {
   depends_on = [
     module.eks
   ]
+}
+
+#EKS Pode Identities
+module "aws_ebs_csi_pod_identity" {
+  count  = var.enable_eks_pod_identities ? 1 : 0
+  source = "terraform-aws-modules/eks-pod-identity/aws"
+
+  name            = "aws-ebs-csi"
+  use_name_prefix = false
+  description     = "AWS EKS EBS CSI Driver role"
+
+  attach_aws_ebs_csi_policy = true
+  aws_ebs_csi_kms_arns      = var.ebs_encryption_key
+  aws_ebs_csi_policy_name   = "EKS_ebs_csi_driver_policy"
+
+  tags = var.tags
+}
+
+module "aws_efs_csi_pod_identity" {
+  count  = var.enable_eks_pod_identities ? 1 : 0
+  source = "terraform-aws-modules/eks-pod-identity/aws"
+
+  name            = "aws-efs-csi"
+  use_name_prefix = false
+  description     = "AWS EKS EFS CSI Driver role"
+
+  attach_aws_efs_csi_policy = true
+  aws_efs_csi_policy_name   = "EKS_efs_csi_driver_policy"
+
+  tags = var.tags
+}
+
+module "aws_lb_controller_pod_identity" {
+  count  = var.enable_eks_pod_identities ? 1 : 0
+  source = "terraform-aws-modules/eks-pod-identity/aws"
+
+  name            = "aws-lbc"
+  use_name_prefix = false
+  description     = "AWS EKS ALB Controller Driver role"
+
+  attach_aws_lb_controller_policy = true
+  aws_lb_controller_policy_name   = "EKS_lb_controller_policy"
+
+  tags = var.tags
+
+}
+
+module "aws_node_termination_handler_pod_identity" {
+  count  = var.enable_eks_pod_identities ? 1 : 0
+  source = "terraform-aws-modules/eks-pod-identity/aws"
+
+  name            = "aws-node-termination-handler"
+  use_name_prefix = false
+  description     = "AWS EKS node termination hanlder role"
+
+  attach_aws_node_termination_handler_policy  = true
+  aws_node_termination_handler_sqs_queue_arns = var.node_termination_handler_sqs_arns
+  aws_node_termination_handler_policy_name    = "EKS_node_termination_handler_policy"
+
+  tags = var.tags
 }
