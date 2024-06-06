@@ -1,24 +1,49 @@
 #!/usr/bin/env bash
 
-# Set logging functions for colored output
-red() { echo -e "\033[0;31m${*}\033[0m"; }
-green() { echo -e "\033[0;32m${*}\033[0m"; }
-yellow() { echo -e "\033[0;33m${*}\033[0m"; }
+# Parent directory of this script
+SCRIPT_DIR=$(realpath $(dirname $0))
 
-# Check if running in CI/CD environment
-if [[ "${RUNNING_IN_CICD}" == "true" ]]; then
+# Source common function
+source "${SCRIPT_DIR}"/common.sh
+
+# Check if a configuration file was given
+if [ $# -ge 1 ]; then
+  config_file="${1}"
+  if ! parse_config "${config_file}"; then
+    red "Failed to read configuration from \"${config_file}\". Exiting."
+    exit 1
+  fi
+fi
+
+# Read configuration file if provided (default to environment value if not specified)
+if [ -f "${config_file}" ] ;then
+  account_name="${config[account_name]:-${ACCOUNT_NAME}}"
+  account_id="${config[account_id]:-${ACCOUNT_ID}}"
+  aws_role_arn="${config[aws_role_arn]:-${AWS_ROLE_ARN}}"
+  aws_profile="${config[aws_profile]:-${AWS_PROFILE}}"
+# Otherwise, if running in CI/CD environment
+elif [[ "${RUNNING_IN_CICD}" == "true" ]]; then
   account_name="${ACCOUNT_NAME}"
   account_id="${ACCOUNT_ID}"
   aws_role_arn="${AWS_ROLE_ARN}"
-  continue_apply="y"
+# Prompt user for AWS account details
 else
-  # Prompt user for AWS account details
   read -r -p "Enter the AWS account name: " account_name
   read -r -p "Enter the AWS account number: " account_id
+  read -r -p "Enter the AWS role name: " role_name
+  read -r -p "Enter the AWS profile: " profile_name
   # Define the AWS role to assume
-  aws_role_arn="arn:aws:iam::${account_id}:role/YourRoleName"
+  aws_role_arn="arn:aws:iam::${account_id}:role/${role_name}"
   # Define the AWS profile to use
-  AWS_PROFILE="your-aws-profile"
+  aws_profile="${profile_name}"
+  # Prompt to save the config
+  if [[ $(prompt_yn "Save this configuration?") == "y" ]]; then
+    config[account_name]="${account_name}"
+    config[account_id]="${account_id}"
+    config[aws_role_arn]="${aws_role_arn}"
+    config[aws_profile]="${aws_profile}"
+    save_config default.cfg
+  fi
 fi
 
 # Function to assume role and execute terraform
@@ -35,7 +60,7 @@ assume_role_and_execute_terraform() {
     credentials=$(aws sts assume-role \
       --role-arn "${aws_role_arn}" \
       --role-session-name "TerraformSession" \
-      --profile "${AWS_PROFILE}" \
+      --profile "${aws_profile}" \
       --output json)
   fi
 
@@ -48,6 +73,12 @@ assume_role_and_execute_terraform() {
   access_key=$(echo "${credentials}" | jq -r '.Credentials.AccessKeyId')
   secret_key=$(echo "${credentials}" | jq -r '.Credentials.SecretAccessKey')
   session_token=$(echo "${credentials}" | jq -r '.Credentials.SessionToken')
+
+  # Check that credentials were successfully extracted
+  if [ -z "${access_key}" -o -z "${secret_key}" -o -z "${session_token}" ]; then
+    red "Failed to extract access credentials for ${account_name} (${account_id}). Exiting."
+    return 1
+  fi
 
   # Export credentials as environment variables
   export AWS_ACCESS_KEY_ID="${access_key}"
@@ -76,10 +107,7 @@ assume_role_and_execute_terraform() {
     return 1
   fi
 
-  if [[ "${RUNNING_IN_CICD}" != "true" ]]; then
-    read -r -p "Do you want to apply the changes? (y/n): " continue_apply
-    continue_apply=$(echo "${continue_apply}" | tr '[:upper:]' '[:lower:]')
-  fi
+  continue_apply=$(prompt_yn "Do you want to apply the changes?")
 
   if [[ "${continue_apply}" == "y" ]]; then
     green "Applying Terraform changes for account: ${account_name} (${account_id})"
