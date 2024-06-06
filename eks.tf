@@ -36,7 +36,7 @@ module "eks" {
   node_security_group_use_name_prefix          = false
   subnet_ids                                   = module.vpc.private_subnets
   tags                                         = { Name = local.cluster_name }
-  vpc_id                                       = module.vpc.vpc_id
+  vpc_id                                       = data.aws_vpc.vpc_id
 
   access_entries = {
     admins = {
@@ -171,9 +171,6 @@ module "eks_base" {
 
   enable_aws_load_balancer_controller          = false
   enable_secrets_store_csi_driver_provider_aws = true
-  enable_aws_node_termination_handler          = true
-
-  aws_node_termination_handler_asg_arns = local.asg_arns
 
   secrets_store_csi_driver_provider_aws = {
     atomic = true
@@ -304,19 +301,4 @@ module "aws_lb_controller_pod_identity" {
 
   tags = var.tags
 
-}
-
-module "aws_node_termination_handler_pod_identity" {
-  count  = var.enable_eks_pod_identities ? 1 : 0
-  source = "terraform-aws-modules/eks-pod-identity/aws"
-
-  name            = "aws-node-termination-handler"
-  use_name_prefix = false
-  description     = "AWS EKS node termination hanlder role"
-
-  attach_aws_node_termination_handler_policy  = true
-  aws_node_termination_handler_sqs_queue_arns = coalesce(var.node_termination_handler_sqs_arns, module.eks_base.aws_node_termination_handler.sqs)
-  aws_node_termination_handler_policy_name    = "EKS_node_termination_handler_policy"
-
-  tags = var.tags
 }

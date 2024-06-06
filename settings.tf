@@ -10,46 +10,17 @@ locals {
     }
   )
 
-  cluster_name                  = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
-  cluster_version               = var.eks_version
+  cluster_name    = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
+  cluster_version = var.eks_version
 
   ################################## VPC Settings ##################################
-  vpc_cidr        = "10.10.0.0/16"
-  private_subnets = ["10.10.15.0/24", "10.10.25.0/24", "10.10.35.0/24"]
-  public_subnets  = ["10.10.10.0/24"]
+  all_non_public_subnets = merge({
+    "private"   = data.aws_subnet.private
+    "container" = data.aws_subnet.container
+    },
+  )
 
-  endpoints = {
-    s3 = {
-      service = "s3"
-      tags    = { Name = "S3" }
-    }
-    ssm = {
-      service = "ssm"
-      tags    = { Name = "SSM" }
-    }
-    ssm-messages = {
-      service = "ssmmessages"
-      tags    = { Name = "SSM Messages" }
-    }
-    ec2-messages = {
-      service = "ec2messages"
-      tags    = { Name = "EC2 Messages" }
-    }
-  }
-
-  ################################## Route Settings ##################################
-  public_route_table_routes = [
-    for subnet_cidr in module.vpc.public_subnets_cidr_blocks : {
-      cidr_block = subnet_cidr,
-      gateway_id = module.vpc.igw_id
-    }
-  ]
-  private_route_table_routes = [
-    for subnet_cidr in module.vpc.private_subnets_cidr_blocks : {
-      cidr_block = subnet_cidr,
-      gateway_id = module.vpc.natgw_ids[0]
-    }
-  ]
+  all_non_public_subnet_ids = flatten([for subnet_group in local.all_non_public_subnets : [for subnet in subnet_group : subnet.id]])
 
   ################################## NACL Settings ##################################
   public_nacl_ingress_rules = [
@@ -77,10 +48,6 @@ locals {
     { description = "Allow necessary Kubelet and node communications", from_port = 10250, to_port = 10250, protocol = "tcp", cidr_blocks = [local.vpc_cidr] },
     { description = "Allow LB communication", from_port = 3000, to_port = 31237, protocol = "tcp", cidr_blocks = [local.vpc_cidr] }
   ]
-
-  ################################## Misc Config ##################################
-  asg_names = module.main_nodes.node_group_autoscaling_group_names
-  asg_arns  = [for name in local.asg_names : "arn:aws:autoscaling:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:autoScalingGroupName/${name}"]
 }
 
 resource "random_string" "s3" {
