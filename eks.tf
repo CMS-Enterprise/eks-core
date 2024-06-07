@@ -25,6 +25,7 @@ module "eks" {
   enable_kms_key_rotation                      = true
   iam_role_description                         = "IAM role for EKS cluster"
   iam_role_name                                = "eks-${local.cluster_name}"
+  iam_role_path                                = "/delegatedadmin/developer/"
   iam_role_permissions_boundary                = data.aws_iam_policy.permissions_boundary.arn
   iam_role_use_name_prefix                     = false
   kms_key_administrators                       = []

@@ -1,5 +1,6 @@
 resource "aws_iam_policy" "vpc" {
   name   = "vpc-flow-logs"
+  path   = "/delegatedadmin/developer/"
   policy = data.aws_iam_policy_document.vpc.json
 }
 
