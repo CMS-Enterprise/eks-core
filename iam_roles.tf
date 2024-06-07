@@ -1,10 +1,12 @@
 resource "aws_iam_role" "ebs_csi_driver" {
-  name = "ebs-csi-driver-role-${module.eks.cluster_name}"
-  assume_role_policy = data.aws_iam_policy_document.ebs-csi-driver.json
+  name                 = "ebs-csi-driver-role-${module.eks.cluster_name}"
+  permissions_boundary = data.aws_iam_policy.permissions_boundary.arn
+  assume_role_policy   = data.aws_iam_policy_document.ebs-csi-driver.json
 }
 
 resource "aws_iam_role" "vpc" {
-  name = "vpc-flow-logs"
+  name                 = "vpc-flow-logs"
+  permissions_boundary = data.aws_iam_policy.permissions_boundary.arn
 
   assume_role_policy = jsonencode({
     Version : "2012-10-17",

@@ -5,13 +5,13 @@ resource "aws_iam_policy" "vpc" {
 
 data "aws_iam_policy_document" "ebs-csi-driver" {
   statement {
-    sid = "AllowEKS"
+    sid    = "AllowEKS"
     effect = "Allow"
     actions = [
       "sts:AssumeRoleWithWebIdentity"
     ]
     principals {
-      type = "Federated"
+      type        = "Federated"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${module.eks.cluster_oidc_issuer_url}"]
     }
     condition {
@@ -48,4 +48,8 @@ data "aws_iam_policy_document" "vpc" {
       "${module.s3_logs.s3_bucket_arn}/*"
     ]
   }
+}
+
+data "aws_iam_policy" "permissions_boundary" {
+  arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/developer-boundary-policy"
 }

@@ -25,6 +25,7 @@ module "eks" {
   enable_kms_key_rotation                      = true
   iam_role_description                         = "IAM role for EKS cluster"
   iam_role_name                                = "eks-${local.cluster_name}"
+  iam_role_permissions_boundary                = data.aws_iam_policy.permissions_boundary.arn
   iam_role_use_name_prefix                     = false
   kms_key_administrators                       = []
   kms_key_aliases                              = ["eks-${local.cluster_name}"]
@@ -115,6 +116,7 @@ module "main_nodes" {
   cluster_version   = module.eks.cluster_version
 
   cluster_primary_security_group_id = module.eks.cluster_security_group_id
+  create_iam_role                   = false
   iam_role_additional_policies      = { ssm = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore" }
   iam_role_arn                      = module.eks.cluster_iam_role_arn
   subnet_ids                        = module.vpc.private_subnets
