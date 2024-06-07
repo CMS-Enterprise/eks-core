@@ -26,9 +26,8 @@ Below is a table of the variables you can configure in this module, along with t
 To use this module, include it in your Terraform configuration as follows:
 
 ```hcl
-module "eks_cluster" {
-  source  = "github.com/<your-github-repo>/path-to-module"
-  version = "x.y.z"  # Replace with the specific version of the module
+module "eks" {
+  source  = "https://github.com/CMS-Enterprise/Energon-Kube.git?ref=<release-version>"
 
   variable = value
 }
