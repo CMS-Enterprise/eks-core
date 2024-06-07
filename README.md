@@ -27,7 +27,7 @@ To use this module, include it in your Terraform configuration as follows:
 
 ```hcl
 module "eks" {
-  source  = "https://github.com/CMS-Enterprise/Energon-Kube.git?ref=<release-version>"
+  source  = "git::https://github.com/CMS-Enterprise/Energon-Kube.git?ref=<release-version>"
 
   variable = value
 }
