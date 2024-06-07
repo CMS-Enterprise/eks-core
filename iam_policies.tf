@@ -50,7 +50,3 @@ data "aws_iam_policy_document" "vpc" {
     ]
   }
 }
-
-data "aws_iam_policy" "permissions_boundary" {
-  arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/developer-boundary-policy"
-}
