@@ -1,17 +1,18 @@
 resource "aws_iam_policy" "vpc" {
   name   = "vpc-flow-logs"
+  path   = "/delegatedadmin/developer/"
   policy = data.aws_iam_policy_document.vpc.json
 }
 
 data "aws_iam_policy_document" "ebs-csi-driver" {
   statement {
-    sid = "AllowEKS"
+    sid    = "AllowEKS"
     effect = "Allow"
     actions = [
       "sts:AssumeRoleWithWebIdentity"
     ]
     principals {
-      type = "Federated"
+      type        = "Federated"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${module.eks.cluster_oidc_issuer_url}"]
     }
     condition {

@@ -101,6 +101,10 @@ data "aws_eks_cluster_auth" "main" {
 
 data "aws_availability_zones" "available" {}
 
+data "aws_iam_policy" "permissions_boundary" {
+  arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/developer-boundary-policy"
+}
+
 data "aws_eks_addon_version" "guardduty" {
   addon_name         = "aws-guardduty-agent"
   kubernetes_version = module.eks.cluster_version
