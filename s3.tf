@@ -31,9 +31,9 @@ module "s3_main" {
     }
   }
 
-  tags = {
+  tags = merge(var.main_bucket_tags, {
     Name = "${local.cluster_name}-main"
-  }
+  })
 
   versioning = {
     enabled = true
@@ -113,9 +113,9 @@ module "s3_logs" {
     }
   }
 
-  tags = {
+  tags = merge(var.logging_bucket_tags, {
     Name = "${local.cluster_name}-Logs"
-  }
+  })
 
   versioning = {
     enabled = true
