@@ -12,6 +12,8 @@ Below is a table of the variables you can configure in this module, along with t
 |             Variable Name             |     Type      | Default Value |                                                  Description                                                   |
 |:-------------------------------------:|:-------------:|:-------------:|:--------------------------------------------------------------------------------------------------------------:|
 |            `custom_ami_id`            |   `string`    |     `""`      |                                  The custom AMI ID to use for the EKS nodes.                                   |
+|           `gold_image_date`           |   `string`    |     `""`      |                         The date (YYYYMM) of the gold image to use for the EKS nodes.                          |
+|          `use_bottlerocket`           |    `bool`     |    `false`    |                                 Whether to use bottlerocket for the EKS nodes.                                 |
 |         `cluster_custom_name`         |   `string`    |      N/A      | The name of the EKS cluster. Must contain a '-'. Cluster name defaults to `main-test` if no value is provided. |
 |          `eks_cluster_tags`           | `map(string)` |     `{}`      |                                     The tags to apply to the EKS cluster.                                      |
 |            `eks_node_tags`            | `map(string)` |     `{}`      |                                      The tags to apply to the EKS nodes.                                       |
@@ -39,6 +41,20 @@ module "eks" {
 }
 ```
 
+### AMI Selection Logic
+
+You must specify one of the following variables to declare what image to use for the EKS nodes:
+- `gold_image_date`
+- `custom_ami_id`
+- `use_bottlerocket`
+
+If more than one variable is set, they take precedence in the following order:
+1. `gold_image_date`
+2. `custom_ami_id`
+3. `use_bottlerocket`
+
+If none of these variables are set, the Terraform configuration will not proceed.
+
 ## Steps to Import and Use the Module
 
 1. **Add the Module to Your Terraform Configuration**
@@ -60,3 +76,14 @@ module "eks" {
 
 By following this guide, you should be able to deploy an EKS cluster using this Terraform module.
 If you encounter any issues or have further questions, consult the Terraform and AWS documentation.
+
+### Explanation:
+
+1. **Terraform Configuration**:
+   - The `image_var_validation` local variable checks if both `custom_ami_id` and `gold_image_date` are set, or if `use_bottlerocket` is set to `true` and either `custom_ami_id` or `gold_image_date` are set.
+   - The `ami_id` local variable determines the AMI ID to use based on the precedence order: `gold_image_date`, `custom_ami_id`, `use_bottlerocket`.
+   - The `null_resource.validate_vars` resource uses a `local-exec` provisioner to run a shell script that checks the `image_var_validation` condition and exits with an error if it is true.
+
+2. **README.md**:
+   - The README provides an overview of the module, a table of configurable variables, usage instructions, and details on the AMI selection logic.
+   - The AMI selection logic section explains the requirements for setting the image variables and the precedence order if more than one variable is set.
