@@ -32,12 +32,13 @@ module "eks" {
   kms_key_aliases                              = ["eks-${local.cluster_name}"]
   kms_key_deletion_window_in_days              = 7
   kms_key_description                          = "KMS key for EKS ${local.cluster_name} cluster"
+  node_security_group_additional_rules         = var.eks_security_group_additional_rules
   node_security_group_description              = "Security group for EKS nodes"
   node_security_group_enable_recommended_rules = true
   node_security_group_name                     = "eks-${local.cluster_name}-node-sg"
   node_security_group_use_name_prefix          = false
   subnet_ids                                   = module.vpc.private_subnets
-  tags                                         = { Name = local.cluster_name }
+  tags                                         = merge(var.eks_cluster_tags, { Name = local.cluster_name })
   vpc_id                                       = module.vpc.vpc_id
 
   access_entries = {
@@ -86,25 +87,6 @@ module "eks" {
     "controllerManager",
     "scheduler"
   ]
-
-  node_security_group_additional_rules = {
-    ingress_15017 = {
-      description                   = "Cluster API - Istio Webhook namespace.sidecar-injector.istio.io"
-      protocol                      = "TCP"
-      from_port                     = 15017
-      to_port                       = 15017
-      type                          = "ingress"
-      source_cluster_security_group = true
-    }
-    ingress_15012 = {
-      description                   = "Cluster API to nodes ports/protocols"
-      protocol                      = "TCP"
-      from_port                     = 15012
-      to_port                       = 15012
-      type                          = "ingress"
-      source_cluster_security_group = true
-    }
-  }
 }
 
 module "main_nodes" {
@@ -158,9 +140,9 @@ module "main_nodes" {
     }
   ]
 
-  tags = {
+  tags = merge(var.eks_node_tags, {
     Name = "eks-main-${var.cluster_custom_name}"
-  }
+  })
 }
 
 module "eks_base" {
@@ -207,7 +189,7 @@ module "karpenter" {
   node_iam_role_arn       = module.eks.cluster_iam_role_arn
 
 
-  tags = var.tags
+  tags = var.karpenter_tags
 }
 
 # This installs the gp3 storage class and makes it the default
@@ -250,20 +232,6 @@ resource "null_resource" "gp2" {
   }
 }
 
-# This is intentionally separated from the other addons due to a bug
-resource "aws_eks_addon" "guardduty" {
-  cluster_name                = module.eks.cluster_name
-  addon_name                  = "aws-guardduty-agent"
-  addon_version               = data.aws_eks_addon_version.guardduty.version
-  preserve                    = false
-  resolve_conflicts_on_create = "OVERWRITE"
-  resolve_conflicts_on_update = "OVERWRITE"
-
-  depends_on = [
-    module.eks
-  ]
-}
-
 #EKS Pode Identities
 module "aws_ebs_csi_pod_identity" {
   count  = var.enable_eks_pod_identities ? 1 : 0
@@ -277,7 +245,7 @@ module "aws_ebs_csi_pod_identity" {
   aws_ebs_csi_kms_arns      = var.ebs_encryption_key
   aws_ebs_csi_policy_name   = "EKS_ebs_csi_driver_policy"
 
-  tags = var.tags
+  tags = var.pod_identity_tags
 }
 
 module "aws_efs_csi_pod_identity" {
@@ -291,7 +259,7 @@ module "aws_efs_csi_pod_identity" {
   attach_aws_efs_csi_policy = true
   aws_efs_csi_policy_name   = "EKS_efs_csi_driver_policy"
 
-  tags = var.tags
+  tags = var.pod_identity_tags
 }
 
 module "aws_lb_controller_pod_identity" {
@@ -305,21 +273,5 @@ module "aws_lb_controller_pod_identity" {
   attach_aws_lb_controller_policy = true
   aws_lb_controller_policy_name   = "EKS_lb_controller_policy"
 
-  tags = var.tags
-
-}
-
-module "aws_node_termination_handler_pod_identity" {
-  count  = var.enable_eks_pod_identities ? 1 : 0
-  source = "terraform-aws-modules/eks-pod-identity/aws"
-
-  name            = "aws-node-termination-handler"
-  use_name_prefix = false
-  description     = "AWS EKS node termination hanlder role"
-
-  attach_aws_node_termination_handler_policy  = true
-  aws_node_termination_handler_sqs_queue_arns = coalesce(var.node_termination_handler_sqs_arns, module.eks_base.aws_node_termination_handler.sqs)
-  aws_node_termination_handler_policy_name    = "EKS_node_termination_handler_policy"
-
-  tags = var.tags
+  tags = var.lb_controller_tags
 }
