@@ -109,14 +109,14 @@ module "main_nodes" {
   max_size     = 6
   min_size     = 3
 
-  ami_type             = var.custom_ami_id != "" ? var.custom_ami_id : "BOTTLEROCKET_x86_64"
-  bootstrap_extra_args = var.custom_ami_id != "" ? null : local.cluster_bottlerocket_user_data
+  ami_type             = local.ami_id
+  bootstrap_extra_args = local.ami_id != "BOTTLEROCKET_x86_64" ? null : local.cluster_bottlerocket_user_data
   capacity_type        = "ON_DEMAND"
   ebs_optimized        = true
   instance_types       = ["c6a.large"]
   labels               = var.node_labels
   launch_template_name = "eks-main-${local.cluster_name}"
-  platform             = var.custom_ami_id != "" ? "linux" : "bottlerocket"
+  platform             = local.ami_id != "BOTTLEROCKET_x86_64" ? "linux" : "bottlerocket"
   taints               = var.node_taints
 
   block_device_mappings = [

@@ -5,6 +5,22 @@ variable "custom_ami_id" {
   default     = ""
 }
 
+variable "gold_image_date" {
+  description = "Gold Image Date in YYYYMM format"
+  type        = string
+  default     = ""
+  validation {
+    condition     = can(regex("^\\d{4}(0[1-9]|1[0-2])$", var.gold_image_date)) || var.gold_image_date == ""
+    error_message = "gold_image_date must be in the YYYYMM format."
+  }
+}
+
+variable "use_bottlerocket" {
+  description = "Use Bottlerocket AMI for EKS nodes"
+  type        = bool
+  default     = false
+}
+
 ################################# EKS Variables #################################
 variable "cluster_custom_name" {
   description = "The name of the EKS cluster"

@@ -10,8 +10,8 @@ locals {
     }
   )
 
-  cluster_name                  = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
-  cluster_version               = var.eks_version
+  cluster_name    = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
+  cluster_version = var.eks_version
 
   ################################## VPC Settings ##################################
   vpc_cidr        = "10.10.0.0/16"
@@ -79,8 +79,13 @@ locals {
   ]
 
   ################################## Misc Config ##################################
-  asg_names = module.main_nodes.node_group_autoscaling_group_names
-  asg_arns  = [for name in local.asg_names : "arn:aws:autoscaling:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:autoScalingGroupName/${name}"]
+  ami_id = var.gold_image_date != "" ? data.aws_ami.gold_image.id : (
+    var.custom_ami_id != "" ? var.custom_ami_id : (
+      var.use_bottlerocket ? "BOTTLEROCKET_x86_64" : ""
+    )
+  )
+  asg_names            = module.main_nodes.node_group_autoscaling_group_names
+  asg_arns             = [for name in local.asg_names : "arn:aws:autoscaling:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:autoScalingGroupName/${name}"]
 }
 
 resource "random_string" "s3" {
@@ -105,28 +110,13 @@ data "aws_iam_policy" "permissions_boundary" {
   arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/developer-boundary-policy"
 }
 
-data "aws_eks_addon_version" "guardduty" {
-  addon_name         = "aws-guardduty-agent"
-  kubernetes_version = module.eks.cluster_version
-  most_recent        = true
-}
+data "aws_ami" "gold_image" {
+  count = var.gold_image_date != "" ? 1 : 0
 
-data "aws_ami" "al2" {
   most_recent = true
-  owners      = ["137112412989"]
-
   filter {
     name   = "name"
-    values = ["al2023-ami-2023*-kernel-*-x86_64"]
+    values = ["^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}"]
   }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
+  owners      = ["743302140042"]
 }
