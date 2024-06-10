@@ -9,17 +9,23 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 
 Below is a table of the variables you can configure in this module, along with their types and default values.
 
-|            Variable Name             |      Type       |     Default Value     |                                                   Description                                                    |
-|:------------------------------------:|:---------------:|:---------------------:|:----------------------------------------------------------------------------------------------------------------:|
-|        `cluster_custom_name`         |    `string`     |          N/A          |  The name of the EKS cluster. Must contain a '-'. Cluster name defaults to `main-test` if no value is provided.  |
-|           `custom_ami_id`            |    `string`     |         `""`          |                                   The custom AMI ID to use for the EKS nodes.                                    |
-|            `eks_version`             |    `string`     |       `"1.29"`        |                                         The version of the EKS cluster.                                          |
-|            `node_labels`             |  `map(string)`  |         `{}`          |                                      The labels to apply to the EKS nodes.                                       |
-|            `node_taints`             |  `map(string)`  |         `{}`          |                                      The taints to apply to the EKS nodes.                                       |
-|                `tags`                |   `map(any)`    |         `{}`          |                                         Tags to apply to the resources.                                          |
-|     `enable_eks_pod_identities`      |     `bool`      |        `true`         |                                            Enable EKS Pod Identities.                                            |
-|         `ebs_encryption_key`         |    `string`     |         `""`          |                                       The encryption key for EBS volumes.                                        |
-| `node_termination_handler_sqs_arns`  |   `list(any)`   |         `[]`          |                                  List of SQS ARNs for node termination handler.                                  |
+|             Variable Name             |     Type      | Default Value |                                                  Description                                                   |
+|:-------------------------------------:|:-------------:|:-------------:|:--------------------------------------------------------------------------------------------------------------:|
+|            `custom_ami_id`            |   `string`    |     `""`      |                                  The custom AMI ID to use for the EKS nodes.                                   |
+|         `cluster_custom_name`         |   `string`    |      N/A      | The name of the EKS cluster. Must contain a '-'. Cluster name defaults to `main-test` if no value is provided. |
+|          `eks_cluster_tags`           | `map(string)` |     `{}`      |                                     The tags to apply to the EKS cluster.                                      |
+|            `eks_node_tags`            | `map(string)` |     `{}`      |                                      The tags to apply to the EKS nodes.                                       |
+| `eks_security_group_additional_rules` | `map(object)` |     `{}`      |                            Additional rules to add to the EKS node security group.                             |
+|             `eks_version`             |   `string`    |   `"1.29"`    |                                        The version of the EKS cluster.                                         |
+|             `node_labels`             | `map(string)` |     `{}`      |                                     The labels to apply to the EKS nodes.                                      |
+|             `node_taints`             | `map(string)` |     `{}`      |                                     The taints to apply to the EKS nodes.                                      |
+|         `lb_controller_tags`          | `map(string)` |     `{}`      |                               The tags to apply to the Load Balancer Controller.                               |
+|      `enable_eks_pod_identities`      |    `bool`     |    `true`     |                                           Enable EKS Pod Identities.                                           |
+|         `ebs_encryption_key`          |   `string`    |     `""`      |                                      The encryption key for EBS volumes.                                       |
+|          `pod_identity_tags`          | `map(string)` |     `{}`      |                                    The tags to apply to the Pod Identities.                                    |
+|           `karpenter_tags`            | `map(string)` |     `{}`      |                                        The tags to apply to Karpenter.                                         |
+|          `main_bucket_tags`           | `map(string)` |     `{}`      |                                     The tags to apply to the main bucket.                                      |
+|         `logging_bucket_tags`         | `map(string)` |     `{}`      |                                    The tags to apply to the logging bucket.                                    |
 
 ## Usage
 
