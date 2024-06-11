@@ -2,6 +2,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.11.0"
 
+  access_entries                               = var.eks_access_entries
   authentication_mode                          = "API_AND_CONFIG_MAP"
   cloudwatch_log_group_class                   = "STANDARD"
   cloudwatch_log_group_kms_key_id              = module.cloudwatch_kms.key_arn
@@ -13,7 +14,7 @@ module "eks" {
   cluster_security_group_name                  = "eks-${local.cluster_name}-cluster-sg"
   cluster_service_ipv4_cidr                    = "172.20.0.0/16"
   cluster_version                              = local.cluster_version
-  control_plane_subnet_ids                     = module.vpc.private_subnets
+  control_plane_subnet_ids                     = local.all_private_subnet_ids
   create_cloudwatch_log_group                  = true
   create_cluster_primary_security_group_tags   = true
   create_cluster_security_group                = true
@@ -37,24 +38,9 @@ module "eks" {
   node_security_group_enable_recommended_rules = true
   node_security_group_name                     = "eks-${local.cluster_name}-node-sg"
   node_security_group_use_name_prefix          = false
-  subnet_ids                                   = module.vpc.private_subnets
+  subnet_ids                                   = local.all_private_subnet_ids
   tags                                         = merge(var.eks_cluster_tags, { Name = local.cluster_name })
-  vpc_id                                       = module.vpc.vpc_id
-
-  access_entries = merge(var.eks_access_entries, {
-    main = {
-      principal_arn = "arn:${data.aws_caller_identity.current.provider}:iam::${data.aws_caller_identity.current.account_id}:role/ct-ado-batcave-application-admin"
-      type          = "STANDARD"
-      policy_associations = {
-        admin = {
-          policy_arn = "arn:${data.aws_caller_identity.current.provider}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = {
-            type = "cluster"
-          }
-        }
-      }
-    }
-  })
+  vpc_id                                       = data.aws_vpc.vpc.id
 
   cluster_addons = {
     coredns = {
@@ -102,7 +88,7 @@ module "main_nodes" {
   create_iam_role                   = false
   iam_role_additional_policies      = { ssm = "arn:${data.aws_caller_identity.current.provider}:iam::aws:policy/AmazonSSMManagedInstanceCore" }
   iam_role_arn                      = module.eks.cluster_iam_role_arn
-  subnet_ids                        = module.vpc.private_subnets
+  subnet_ids                        = local.all_private_subnet_ids
   vpc_security_group_ids            = [module.eks.node_security_group_id]
 
   desired_size = 3
@@ -156,9 +142,6 @@ module "eks_base" {
 
   enable_aws_load_balancer_controller          = false
   enable_secrets_store_csi_driver_provider_aws = true
-  enable_aws_node_termination_handler          = true
-
-  aws_node_termination_handler_asg_arns = local.asg_arns
 
   secrets_store_csi_driver_provider_aws = {
     atomic = true
@@ -175,21 +158,6 @@ module "eks_base" {
   depends_on = [
     module.eks
   ]
-}
-
-
-module "karpenter" {
-  source = "terraform-aws-modules/eks/aws//modules/karpenter"
-
-  cluster_name            = module.eks.cluster_name
-  create_access_entry     = false
-  create_node_iam_role    = false
-  enable_pod_identity     = true
-  enable_spot_termination = true
-  node_iam_role_arn       = module.eks.cluster_iam_role_arn
-
-
-  tags = var.karpenter_tags
 }
 
 # This installs the gp3 storage class and makes it the default
@@ -274,4 +242,32 @@ module "aws_lb_controller_pod_identity" {
   aws_lb_controller_policy_name   = "EKS_lb_controller_policy"
 
   tags = var.lb_controller_tags
+}
+
+module "fluentbit_pod_identity" {
+  count      = var.enable_eks_pod_identities ? 1 : 0
+  source     = "terraform-aws-modules/eks-pod-identity/aws"
+  depends_on = [helm_release.fluent-bit]
+
+  name            = "fluentbit"
+  use_name_prefix = false
+  description     = "AWS EKS fluentbit role"
+
+
+  attach_custom_policy    = true
+  source_policy_documents = [data.aws_iam_policy_document.fluent-bit.json]
+
+  associations = {
+    default = {
+      cluster_name    = local.cluster_name
+      namespace       = "kube-system"
+      service_account = "fluentbit"
+    }
+  }
+
+  tags = merge(
+    var.pod_identity_tags,
+    var.fb_tags
+  )
+
 }

@@ -5,6 +5,40 @@ variable "custom_ami_id" {
   default     = ""
 }
 
+variable "env" {
+  default = "dev"
+}
+
+variable "project" {
+  default = "batcave"
+}
+
+################################# VPC Variables #################################
+
+variable "subnet_lookup_overrides" {
+  description = "Some Subnets don't follow standard naming conventions.  Use this map to override the query used for looking up Subnets.  Ex: { private = \"foo-west-nonpublic-*\" }"
+  default     = {}
+  type        = map(string)
+}
+
+variable "create_s3_vpc_endpoint" {
+  type        = bool
+  description = "toggle on/off the creation of s3 vpc endpoint"
+  default     = true
+}
+
+variable "vpc_endpoint_lookup_overrides" {
+  description = "Some vpc endpoints don't follow standard naming conventions.  Use this map to override the query used for looking up Subnets.  Ex: { private = \"foo-west-nonpublic-*\" }"
+  default     = ""
+  type        = string
+}
+
+variable "vpc_lookup_override" {
+  description = "Some VPCs don't follow standard naming conventions.  Use this to override the query used to lookup VPC names.  Accepts wildcard in form of '*'"
+  default     = ""
+  type        = string
+
+}
 variable "gold_image_date" {
   description = "Gold Image Date in YYYYMM format"
   type        = string
@@ -34,17 +68,22 @@ variable "cluster_custom_name" {
 
 variable "eks_access_entries" {
   description = "The access entries to apply to the EKS cluster"
-  type        = map(object({
-    principal_arn        = string
-    type                 = string
+  type = map(object({
+    principal_arn = string
+    type          = string
     policy_associations = map(object({
-      policy_arn   = string
+      policy_arn = string
       access_scope = map(object({
         type = string
       }))
     }))
   }))
   default = {}
+
+  validation {
+    condition     = !contains(keys(var.eks_access_entries), "cluster_creator")
+    error_message = "The access entry name 'cluster_creator' is not allowed"
+  }
 }
 
 variable "eks_cluster_tags" {
@@ -114,9 +153,108 @@ variable "pod_identity_tags" {
   default     = {}
 }
 
+################################# Fluent-bit #################################
+variable "fb_chart_verison" {
+  description = "Fluent-bit helm chart version"
+  type        = string
+  default     = "0.30.3"
+}
+
+variable "fb_log_group_name" {
+  description = "Fluent-bit log group name"
+  type        = string
+  default     = "Fluent-bit-cloudwatch"
+}
+
+variable "fb_system_log_group_name" {
+  description = "Fluent-bit systemd log group name"
+  type        = string
+  default     = "Fluent-bit-cloudwatch"
+}
+
+variable "fb_log_encryption" {
+  description = "Enable Fluent-bit log encryption"
+  type        = bool
+  default     = false
+}
+
+variable "fb_log_systemd" {
+  description = "Enable Fluent-bit cloudwatch logging for systemd"
+  type        = bool
+  default     = true
+}
+
+variable "fb_kms_key_id" {
+  description = "Fluent-bit log encryption KMS key ID"
+  type        = string
+  default     = ""
+}
+
+variable "fb_tags" {
+  description = "The tags to apply to the fluent-bit deployment"
+  type        = map(string)
+  default     = {}
+}
+
+variable "fb_log_retention" {
+  description = "Days to retain Fluent-bit logs"
+  type        = number
+  default     = 7
+}
+
+variable "fb_system_log_retention" {
+  description = "Days to retain Fluent-bit systemd logs"
+  type        = number
+  default     = 7
+}
+
+variable "drop_namespaces" {
+  type = list(string)
+  default = [
+    "kube-system",
+    "cert-manager"
+  ]
+  description = "Fluent-bit doesn't send logs for these namespaces"
+}
+
+variable "kube_namespaces" {
+  type = list(string)
+  default = [
+    "kube.*",
+    "cert-manager.*"
+  ]
+  description = "Kubernates namespaces"
+}
+
+variable "log_filters" {
+  type = list(string)
+  default = [
+    "kube-probe",
+    "health",
+    "prometheus",
+    "liveness"
+  ]
+  description = "Fluent-bit doesn't send logs if message consists of these values"
+}
+
+variable "additional_log_filters" {
+  type = list(string)
+  default = [
+    "ELB-HealthChecker",
+    "Amazon-Route53-Health-Check-Service",
+  ]
+  description = "Fluent-bit doesn't send logs if message consists of these values"
+}
+
 ################################# Karpenter Variables #################################
+variable "kp_chart_verison" {
+  description = "Karpenter helm chart version"
+  type        = string
+  default     = "0.37.0"
+}
+
 variable "karpenter_tags" {
-  description = "The tags to apply to the Karpenter"
+  description = "The tags to apply to the Karpenter deployment"
   type        = map(string)
   default     = {}
 }
