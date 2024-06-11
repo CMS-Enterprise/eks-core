@@ -261,7 +261,7 @@ module "aws_lb_controller_pod_identity" {
 module "fluentbit_pod_identity" {
   count      = var.enable_eks_pod_identities ? 1 : 0
   source     = "terraform-aws-modules/eks-pod-identity/aws"
-  depends_on = [helm_release.fluentbit]
+  depends_on = [helm_release.fluent-bit]
 
   name            = "fluentbit"
   use_name_prefix = false
@@ -281,7 +281,7 @@ module "fluentbit_pod_identity" {
 
   tags = merge(
     var.pod_identity_tags,
-    var.fluenbit_tags
+    var.fb_tags
   )
 
 }

@@ -135,7 +135,7 @@ variable "pod_identity_tags" {
 
 ################################# Fluentbit #################################
 variable "fb_chart_verison" {
-  description = "Fluenbit Helm Chart Version"
+  description = "Fluentbit Helm Chart Version"
   type        = string
   default     = "0.30.3"
 }

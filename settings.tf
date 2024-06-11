@@ -16,9 +16,9 @@ locals {
   ################################## Fluentbit Settings ##################################
   config_settings = {
     log_group_name         = var.fb_log_group_name
-    system_log_group_name  = var.system_log_group_name == "" ? "${local.log_group_name}-kube" : var.system_log_group_name
+    system_log_group_name  = var.fb_system_log_group_name == "" ? "${local.fb_log_group_name}-kube" : var.fb_system_log_group_name
     region                 = data.aws_region.current.name
-    log_retention_days     = var.fb_log_retention_days
+    log_retention_days     = var.fb_log_retention
     drop_namespaces        = "(${join("|", var.drop_namespaces)})"
     log_filters            = "(${join("|", var.log_filters)})"
     additional_log_filters = "(${join("|", var.additional_log_filters)})"
@@ -56,9 +56,9 @@ locals {
   ################################## Security Group Settings ##################################
   eks_local = [
     { description = "Allow all traffic from orchestrator nodes", from_port = 0, to_port = 0, protocol = "-1", self = true },
-    { description = "Allow instances required to reach to the API server", from_port = 443, to_port = 443, protocol = "tcp", cidr_blocks = [local.vpc_cidr] },
-    { description = "Allow necessary Kubelet and node communications", from_port = 10250, to_port = 10250, protocol = "tcp", cidr_blocks = [local.vpc_cidr] },
-    { description = "Allow LB communication", from_port = 3000, to_port = 31237, protocol = "tcp", cidr_blocks = [local.vpc_cidr] }
+    { description = "Allow instances required to reach to the API server", from_port = 443, to_port = 443, protocol = "tcp", cidr_blocks = [data.aws_vpc.vpc.cidr_block] },
+    { description = "Allow necessary Kubelet and node communications", from_port = 10250, to_port = 10250, protocol = "tcp", cidr_blocks = [data.aws_vpc.vpc.cidr_block] },
+    { description = "Allow LB communication", from_port = 3000, to_port = 31237, protocol = "tcp", cidr_blocks = [data.aws_vpc.vpc.cidr_block] }
   ]
 
   ################################## Misc Config ##################################
