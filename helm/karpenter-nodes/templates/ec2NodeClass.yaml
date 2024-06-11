@@ -21,10 +21,10 @@ spec:
   subnetSelectorTerms:
     - tags:
         Name: "{{ .Values.nodeClass.spec.subnetTag }}"
-    - id: "{{ .Values.nodeClass.spec.securityGroupID }}"
   securityGroupSelectorTerms:
     - tags:
         karpenter.sh/discovery: "{{ .Values.nodeClass.spec.clustername }}"
+    - id: "{{ .Values.nodeClass.spec.securityGroupID }}"    
   tags:
 {{- range $key, $value := .Values.nodeClass.spec.tags }}
     {{ $key }}: "{{ $value }}"
