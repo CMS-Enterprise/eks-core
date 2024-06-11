@@ -14,38 +14,46 @@ module "cloudtrail_kms" {
   key_owners                         = [data.aws_caller_identity.current.arn]
   rotation_period_in_days            = 90
 
-  key_statements = {
-    statement = {
+  key_statements = [
+    {
       sid     = "Enable CloudTrail Permissions"
       actions = ["kms:GenerateDataKey*", "kms:DescribeKey"]
-      principals = {
-        type        = "Service"
-        identifiers = ["cloudtrail.amazonaws.com"]
-      }
+      principals = [
+        {
+          type = "Service"
+          identifiers = ["cloudtrail.amazonaws.com"]
+        }
+      ]
       resources = ["*"]
-      condition = {
-        test     = "StringLike"
-        variable = "kms:EncryptionContext:aws:cloudtrail:arn"
-        values = [
-          "arn:${data.aws_caller_identity.current.provider}:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/*"
-        ]
-      }
+      condition = [
+        {
+          test     = "StringLike"
+          variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+          values = [
+            "arn:${data.aws_partition.current.partition}:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/*"
+          ]
+        }
+      ]
     },
-    statement = {
+    {
       sid     = "Enable users to decrypt"
       actions = ["kms:Decrypt"]
-      principals = {
-        type        = "AWS"
-        identifiers = ["*"]
-      }
+      principals = [
+        {
+          type        = "AWS"
+          identifiers = ["*"]
+        }
+      ]
       resources = [module.s3_logs.s3_bucket_arn]
-      condition = {
-        test     = "Null"
-        variable = "kms:EncryptionContext:aws:cloudtrail:arn"
-        values   = ["false"]
-      }
+      condition = [
+        {
+          test     = "Null"
+          variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+          values   = ["false"]
+        }
+      ]
     }
-  }
+  ]
 
   tags = {
     Name = "CloudTrail"
@@ -69,8 +77,8 @@ module "cloudwatch_kms" {
   key_usage                          = "ENCRYPT_DECRYPT"
   rotation_period_in_days            = 90
 
-  key_statements = {
-    statement = {
+  key_statements = [
+    {
       sid    = "AllowCloudwatchLogging",
       effect = "Allow",
       actions = [
@@ -81,12 +89,14 @@ module "cloudwatch_kms" {
         "kms:Describe*"
       ],
       resources = ["*"],
-      principals = {
-        type        = "Service",
-        identifiers = ["logs.${data.aws_region.current.name}.amazonaws.com"]
-      }
+      principals = [
+        {
+          type        = "Service",
+          identifiers = ["logs.${data.aws_region.current.name}.amazonaws.com"]
+        }
+      ]
     }
-  }
+  ]
 
   tags = {
     Name = "CloudWatch"

@@ -26,8 +26,8 @@ data "aws_subnets" "container" {
 }
 
 #non-prod route table
-data "aws_route_table" "all_non_public_route_tables" {
-  for_each  = toset(local.all_non_public_subnet_ids)
+data "aws_route_table" "all_private_route_tables" {
+  for_each  = toset(local.all_private_subnet_ids)
   subnet_id = each.key
 }
 
@@ -36,7 +36,7 @@ resource "aws_vpc_endpoint" "s3" {
 
   vpc_id          = data.aws_vpc.vpc.id
   service_name    = "com.amazonaws.${data.aws_region.current.name}.s3"
-  route_table_ids = [for route_table in data.aws_route_table.all_non_public_route_tables : route_table.id]
+  route_table_ids = [for route_table in data.aws_route_table.all_private_route_tables : route_table.id]
 
   tags = {
     Name = coalesce(var.vpc_endpoint_lookup_overrides, "${var.project}-${var.env}-s3-endpoint")

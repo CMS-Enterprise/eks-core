@@ -23,5 +23,5 @@ affinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       - topologyKey: "kubernetes.io/hostname"
 settings:
-  clusterName: ${cluster_name}
-  interruptionQueue: "Karpenter-"${cluster_name}
+  clusterName: "${cluster_name}"
+  interruptionQueue: "Karpenter-${cluster_name}"

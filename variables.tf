@@ -6,11 +6,15 @@ variable "custom_ami_id" {
 }
 
 variable "env" {
-  default = "dev"
+  description = "The environment name"
+  type        = string
+  default     = "dev"
 }
 
 variable "project" {
-  default = "batcave"
+  description = "The project name"
+  type        = string
+  default     = "batcave"
 }
 
 ################################# VPC Variables #################################
@@ -92,6 +96,24 @@ variable "eks_cluster_tags" {
   default     = {}
 }
 
+variable "eks_main_nodes_desired_size" {
+  description = "The desired size of the main EKS node group"
+  type        = number
+  default     = 3
+}
+
+variable "eks_main_nodes_max_size" {
+  description = "The max size of the main EKS node group"
+  type        = number
+  default     = 6
+}
+
+variable "eks_main_nodes_min_size" {
+  description = "The min size of the main EKS node group"
+  type        = number
+  default     = 3
+}
+
 variable "eks_node_tags" {
   description = "The tags to apply to the EKS nodes"
   type        = map(string)
@@ -142,11 +164,6 @@ variable "enable_eks_pod_identities" {
   default = true
 }
 
-variable "ebs_encryption_key" {
-  type    = string
-  default = ""
-}
-
 variable "pod_identity_tags" {
   description = "The tags to apply to the Pod Identities"
   type        = map(string)
@@ -160,34 +177,16 @@ variable "fb_chart_verison" {
   default     = "0.30.3"
 }
 
-variable "fb_log_group_name" {
-  description = "Fluent-bit log group name"
-  type        = string
-  default     = "Fluent-bit-cloudwatch"
-}
-
-variable "fb_system_log_group_name" {
-  description = "Fluent-bit systemd log group name"
-  type        = string
-  default     = "Fluent-bit-cloudwatch"
-}
-
 variable "fb_log_encryption" {
   description = "Enable Fluent-bit log encryption"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "fb_log_systemd" {
   description = "Enable Fluent-bit cloudwatch logging for systemd"
   type        = bool
   default     = true
-}
-
-variable "fb_kms_key_id" {
-  description = "Fluent-bit log encryption KMS key ID"
-  type        = string
-  default     = ""
 }
 
 variable "fb_tags" {
@@ -223,7 +222,7 @@ variable "kube_namespaces" {
     "kube.*",
     "cert-manager.*"
   ]
-  description = "Kubernates namespaces"
+  description = "Kubernetes namespaces"
 }
 
 variable "log_filters" {
