@@ -41,20 +41,20 @@ module "eks" {
   tags                                         = merge(var.eks_cluster_tags, { Name = local.cluster_name })
   vpc_id                                       = module.vpc.vpc_id
 
-  access_entries = {
-    admins = {
-      principal_arn = ""
+  access_entries = merge(var.eks_access_entries, {
+    main = {
+      principal_arn = "arn:${data.aws_caller_identity.current.provider}:iam::${data.aws_caller_identity.current.account_id}:role/ct-ado-batcave-application-admin"
       type          = "STANDARD"
       policy_associations = {
         admin = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          policy_arn = "arn:${data.aws_caller_identity.current.provider}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
           access_scope = {
             type = "cluster"
           }
         }
       }
     }
-  }
+  })
 
   cluster_addons = {
     coredns = {
@@ -100,7 +100,7 @@ module "main_nodes" {
 
   cluster_primary_security_group_id = module.eks.cluster_security_group_id
   create_iam_role                   = false
-  iam_role_additional_policies      = { ssm = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore" }
+  iam_role_additional_policies      = { ssm = "arn:${data.aws_caller_identity.current.provider}:iam::aws:policy/AmazonSSMManagedInstanceCore" }
   iam_role_arn                      = module.eks.cluster_iam_role_arn
   subnet_ids                        = module.vpc.private_subnets
   vpc_security_group_ids            = [module.eks.node_security_group_id]
