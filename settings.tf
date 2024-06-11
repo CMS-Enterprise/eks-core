@@ -16,7 +16,7 @@ locals {
   ################################## Fluentbit Settings ##################################
   config_settings = {
     log_group_name         = var.fb_log_group_name
-    system_log_group_name  = var.fb_system_log_group_name == "" ? "${local.fb_log_group_name}-kube" : var.fb_system_log_group_name
+    system_log_group_name  = var.fb_system_log_group_name == "" ? "${var.fb_log_group_name}-kube" : var.fb_system_log_group_name
     region                 = data.aws_region.current.name
     log_retention_days     = var.fb_log_retention
     drop_namespaces        = "(${join("|", var.drop_namespaces)})"

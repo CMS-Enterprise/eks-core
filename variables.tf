@@ -194,7 +194,7 @@ variable "drop_namespaces" {
     "kube-system",
     "cert-manager"
   ]
-  description = "Flunt bit doesn't send logs for this namespaces"
+  description = "Fluent bit doesn't send logs for this namespaces"
 }
 
 variable "kube_namespaces" {
