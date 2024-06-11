@@ -161,8 +161,8 @@ variable "fb_log_group_name" {
   default     = "Fluent-bit-cloudwatch"
 }
 
-variable "fb_log_system_group_name" {
-  description = "Fluent-bit systemD log group name"
+variable "fb_system_log_group_name" {
+  description = "Fluent-bit systemd log group name"
   type        = string
   default     = "Fluent-bit-cloudwatch"
 }
@@ -174,7 +174,7 @@ variable "fb_log_encryption" {
 }
 
 variable "fb_log_systemd" {
-  description = "Enable Fluent-bit log encryption"
+  description = "Enable Fluent-bit cloudwatch logging for systemd"
   type        = bool
   default     = true
 }
@@ -198,7 +198,7 @@ variable "fb_log_retention" {
 }
 
 variable "fb_system_log_retention" {
-  description = "Days to retain Fluent-bit systemD logs"
+  description = "Days to retain Fluent-bit systemd logs"
   type        = number
   default     = 7
 }

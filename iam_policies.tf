@@ -73,7 +73,7 @@ data "aws_iam_policy_document" "fluent-bit" {
     effect  = "Allow"
     actions = ["ssm:GetParameter"]
     resources = [
-      "arn:aws:ssm:*:*:parameter/AmazonCloudWatch-*"
+      "arn:${data.aws_caller_identity.current.provider}:ssm:*:*:parameter/AmazonCloudWatch-*"
     ]
   }
 }
