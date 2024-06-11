@@ -141,49 +141,49 @@ variable "fb_chart_verison" {
 }
 
 variable "fb_log_group_name" {
-  description = "Fluenbit Log group name"
+  description = "Fluentbit Log group name"
   type        = string
   default     = "fluent-bit-cloudwatch"
 }
 
 variable "fb_log_system_group_name" {
-  description = "Fluenbit systemD Log group name"
+  description = "Fluentbit systemD Log group name"
   type        = string
   default     = "fluent-bit-cloudwatch"
 }
 
 variable "fb_log_encryption" {
-  description = "Enable Fluenbit Log Encryption"
+  description = "Enable Fluentbit Log Encryption"
   type        = bool
   default     = false
 }
 
 variable "fb_log_systemd" {
-  description = "Enable Fluenbit Log Encryption"
+  description = "Enable Fluentbit Log Encryption"
   type        = bool
   default     = true
 }
 
 variable "fb_kms_key_id" {
-  description = "Fluenbit Log Encryption KMS Key ID"
+  description = "Fluentbit Log Encryption KMS Key ID"
   type        = string
   default     = ""
 }
 
 variable "fb_tags" {
-  description = "The tags to apply to the Fluenbit"
+  description = "The tags to apply to the Fluentbit"
   type        = map(string)
   default     = {}
 }
 
 variable "fb_log_retention" {
-  description = "Days to retain fluenbit logs"
+  description = "Days to retain Fluentbit logs"
   type        = number
   default     = 7
 }
 
 variable "fb_system_log_retention" {
-  description = "Days to retain fluenbit systemD logs"
+  description = "Days to retain Fluentbit systemD logs"
   type        = number
   default     = 7
 }
