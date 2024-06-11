@@ -39,7 +39,7 @@ module "eks" {
   node_security_group_use_name_prefix          = false
   subnet_ids                                   = module.vpc.private_subnets
   tags                                         = merge(var.eks_cluster_tags, { Name = local.cluster_name })
-  vpc_id                                       = module.vpc.vpc_id
+  vpc_id                                       = data.aws_vpc.vpc_id
 
   access_entries = {
     admins = {
@@ -156,9 +156,6 @@ module "eks_base" {
 
   enable_aws_load_balancer_controller          = false
   enable_secrets_store_csi_driver_provider_aws = true
-  enable_aws_node_termination_handler          = true
-
-  aws_node_termination_handler_asg_arns = local.asg_arns
 
   secrets_store_csi_driver_provider_aws = {
     atomic = true
@@ -175,21 +172,6 @@ module "eks_base" {
   depends_on = [
     module.eks
   ]
-}
-
-
-module "karpenter" {
-  source = "terraform-aws-modules/eks/aws//modules/karpenter"
-
-  cluster_name            = module.eks.cluster_name
-  create_access_entry     = false
-  create_node_iam_role    = false
-  enable_pod_identity     = true
-  enable_spot_termination = true
-  node_iam_role_arn       = module.eks.cluster_iam_role_arn
-
-
-  tags = var.karpenter_tags
 }
 
 # This installs the gp3 storage class and makes it the default
@@ -274,4 +256,32 @@ module "aws_lb_controller_pod_identity" {
   aws_lb_controller_policy_name   = "EKS_lb_controller_policy"
 
   tags = var.lb_controller_tags
+}
+
+module "fluentbit_pod_identity" {
+  count      = var.enable_eks_pod_identities ? 1 : 0
+  source     = "terraform-aws-modules/eks-pod-identity/aws"
+  depends_on = [helm_release.fluentbit]
+
+  name            = "fluentbit"
+  use_name_prefix = false
+  description     = "AWS EKS fluentbit role"
+
+
+  attach_custom_policy    = true
+  source_policy_documents = [data.aws_iam_policy_document.fluentbit.json]
+
+  associations = {
+    default = {
+      cluster_name    = local.cluster_name
+      namespace       = "kube-system"
+      service_account = "fluentbit"
+    }
+  }
+
+  tags = merge(
+    var.pod_identity_tags,
+    var.fluenbit_tags
+  )
+
 }

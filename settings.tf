@@ -10,65 +10,47 @@ locals {
     }
   )
 
-  cluster_name                  = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
-  cluster_version               = var.eks_version
+  cluster_name    = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
+  cluster_version = var.eks_version
 
-  ################################## VPC Settings ##################################
-  vpc_cidr        = "10.10.0.0/16"
-  private_subnets = ["10.10.15.0/24", "10.10.25.0/24", "10.10.35.0/24"]
-  public_subnets  = ["10.10.10.0/24"]
-
-  endpoints = {
-    s3 = {
-      service = "s3"
-      tags    = { Name = "S3" }
-    }
-    ssm = {
-      service = "ssm"
-      tags    = { Name = "SSM" }
-    }
-    ssm-messages = {
-      service = "ssmmessages"
-      tags    = { Name = "SSM Messages" }
-    }
-    ec2-messages = {
-      service = "ec2messages"
-      tags    = { Name = "EC2 Messages" }
-    }
+  ################################## Fluentbit Settings ##################################
+  config_settings = {
+    log_group_name         = var.fb_log_group_name
+    system_log_group_name  = var.system_log_group_name == "" ? "${local.log_group_name}-kube" : "${var.system_log_group_name}"
+    region                 = var.region
+    log_retention_days     = var.fb_log_retention_days
+    drop_namespaces        = "(${join("|", var.drop_namespaces)})"
+    log_filters            = "(${join("|", var.log_filters)})"
+    additional_log_filters = "(${join("|", var.additional_log_filters)})"
+    kube_namespaces        = var.kube_namespaces
   }
 
-  ################################## Route Settings ##################################
-  public_route_table_routes = [
-    for subnet_cidr in module.vpc.public_subnets_cidr_blocks : {
-      cidr_block = subnet_cidr,
-      gateway_id = module.vpc.igw_id
-    }
-  ]
-  private_route_table_routes = [
-    for subnet_cidr in module.vpc.private_subnets_cidr_blocks : {
-      cidr_block = subnet_cidr,
-      gateway_id = module.vpc.natgw_ids[0]
-    }
-  ]
+  values = templatefile("${path.module}/helm/fluenbit/values.yaml.tpl", local.config_settings)
 
-  ################################## NACL Settings ##################################
-  public_nacl_ingress_rules = [
-    { rule_number = 100, from_port = 53, to_port = 53, protocol = "udp", cidr_block = local.vpc_cidr, rule_action = "allow" },
-    { rule_number = 101, from_port = 80, to_port = 80, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "allow" },
-    { rule_number = 102, from_port = 443, to_port = 443, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "allow" },
-    { rule_number = 103, from_port = 1024, to_port = 65535, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "allow" },
-    { rule_number = 104, from_port = 22, to_port = 22, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "deny" },
-    { rule_number = 105, from_port = 3389, to_port = 3389, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "deny" }
-  ]
-  private_nacl_ingress_rules = [
-    { rule_number = 100, from_port = 22, to_port = 22, protocol = "tcp", cidr_block = local.vpc_cidr, rule_action = "allow" },
-    { rule_number = 101, from_port = 53, to_port = 53, protocol = "tcp", cidr_block = local.vpc_cidr, rule_action = "allow" },
-    { rule_number = 102, from_port = 53, to_port = 53, protocol = "udp", cidr_block = local.vpc_cidr, rule_action = "allow" },
-    { rule_number = 103, from_port = 80, to_port = 80, protocol = "tcp", cidr_block = local.vpc_cidr, rule_action = "allow" },
-    { rule_number = 104, from_port = 443, to_port = 443, protocol = "tcp", cidr_block = local.vpc_cidr, rule_action = "allow" },
-    { rule_number = 105, from_port = 1024, to_port = 65535, protocol = "tcp", cidr_block = "0.0.0.0/0", rule_action = "allow" },
-    { rule_number = 106, from_port = 1024, to_port = 65535, protocol = "udp", cidr_block = "0.0.0.0/0", rule_action = "allow" }
-  ]
+  ################################## Karpenter Settings ##################################
+  kp_config_settings = {
+    cluster_name = local.cluster_name
+  }
+
+  kpn_config_settings = {
+    amiFamily       = var.custom_ami_id != "" ? var.custom_ami_id : "BOTTLEROCKET_x86_64"
+    iamRole         = module.eks.cluster_iam_role_arn
+    subnetTag       = "${var.project}-*-${var.env}-private-*"
+    tags            = var.karpenter_tags
+    securityGroupID = module.eks.node_security_group_id
+  }
+
+  kp_values  = templatefile("${path.module}/helm/karpenter/values.yaml.tpl", local.kp_config_settings)
+  kpn_values = templatefile("${path.module}/helm/karpenter/values.yaml.tpl", local.kpn_config_settings)
+
+  ################################## VPC Settings ##################################
+  all_non_public_subnets = merge({
+    "private"   = data.aws_subnet.private
+    "container" = data.aws_subnet.container
+    },
+  )
+
+  all_non_public_subnet_ids = flatten([for subnet_group in local.all_non_public_subnets : [for subnet in subnet_group : subnet.id]])
 
   ################################## Security Group Settings ##################################
   eks_local = [

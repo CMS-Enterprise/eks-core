@@ -50,3 +50,32 @@ data "aws_iam_policy_document" "vpc" {
     ]
   }
 }
+
+data "aws_iam_policy_document" "fluenbit" {
+  statement {
+    sid    = "Fluentbit Cloudwatch"
+    effect = "Allow"
+    actions = [
+      "cloudwatch:PutMetricData",
+      "ec2:DescribeVolumes",
+      "ec2:DescribeTags",
+      "logs:PutLogEvents",
+      "logs:DescribeLogStreams",
+      "logs:DescribeLogGroups",
+      "logs:CreateLogStream",
+      "logs:CreateLogGroup",
+      "logs:putRetentionPolicy"
+    ]
+    resources = ["*"]
+  }
+  statement {
+    sid     = "Fluentbit SSM"
+    effect  = "Allow"
+    actions = ["ssm:GetParameter"]
+    resources = [
+      "arn:aws:ssm:*:*:parameter/AmazonCloudWatch-*"
+    ]
+  }
+}
+
+
