@@ -8,7 +8,7 @@ resource "aws_cloudwatch_log_group" "fluent-bit" {
 
 resource "aws_cloudwatch_log_group" "fluent-bit-system" {
   count             = var.fb_log_systemd ? 1 : 0
-  name              = var.fb_log_system_group_name
+  name              = var.fb_system_log_group_name
   retention_in_days = var.fb_system_log_retention
   kms_key_id        = var.fb_log_encryption ? var.fb_kms_key_id : ""
   tags              = var.fb_tags
