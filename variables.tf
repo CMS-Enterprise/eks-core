@@ -66,6 +66,21 @@ variable "cluster_custom_name" {
   }
 }
 
+variable "eks_access_entries" {
+  description = "The access entries to apply to the EKS cluster"
+  type = map(object({
+    principal_arn = string
+    type          = string
+    policy_associations = map(object({
+      policy_arn = string
+      access_scope = map(object({
+        type = string
+      }))
+    }))
+  }))
+  default = {}
+}
+
 variable "eks_cluster_tags" {
   description = "The tags to apply to the EKS cluster"
   type        = map(string)
@@ -133,57 +148,57 @@ variable "pod_identity_tags" {
   default     = {}
 }
 
-################################# Fluentbit #################################
+################################# Fluent-bit #################################
 variable "fb_chart_verison" {
-  description = "Fluentbit Helm Chart Version"
+  description = "Fluent-bit helm chart version"
   type        = string
   default     = "0.30.3"
 }
 
 variable "fb_log_group_name" {
-  description = "Fluentbit Log group name"
+  description = "Fluent-bit log group name"
   type        = string
-  default     = "fluent-bit-cloudwatch"
+  default     = "Fluent-bit-cloudwatch"
 }
 
 variable "fb_log_system_group_name" {
-  description = "Fluentbit systemD Log group name"
+  description = "Fluent-bit systemD log group name"
   type        = string
-  default     = "fluent-bit-cloudwatch"
+  default     = "Fluent-bit-cloudwatch"
 }
 
 variable "fb_log_encryption" {
-  description = "Enable Fluentbit Log Encryption"
+  description = "Enable Fluent-bit log encryption"
   type        = bool
   default     = false
 }
 
 variable "fb_log_systemd" {
-  description = "Enable Fluentbit Log Encryption"
+  description = "Enable Fluent-bit log encryption"
   type        = bool
   default     = true
 }
 
 variable "fb_kms_key_id" {
-  description = "Fluentbit Log Encryption KMS Key ID"
+  description = "Fluent-bit log encryption KMS key ID"
   type        = string
   default     = ""
 }
 
 variable "fb_tags" {
-  description = "The tags to apply to the Fluentbit"
+  description = "The tags to apply to the fluent-bit deployment"
   type        = map(string)
   default     = {}
 }
 
 variable "fb_log_retention" {
-  description = "Days to retain Fluentbit logs"
+  description = "Days to retain Fluent-bit logs"
   type        = number
   default     = 7
 }
 
 variable "fb_system_log_retention" {
-  description = "Days to retain Fluentbit systemD logs"
+  description = "Days to retain Fluent-bit systemD logs"
   type        = number
   default     = 7
 }
@@ -194,7 +209,7 @@ variable "drop_namespaces" {
     "kube-system",
     "cert-manager"
   ]
-  description = "Fluent bit doesn't send logs for this namespaces"
+  description = "Fluent-bit doesn't send logs for these namespaces"
 }
 
 variable "kube_namespaces" {
@@ -214,7 +229,7 @@ variable "log_filters" {
     "prometheus",
     "liveness"
   ]
-  description = "Fluent bit doesn't send logs if message consists of this values"
+  description = "Fluent-bit doesn't send logs if message consists of these values"
 }
 
 variable "additional_log_filters" {
@@ -223,18 +238,18 @@ variable "additional_log_filters" {
     "ELB-HealthChecker",
     "Amazon-Route53-Health-Check-Service",
   ]
-  description = "Fluent bit doesn't send logs if message consists of this values"
+  description = "Fluent-bit doesn't send logs if message consists of these values"
 }
 
 ################################# Karpenter Variables #################################
 variable "kp_chart_verison" {
-  description = "Karpenter Helm Chart Version"
+  description = "Karpenter helm chart version"
   type        = string
   default     = "0.37.0"
 }
 
 variable "karpenter_tags" {
-  description = "The tags to apply to the Karpenter"
+  description = "The tags to apply to the Karpenter deployment"
   type        = map(string)
   default     = {}
 }

@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "ebs-csi-driver" {
     ]
     principals {
       type        = "Federated"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${module.eks.cluster_oidc_issuer_url}"]
+      identifiers = ["arn:${data.aws_caller_identity.current.provider}:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${module.eks.cluster_oidc_issuer_url}"]
     }
     condition {
       test     = "StringEquals"

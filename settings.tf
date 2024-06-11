@@ -67,8 +67,6 @@ locals {
       var.use_bottlerocket ? "BOTTLEROCKET_x86_64" : ""
     )
   )
-  asg_names = module.main_nodes.node_group_autoscaling_group_names
-  asg_arns  = [for name in local.asg_names : "arn:aws:autoscaling:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:autoScalingGroupName/${name}"]
 }
 
 resource "random_string" "s3" {
@@ -90,7 +88,7 @@ data "aws_eks_cluster_auth" "main" {
 data "aws_availability_zones" "available" {}
 
 data "aws_iam_policy" "permissions_boundary" {
-  arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/developer-boundary-policy"
+  arn = "arn:${data.aws_caller_identity.current.provider}:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/developer-boundary-policy"
 }
 
 data "aws_ami" "gold_image" {
