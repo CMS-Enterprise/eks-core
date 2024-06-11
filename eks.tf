@@ -39,7 +39,7 @@ module "eks" {
   node_security_group_use_name_prefix          = false
   subnet_ids                                   = local.all_private_subnet_ids
   tags                                         = merge(var.eks_cluster_tags, { Name = local.cluster_name })
-  vpc_id                                       = data.aws_vpc.vpc_id
+  vpc_id                                       = data.aws_vpc.vpc.vpc_id
 
   access_entries = {
     admins = {
