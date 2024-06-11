@@ -27,7 +27,7 @@ module "cloudtrail_kms" {
         test     = "StringLike"
         variable = "kms:EncryptionContext:aws:cloudtrail:arn"
         values = [
-          "arn:aws:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/*"
+          "arn:${data.aws_caller_identity.current.provider}:cloudtrail:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trail/*"
         ]
       }
     },

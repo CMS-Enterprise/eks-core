@@ -32,6 +32,21 @@ variable "cluster_custom_name" {
   }
 }
 
+variable "eks_access_entries" {
+  description = "The access entries to apply to the EKS cluster"
+  type        = map(object({
+    principal_arn        = string
+    type                 = string
+    policy_associations = map(object({
+      policy_arn   = string
+      access_scope = map(object({
+        type = string
+      }))
+    }))
+  }))
+  default = {}
+}
+
 variable "eks_cluster_tags" {
   description = "The tags to apply to the EKS cluster"
   type        = map(string)
