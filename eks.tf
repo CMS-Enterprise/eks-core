@@ -39,7 +39,7 @@ module "eks" {
   node_security_group_use_name_prefix          = false
   subnet_ids                                   = local.all_private_subnet_ids
   tags                                         = merge(var.eks_cluster_tags, { Name = local.cluster_name })
-  vpc_id                                       = data.aws_vpc.vpc.vpc_id
+  vpc_id                                       = data.aws_vpc.vpc.id
 
   access_entries = {
     admins = {
@@ -269,7 +269,7 @@ module "fluentbit_pod_identity" {
 
 
   attach_custom_policy    = true
-  source_policy_documents = [data.aws_iam_policy_document.fluentbit.json]
+  source_policy_documents = [data.aws_iam_policy_document.fluent-bit.json]
 
   associations = {
     default = {

@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "vpc" {
   }
 }
 
-data "aws_iam_policy_document" "fluenbit" {
+data "aws_iam_policy_document" "fluent-bit" {
   statement {
     sid    = "Fluentbit Cloudwatch"
     effect = "Allow"
