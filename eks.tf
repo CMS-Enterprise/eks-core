@@ -2,6 +2,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.11.0"
 
+  access_entries                               = var.eks_access_entries
   authentication_mode                          = "API_AND_CONFIG_MAP"
   cloudwatch_log_group_class                   = "STANDARD"
   cloudwatch_log_group_kms_key_id              = module.cloudwatch_kms.key_arn
@@ -40,21 +41,6 @@ module "eks" {
   subnet_ids                                   = local.all_private_subnet_ids
   tags                                         = merge(var.eks_cluster_tags, { Name = local.cluster_name })
   vpc_id                                       = data.aws_vpc.vpc.id
-
-  access_entries = merge(var.eks_access_entries, {
-    main = {
-      principal_arn = "arn:${data.aws_caller_identity.current.provider}:iam::${data.aws_caller_identity.current.account_id}:role/ct-ado-batcave-application-admin"
-      type          = "STANDARD"
-      policy_associations = {
-        admin = {
-          policy_arn = "arn:${data.aws_caller_identity.current.provider}:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = {
-            type = "cluster"
-          }
-        }
-      }
-    }
-  })
 
   cluster_addons = {
     coredns = {

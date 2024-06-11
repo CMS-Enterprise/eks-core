@@ -79,6 +79,11 @@ variable "eks_access_entries" {
     }))
   }))
   default = {}
+
+  validation {
+    condition     = !contains(keys(var.eks_access_entries), "cluster_creator")
+    error_message = "The access entry name 'cluster_creator' is not allowed"
+  }
 }
 
 variable "eks_cluster_tags" {
