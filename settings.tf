@@ -16,8 +16,8 @@ locals {
   ################################## Fluentbit Settings ##################################
   config_settings = {
     log_group_name         = var.fb_log_group_name
-    system_log_group_name  = var.system_log_group_name == "" ? "${local.log_group_name}-kube" : "${var.system_log_group_name}"
-    region                 = var.region
+    system_log_group_name  = var.system_log_group_name == "" ? "${local.log_group_name}-kube" : var.system_log_group_name
+    region                 = data.aws_region.current.name
     log_retention_days     = var.fb_log_retention_days
     drop_namespaces        = "(${join("|", var.drop_namespaces)})"
     log_filters            = "(${join("|", var.log_filters)})"
@@ -45,11 +45,12 @@ locals {
 
   ################################## VPC Settings ##################################
   all_non_public_subnets = merge({
-    "private"   = data.aws_subnet.private
-    "container" = data.aws_subnet.container
+    "private"   = data.aws_subnets.private
+    "container" = data.aws_subnets.container
     },
   )
 
+  all_private_subnet_ids    = flatten([for subnet in data.aws_subnets.private.ids : subnet])
   all_non_public_subnet_ids = flatten([for subnet_group in local.all_non_public_subnets : [for subnet in subnet_group : subnet.id]])
 
   ################################## Security Group Settings ##################################
@@ -61,6 +62,11 @@ locals {
   ]
 
   ################################## Misc Config ##################################
+  ami_id = var.gold_image_date != "" ? data.aws_ami.gold_image.id : (
+    var.custom_ami_id != "" ? var.custom_ami_id : (
+      var.use_bottlerocket ? "BOTTLEROCKET_x86_64" : ""
+    )
+  )
   asg_names = module.main_nodes.node_group_autoscaling_group_names
   asg_arns  = [for name in local.asg_names : "arn:aws:autoscaling:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:autoScalingGroupName/${name}"]
 }
@@ -87,28 +93,14 @@ data "aws_iam_policy" "permissions_boundary" {
   arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/developer-boundary-policy"
 }
 
-data "aws_eks_addon_version" "guardduty" {
-  addon_name         = "aws-guardduty-agent"
-  kubernetes_version = module.eks.cluster_version
-  most_recent        = true
-}
+data "aws_ami" "gold_image" {
+  count = var.gold_image_date != "" ? 1 : 0
 
-data "aws_ami" "al2" {
   most_recent = true
-  owners      = ["137112412989"]
-
   filter {
     name   = "name"
-    values = ["al2023-ami-2023*-kernel-*-x86_64"]
+    values = ["^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}"]
   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
+  owners = ["743302140042"]
 }

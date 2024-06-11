@@ -13,7 +13,7 @@ module "eks" {
   cluster_security_group_name                  = "eks-${local.cluster_name}-cluster-sg"
   cluster_service_ipv4_cidr                    = "172.20.0.0/16"
   cluster_version                              = local.cluster_version
-  control_plane_subnet_ids                     = module.vpc.private_subnets
+  control_plane_subnet_ids                     = local.all_private_subnet_ids
   create_cloudwatch_log_group                  = true
   create_cluster_primary_security_group_tags   = true
   create_cluster_security_group                = true
@@ -37,7 +37,7 @@ module "eks" {
   node_security_group_enable_recommended_rules = true
   node_security_group_name                     = "eks-${local.cluster_name}-node-sg"
   node_security_group_use_name_prefix          = false
-  subnet_ids                                   = module.vpc.private_subnets
+  subnet_ids                                   = local.all_private_subnet_ids
   tags                                         = merge(var.eks_cluster_tags, { Name = local.cluster_name })
   vpc_id                                       = data.aws_vpc.vpc_id
 
@@ -102,21 +102,21 @@ module "main_nodes" {
   create_iam_role                   = false
   iam_role_additional_policies      = { ssm = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore" }
   iam_role_arn                      = module.eks.cluster_iam_role_arn
-  subnet_ids                        = module.vpc.private_subnets
+  subnet_ids                        = local.all_private_subnet_ids
   vpc_security_group_ids            = [module.eks.node_security_group_id]
 
   desired_size = 3
   max_size     = 6
   min_size     = 3
 
-  ami_type             = var.custom_ami_id != "" ? var.custom_ami_id : "BOTTLEROCKET_x86_64"
-  bootstrap_extra_args = var.custom_ami_id != "" ? null : local.cluster_bottlerocket_user_data
+  ami_type             = local.ami_id
+  bootstrap_extra_args = local.ami_id != "BOTTLEROCKET_x86_64" ? null : local.cluster_bottlerocket_user_data
   capacity_type        = "ON_DEMAND"
   ebs_optimized        = true
   instance_types       = ["c6a.large"]
   labels               = var.node_labels
   launch_template_name = "eks-main-${local.cluster_name}"
-  platform             = var.custom_ami_id != "" ? "linux" : "bottlerocket"
+  platform             = local.ami_id != "BOTTLEROCKET_x86_64" ? "linux" : "bottlerocket"
   taints               = var.node_taints
 
   block_device_mappings = [
