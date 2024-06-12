@@ -96,6 +96,12 @@ variable "eks_main_nodes_desired_size" {
   default     = 3
 }
 
+variable "eks_main_node_instance_types" {
+  description = "The instance types for the main EKS node group"
+  type        = list(string)
+  default     = null
+}
+
 variable "eks_main_nodes_max_size" {
   description = "The max size of the main EKS node group"
   type        = number

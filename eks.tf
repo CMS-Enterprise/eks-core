@@ -79,8 +79,7 @@ module "main_nodes" {
   ami_type             = local.ami_id != "BOTTLEROCKET_x86_64" ? "AL2_x86_64" : "BOTTLEROCKET_x86_64"
   bootstrap_extra_args = local.ami_id != "BOTTLEROCKET_x86_64" ? null : local.cluster_bottlerocket_user_data
   capacity_type        = "ON_DEMAND"
-  ebs_optimized        = true
-  instance_types       = ["c6a.large"]
+  instance_types       = var.eks_main_node_instance_types
   labels               = var.node_labels
   launch_template_name = "eks-main-${local.cluster_name}"
   platform             = local.ami_id != "BOTTLEROCKET_x86_64" ? "linux" : "bottlerocket"
@@ -136,7 +135,8 @@ module "eks_base" {
   }
 
   depends_on = [
-    module.eks
+    module.eks,
+    aws_security_group_rule.allow_ingress_additional_prefix_lists
   ]
 }
 
@@ -205,6 +205,11 @@ resource "kubernetes_storage_class_v1" "gp3" {
       "storageclass.kubernetes.io/is-default-class" = "true"
     }
   }
+
+  depends_on = [
+    module.eks,
+    aws_security_group_rule.allow_ingress_additional_prefix_lists
+  ]
 }
 
 # This deletes the default gp2 storage class

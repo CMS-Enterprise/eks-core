@@ -59,5 +59,4 @@ resource "helm_release" "karpenter-nodes" {
   values = [
     local.kpn_values
   ]
-
 }
