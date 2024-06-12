@@ -75,6 +75,7 @@ module "main_nodes" {
   max_size     = var.eks_main_nodes_max_size
   min_size     = var.eks_main_nodes_min_size
 
+  ami_id               = local.ami_id
   ami_type             = local.ami_id != "BOTTLEROCKET_x86_64" ? "AL2_x86_64" : "BOTTLEROCKET_x86_64"
   bootstrap_extra_args = local.ami_id != "BOTTLEROCKET_x86_64" ? null : local.cluster_bottlerocket_user_data
   capacity_type        = "ON_DEMAND"
