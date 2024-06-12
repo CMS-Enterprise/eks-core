@@ -229,7 +229,7 @@ module "aws_ebs_csi_pod_identity" {
   count  = var.enable_eks_pod_identities ? 1 : 0
   source = "terraform-aws-modules/eks-pod-identity/aws"
 
-  name            = "aws-ebs-csi"
+  name            = "aws-ebs-csi-${module.eks.cluster_name}"
   use_name_prefix = false
   description     = "AWS EKS EBS CSI Driver role"
 
@@ -246,7 +246,7 @@ module "aws_efs_csi_pod_identity" {
   count  = var.enable_eks_pod_identities ? 1 : 0
   source = "terraform-aws-modules/eks-pod-identity/aws"
 
-  name            = "aws-efs-csi"
+  name            = "aws-efs-csi-${module.eks.cluster_name}"
   use_name_prefix = false
   description     = "AWS EKS EFS CSI Driver role"
 
@@ -262,7 +262,7 @@ module "aws_lb_controller_pod_identity" {
   count  = var.enable_eks_pod_identities ? 1 : 0
   source = "terraform-aws-modules/eks-pod-identity/aws"
 
-  name            = "aws-lbc"
+  name            = "aws-lbc-${module.eks.cluster_name}"
   use_name_prefix = false
   description     = "AWS EKS ALB Controller Driver role"
 
@@ -279,7 +279,7 @@ module "fluentbit_pod_identity" {
   source     = "terraform-aws-modules/eks-pod-identity/aws"
   depends_on = [helm_release.fluent-bit]
 
-  name            = "fluentbit"
+  name            = "fluentbit-${module.eks.cluster_name}"
   use_name_prefix = false
   description     = "AWS EKS fluentbit role"
 
@@ -293,7 +293,7 @@ module "fluentbit_pod_identity" {
     default = {
       cluster_name    = local.cluster_name
       namespace       = "kube-system"
-      service_account = "fluentbit"
+      service_account = local.fluentbit_service_account_name
     }
   }
 

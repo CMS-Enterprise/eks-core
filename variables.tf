@@ -25,12 +25,6 @@ variable "subnet_lookup_overrides" {
   type        = map(string)
 }
 
-variable "create_s3_vpc_endpoint" {
-  type        = bool
-  description = "toggle on/off the creation of s3 vpc endpoint"
-  default     = true
-}
-
 variable "vpc_endpoint_lookup_overrides" {
   description = "Some vpc endpoints don't follow standard naming conventions.  Use this map to override the query used for looking up Subnets.  Ex: { private = \"foo-west-nonpublic-*\" }"
   default     = ""

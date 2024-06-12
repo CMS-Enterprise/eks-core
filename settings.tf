@@ -26,8 +26,9 @@ locals {
   cluster_version = var.eks_version
 
   ################################## Fluentbit Settings ##################################
-  fluentbit_log_name        = "${module.eks.cluster_name}-fluent-bit"
-  fluentbit_system_log_name = "${module.eks.cluster_name}-fluent-bit-systemd"
+  fluentbit_log_name             = "${module.eks.cluster_name}-fluent-bit"
+  fluentbit_service_account_name = "fluent-bit"
+  fluentbit_system_log_name      = "${module.eks.cluster_name}-fluent-bit-systemd"
 
   config_settings = {
     log_group_name         = local.fluentbit_log_name
@@ -43,6 +44,9 @@ locals {
   values = templatefile("${path.module}/helm/fluentbit/values.yaml.tpl", local.config_settings)
 
   ################################## Karpenter Settings ##################################
+  karpenter_namespace            = "karpenter"
+  karpenter_service_account_name = "karpenter"
+
   kp_config_settings = {
     cluster_name = local.cluster_name
   }
@@ -107,8 +111,8 @@ data "aws_ami" "gold_image" {
   count = var.gold_image_date != "" ? 1 : 0
 
   most_recent = true
-  name_regex = "^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}"
-  owners = ["743302140042"]
+  name_regex  = "^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}"
+  owners      = ["743302140042"]
 }
 
 data "aws_eks_addon_version" "aws-ebs-csi-driver" {
