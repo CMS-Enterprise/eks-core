@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-06-12T16:56:47.659Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:126.0) Gecko/20100101 Firefox/126.0" etag="IYjZ2eRJyvVE7oNuSNq5" version="24.5.3" type="device">
+<mxfile host="app.diagrams.net" modified="2024-06-12T19:02:55.075Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:126.0) Gecko/20100101 Firefox/126.0" etag="p-Q_erwwblL7U2r9JSg-" version="24.5.3" type="device">
   <diagram name="Page-1" id="e5kg5PGp0GOZCRDS-3kg">
     <mxGraphModel dx="2530" dy="2236" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -289,10 +289,10 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="WaI7bWhhHGH7RyJGUKFf-85" value="" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.container_2;" vertex="1" parent="1">
-          <mxGeometry x="545.7800000000001" y="510" width="46.45" height="30" as="geometry" />
+          <mxGeometry x="607.9900000000001" y="505" width="46.45" height="30" as="geometry" />
         </mxCell>
         <mxCell id="WaI7bWhhHGH7RyJGUKFf-86" value="Container Insights" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="518.51" y="535" width="101" height="35" as="geometry" />
+          <mxGeometry x="580.72" y="533" width="101" height="35" as="geometry" />
         </mxCell>
         <mxCell id="WaI7bWhhHGH7RyJGUKFf-87" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;elbow=vertical;startArrow=block;startFill=1;strokeColor=#545B64;rounded=0;exitX=0.35;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="WaI7bWhhHGH7RyJGUKFf-50" target="WaI7bWhhHGH7RyJGUKFf-85">
           <mxGeometry width="100" relative="1" as="geometry">
@@ -304,6 +304,12 @@
               <mxPoint x="680" y="525" />
             </Array>
           </mxGeometry>
+        </mxCell>
+        <mxCell id="WaI7bWhhHGH7RyJGUKFf-88" value="" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.container_2;" vertex="1" parent="1">
+          <mxGeometry x="483.7700000000001" y="505" width="46.45" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="WaI7bWhhHGH7RyJGUKFf-89" value="Secret Store CSI Driver" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="456.27000000000004" y="533" width="101" height="35" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
