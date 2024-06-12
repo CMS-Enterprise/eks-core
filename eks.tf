@@ -1,6 +1,6 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.11.0"
+  version = "20.11.0"     
 
   access_entries                               = var.eks_access_entries
   authentication_mode                          = "API_AND_CONFIG_MAP"
