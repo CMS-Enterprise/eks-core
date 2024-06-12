@@ -61,7 +61,7 @@ resource "aws_vpc_endpoint" "ec2" {
   vpc_endpoint_type  = "Interface"
 
   tags = {
-    Name = coalesce(var.vpc_endpoint_lookup_overrides, "${var.project}-${var.env}-ec2-endpoint")
+    Name = coalesce(var.vpc_endpoint_lookup_overrides, "${module.eks.cluster_name}-ec2-endpoint")
   }
 }
 
