@@ -10,7 +10,19 @@ locals {
     }
   )
 
-  cluster_name    = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
+  cluster_name = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
+  cluster_security_groups = {
+    node            = module.eks.node_security_group_id
+    cluster         = module.eks.cluster_security_group_id
+    cluster_primary = module.eks.cluster_primary_security_group_id
+  }
+  cluster_security_group_prefix_list_ids = [
+    data.aws_ec2_managed_prefix_list.vpn_prefix_list.id,
+    data.aws_ec2_managed_prefix_list.cmscloud_shared_services_pl.id,
+    data.aws_ec2_managed_prefix_list.cmscloud_security_tools.id,
+    data.aws_ec2_managed_prefix_list.cmscloud_public_pl.id,
+    data.aws_ec2_managed_prefix_list.zscaler_pl.id
+  ]
   cluster_version = var.eks_version
 
   ################################## Fluentbit Settings ##################################
@@ -67,6 +79,8 @@ locals {
   iam_path                 = "/delegatedadmin/developer/"
   kubeconfig_path          = "${path.module}/kubeconfig"
   permissions_boundary_arn = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/developer-boundary-policy"
+  role_arn                 = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/${local.role_name}"
+  role_name                = regex("arn:aws:sts::[0-9]+:assumed-role/([^/]+)/.*", data.aws_caller_identity.current.arn)[0]
 }
 
 resource "random_string" "s3" {
@@ -93,11 +107,7 @@ data "aws_ami" "gold_image" {
   count = var.gold_image_date != "" ? 1 : 0
 
   most_recent = true
-  filter {
-    name   = "name"
-    values = ["^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}"]
-  }
-
+  name_regex = "^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}"
   owners = ["743302140042"]
 }
 

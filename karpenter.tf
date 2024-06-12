@@ -3,12 +3,15 @@ module "karpenter" {
   source     = "terraform-aws-modules/eks/aws//modules/karpenter"
   depends_on = [module.eks, module.main_nodes, module.eks_base]
 
-  cluster_name            = module.eks.cluster_name
-  create_access_entry     = false
-  create_node_iam_role    = false
-  enable_pod_identity     = true
-  enable_spot_termination = true
-  node_iam_role_arn       = module.eks.cluster_iam_role_arn
+  cluster_name                      = module.eks.cluster_name
+  create_access_entry               = false
+  create_node_iam_role              = false
+  enable_pod_identity               = true
+  enable_spot_termination           = true
+  iam_policy_path                   = local.iam_path
+  iam_role_path                     = local.iam_path
+  iam_role_permissions_boundary_arn = local.permissions_boundary_arn
+  node_iam_role_arn                 = module.main_nodes.iam_role_arn
 
 
   tags = var.karpenter_tags
@@ -17,7 +20,8 @@ module "karpenter" {
 #Karpenter HELM
 resource "helm_release" "karpenter-crd" {
   depends_on       = [module.eks, module.main_nodes, module.eks_base, module.karpenter]
-  name             = "${local.cluster_name}-karpenter"
+  atomic           = true
+  name             = "karpenter"
   repository       = "oci://public.ecr.aws/karpenter"
   chart            = "karpenter"
   version          = var.kp_chart_verison
@@ -33,7 +37,8 @@ resource "helm_release" "karpenter-crd" {
 #Karpenter Nodes HELM
 resource "helm_release" "karpenter-nodes" {
   depends_on = [helm_release.karpenter-crd]
-  name       = "${local.cluster_name}-karpenter"
+  atomic     = true
+  name       = "karpenter"
   repository = "./helm/karpenter-nodes"
   chart      = "karpenter-nodes"
   version    = "1.0.0"

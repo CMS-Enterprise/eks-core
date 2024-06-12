@@ -44,12 +44,12 @@ variable "vpc_lookup_override" {
 
 }
 variable "gold_image_date" {
-  description = "Gold Image Date in YYYYMM format"
+  description = "Gold Image Date in YYYY-MM format"
   type        = string
   default     = ""
   validation {
-    condition     = can(regex("^\\d{4}(0[1-9]|1[0-2])$", var.gold_image_date)) || var.gold_image_date == ""
-    error_message = "gold_image_date must be in the YYYYMM format."
+    condition     = can(regex("^\\d{4}-(0[1-9]|1[0-2])$", var.gold_image_date)) || var.gold_image_date == ""
+    error_message = "gold_image_date must be in the YYYY-MM format."
   }
 }
 

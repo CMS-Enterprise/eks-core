@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "vpc" {
 
 data "aws_iam_policy_document" "fluent-bit" {
   statement {
-    sid    = "Fluentbit Cloudwatch"
+    sid    = "fluentbitCloudwatch"
     effect = "Allow"
     actions = [
       "cloudwatch:PutMetricData",
@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "fluent-bit" {
     resources = ["*"]
   }
   statement {
-    sid     = "Fluentbit SSM"
+    sid     = "fluentbitSSM"
     effect  = "Allow"
     actions = ["ssm:GetParameter"]
     resources = [

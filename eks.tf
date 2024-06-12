@@ -212,7 +212,7 @@ resource "null_resource" "gp2" {
     always_run = timestamp()
   }
   provisioner "local-exec" {
-    command = "${path.module}/utils/k8s_bootstrap.sh ${module.eks.cluster_name} ${data.aws_region.current.name} ${data.aws_caller_identity.current.arn}"
+    command = "${path.module}/utils/k8s_bootstrap.sh ${module.eks.cluster_name} ${data.aws_region.current.name} ${local.role_arn}"
   }
   depends_on = [
     kubernetes_storage_class_v1.gp3
@@ -301,4 +301,35 @@ module "fluentbit_pod_identity" {
     var.pod_identity_tags,
     var.fb_tags
   )
+}
+
+# Ingress for provided prefix lists
+resource "aws_security_group_rule" "allow_ingress_additional_prefix_lists" {
+  for_each          = local.cluster_security_groups
+  type              = "ingress"
+  description       = "allow_ingress_additional_prefix_lists"
+  to_port           = 0
+  from_port         = 0
+  protocol          = "-1"
+  prefix_list_ids   = local.cluster_security_group_prefix_list_ids
+  security_group_id = each.value
+}
+
+resource "aws_security_group_rule" "https-tg-ingress" {
+  type              = "ingress"
+  to_port           = 0
+  from_port         = 0
+  protocol          = "-1"
+  security_group_id = module.eks.node_security_group_id
+  cidr_blocks       = ["10.0.0.0/8"]
+}
+
+resource "aws_security_group_rule" "https-vpc-ingress" {
+  count             = 1
+  type              = "ingress"
+  to_port           = 443
+  from_port         = 0
+  protocol          = "tcp"
+  security_group_id = module.eks.cluster_primary_security_group_id
+  cidr_blocks       = data.aws_vpc.vpc.cidr_block_associations.*.cidr_block
 }

@@ -17,7 +17,8 @@ resource "aws_cloudwatch_log_group" "fluent-bit-system" {
 #Fluentbit HELM
 resource "helm_release" "fluent-bit" {
   depends_on = [module.eks, module.main_nodes, module.eks_base]
-  name       = "${local.cluster_name}-fluenbit"
+  atomic     = true
+  name       = "fluentbit"
   repository = "https://fluent.github.io/helm-charts"
   chart      = "fluent-bit"
   version    = var.fb_chart_verison
@@ -36,5 +37,4 @@ resource "helm_release" "fluent-bit" {
     name  = "serviceAccount.name"
     value = "fluent-bit"
   }
-
 }

@@ -25,6 +25,27 @@ data "aws_subnets" "container" {
   }
 }
 
+data "aws_ec2_managed_prefix_list" "vpn_prefix_list" {
+  name = "cmscloud-vpn"
+}
+
+data "aws_ec2_managed_prefix_list" "cmscloud_shared_services_pl" {
+  name = "cmscloud-shared-services"
+}
+
+data "aws_ec2_managed_prefix_list" "cmscloud_security_tools" {
+  name = "cmscloud-security-tools"
+}
+
+data "aws_ec2_managed_prefix_list" "cmscloud_public_pl" {
+  name  = "cmscloud-public"
+}
+
+data "aws_ec2_managed_prefix_list" "zscaler_pl" {
+  name  = "zscaler"
+
+}
+
 #non-prod route table
 data "aws_route_table" "all_private_route_tables" {
   for_each  = toset(local.all_private_subnet_ids)
