@@ -99,7 +99,7 @@ variable "eks_main_nodes_desired_size" {
 variable "eks_main_node_instance_types" {
   description = "The instance types for the main EKS node group"
   type        = list(string)
-  default     = null
+  default     = ["c5.2xlarge"]
 }
 
 variable "eks_main_nodes_max_size" {
