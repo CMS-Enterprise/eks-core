@@ -85,10 +85,12 @@ locals {
   }
 
   kpn_config_settings = {
-    amiFamily       = var.custom_ami_id != "" ? var.custom_ami_id : "BOTTLEROCKET_x86_64"
+    amiFamily       = var.use_bottlerocket ? "Bottlerocket" : (var.gold_image_date != "" ? "Custom" : "AL2")
+    amiID           = var.gold_image_date != "" ? data.aws_ami.gold_image[0].id : var.custom_ami_id
     iamRole         = module.eks.cluster_iam_role_arn
     subnetTag       = "${var.project}-*-${var.env}-private-*"
     tags            = yamlencode(var.karpenter_tags)
+    bottlerocket    = var.use_bottlerocket
     securityGroupID = module.eks.node_security_group_id
   }
 

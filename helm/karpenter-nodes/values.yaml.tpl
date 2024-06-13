@@ -1,22 +1,13 @@
 nodeClass:
   metadata:
-    name: "default"
+    name: "main"
     annotations:
       description: "EC2NodeClass for running Amazon Linux 2 nodes with custom user data"
 
   spec:
     amiFamily: ${amiFamily}
-    blockDeviceMappings:
-      - deviceName: "/dev/xvda"
-        ebs:
-          volumeType: "gp3"
-          volumeSize: 5
-          deleteOnTermination: true
-      - deviceName: "/dev/xvdb"
-        ebs:
-          volumeType: "gp3"
-          volumeSize: 100
-          deleteOnTermination: true
+    amiID: ${amiID}
+    bottlerocket: ${bottlerocket}
     role: ${iamRole}
     subnetTag: ${subnetTag}
     securityGroupID: ${securityGroupID}   

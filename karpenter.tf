@@ -50,8 +50,8 @@ resource "helm_release" "karpenter-crd" {
 resource "helm_release" "karpenter-nodes" {
   depends_on = [helm_release.karpenter-crd]
   atomic     = true
-  name       = "karpenter"
-  repository = "./helm/karpenter-nodes"
+  name       = "karpenter-nodes"
+  repository = "${path.module}/helm"
   chart      = "karpenter-nodes"
   version    = "1.0.0"
   namespace  = local.karpenter_namespace

@@ -8,14 +8,32 @@ metadata:
 {{- end }}
 spec:
   amiFamily: {{ .Values.nodeClass.spec.amiFamily | default "AL2" | quote }}
+  {{- if eq .Values.nodeClass.spec.amiFamily "Custom" }}
+  amiSelectorTerms:
+    - id: {{ .Values.nodeClass.spec.amiID | quote }}
+  {{- end }}
   blockDeviceMappings:
-{{- range .Values.nodeClass.spec.blockDeviceMappings }}
-    - deviceName: {{ .deviceName | quote }}
+  {{- if .Values.nodeClass.spec.bottlerocket }}
+    - deviceName: /dev/xvda
       ebs:
-        volumeType: {{ .ebs.volumeType | quote }}
-        volumeSize: {{ .ebs.volumeSize | quote }}
-        deleteOnTermination: {{ .ebs.deleteOnTermination | quote }}
-{{- end }}
+        volumeSize: 8G
+        volumeType: gp3
+        deleteOnTermination: true
+        encrypted: true
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 300G
+        volumeType: gp3
+        deleteOnTermination: true
+        encrypted: true
+  {{- else }}
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 300G
+        volumeType: gp3
+        deleteOnTermination: true
+        encrypted: true
+  {{- end }}
   role: "{{ .Values.nodeClass.spec.role }}"
   associatePublicIPAddress: {{ .Values.nodeClass.spec.associatePublicIPAddress | default false }}   
   subnetSelectorTerms:
