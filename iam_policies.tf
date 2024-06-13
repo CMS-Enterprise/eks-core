@@ -4,6 +4,12 @@ resource "aws_iam_policy" "vpc" {
   policy = data.aws_iam_policy_document.vpc.json
 }
 
+resource "aws_iam_policy" "pod-identity" {
+  name   = "${local.cluster_name}-pod-identity-permissions"
+  path   = local.iam_path
+  policy = data.aws_iam_policy_document.pod-identity.json
+}
+
 data "aws_iam_policy_document" "vpc" {
   statement {
     sid    = "VPCFlowLogs"
@@ -24,6 +30,17 @@ data "aws_iam_policy_document" "vpc" {
     resources = [
       "${module.s3_logs.s3_bucket_arn}/*"
     ]
+  }
+}
+
+data "aws_iam_policy_document" "pod-identity" {
+  statement {
+    sid    = "PodIdentity"
+    effect = "Allow"
+    actions = [
+      "eks-auth:AssumeRoleForPodIdentity",
+    ]
+    resources = ["*"]
   }
 }
 
