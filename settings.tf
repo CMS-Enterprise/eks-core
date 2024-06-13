@@ -59,6 +59,7 @@ locals {
 
   ################################## Fluentbit Settings ##################################
   fluentbit_log_name             = "${module.eks.cluster_name}-fluent-bit"
+  fluentbit_namespace            = "fluentbit"
   fluentbit_service_account_name = "fluent-bit"
   fluentbit_system_log_name      = "${module.eks.cluster_name}-fluent-bit-systemd"
 

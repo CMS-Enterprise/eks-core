@@ -23,7 +23,7 @@ resource "helm_release" "fluent-bit" {
   chart            = "fluent-bit"
   version          = var.fb_chart_verison
   create_namespace = true
-  namespace        = "fluentbit"
+  namespace        = local.fluentbit_namespace
 
   values = [
     local.values

@@ -244,7 +244,7 @@ module "fluentbit_pod_identity" {
   associations = {
     default = {
       cluster_name    = local.cluster_name
-      namespace       = "kube-system"
+      namespace       = local.fluentbit_namespace
       service_account = local.fluentbit_service_account_name
     }
   }
