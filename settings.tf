@@ -57,7 +57,7 @@ locals {
   cluster_version = var.eks_version
 
   gold_image_bootstrap_script = join(" ",
-      ["--kubelet-extra-args '--node-labels=${k}=true"],
+      ["--kubelet-extra-args '--node-labels=main=true"],
       ["--pod-max-pids=1000"],
       [for label_key, label_value in var.node_labels : "--node-labels=${label_key}=${label_value}"],
       [for taint_key, taint_value in var.node_taints : "--register-with-taints=${taint_key}=${taint_value}"],
