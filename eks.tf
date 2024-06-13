@@ -148,42 +148,18 @@ resource "aws_eks_addon" "eks-pod-identity-agent" {
   cluster_name  = module.eks.cluster_name
   addon_name    = "eks-pod-identity-agent"
   addon_version = data.aws_eks_addon_version.eks-pod-identity-agent.version
-
-  depends_on = [module.main_nodes]
 }
 
 resource "aws_eks_addon" "kube-proxy" {
   cluster_name  = module.eks.cluster_name
   addon_name    = "kube-proxy"
   addon_version = data.aws_eks_addon_version.kube-proxy.version
-
-  depends_on = [module.main_nodes]
 }
 
 resource "aws_eks_addon" "vpc-cni" {
   cluster_name  = module.eks.cluster_name
   addon_name    = "vpc-cni"
   addon_version = data.aws_eks_addon_version.vpc-cni.version
-
-  depends_on = [module.main_nodes]
-}
-
-resource "kubernetes_manifest" "vpc_cni" {
-  for_each = toset(local.all_container_subnet_ids)
-
-  manifest = {
-    apiVersion = "crd.k8s.amazonaws.com/v1alpha1"
-    kind = "ENIConfig"
-    metadata = {
-      name = "eniconfig-${each.value}"
-    }
-    spec = {
-      subnet = each.value
-      securityGroups = [module.eks.node_security_group_id]
-    }
-  }
-
-  depends_on = [module.eks]
 }
 
 #EKS Pode Identities
@@ -203,6 +179,8 @@ module "aws_ebs_csi_pod_identity" {
   policy_name_prefix        = "${module.eks.cluster_name}-"
 
   tags = var.pod_identity_tags
+
+  depends_on = [aws_eks_addon.eks-pod-identity-agent]
 }
 
 module "aws_efs_csi_pod_identity" {
@@ -220,6 +198,8 @@ module "aws_efs_csi_pod_identity" {
   policy_name_prefix        = "${module.eks.cluster_name}-"
 
   tags = var.pod_identity_tags
+
+  depends_on = [aws_eks_addon.eks-pod-identity-agent]
 }
 
 module "aws_lb_controller_pod_identity" {
@@ -237,12 +217,13 @@ module "aws_lb_controller_pod_identity" {
   policy_name_prefix              = "${module.eks.cluster_name}-"
 
   tags = var.lb_controller_tags
+
+  depends_on = [aws_eks_addon.eks-pod-identity-agent]
 }
 
 module "fluentbit_pod_identity" {
   count      = var.enable_eks_pod_identities ? 1 : 0
   source     = "terraform-aws-modules/eks-pod-identity/aws"
-  depends_on = [helm_release.fluent-bit]
 
   name            = "fluentbit-${module.eks.cluster_name}"
   use_name_prefix = false
@@ -267,6 +248,11 @@ module "fluentbit_pod_identity" {
     var.pod_identity_tags,
     var.fb_tags
   )
+
+  depends_on = [
+    helm_release.fluent-bit,
+    aws_eks_addon.eks-pod-identity-agent
+  ]
 }
 
 # Ingress for provided prefix lists

@@ -43,7 +43,6 @@ data "aws_ec2_managed_prefix_list" "cmscloud_public_pl" {
 
 data "aws_ec2_managed_prefix_list" "zscaler_pl" {
   name = "zscaler"
-
 }
 
 #non-prod route table
@@ -58,7 +57,6 @@ resource "aws_vpc_endpoint" "ec2" {
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ec2"
   security_group_ids  = [for key, value in local.cluster_security_groups : value]
   subnet_ids          = local.all_private_subnet_ids
-  private_dns_enabled = true
   vpc_endpoint_type   = "Interface"
 
   tags = {
@@ -71,7 +69,6 @@ resource "aws_vpc_endpoint" "ecr_api" {
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.api"
   security_group_ids  = [for key, value in local.cluster_security_groups : value]
   subnet_ids          = local.all_private_subnet_ids
-  private_dns_enabled = true
   vpc_endpoint_type   = "Interface"
 
   tags = {
@@ -84,7 +81,6 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.dkr"
   security_group_ids  = [for key, value in local.cluster_security_groups : value]
   subnet_ids          = local.all_private_subnet_ids
-  private_dns_enabled = true
   vpc_endpoint_type   = "Interface"
 
   tags = {
@@ -97,7 +93,6 @@ resource "aws_vpc_endpoint" "eks" {
   service_name        = "com.amazonaws.${data.aws_region.current.name}.eks"
   security_group_ids  = [for key, value in local.cluster_security_groups : value]
   subnet_ids          = local.all_private_subnet_ids
-  private_dns_enabled = true
   vpc_endpoint_type   = "Interface"
 
   tags = {
@@ -110,7 +105,6 @@ resource "aws_vpc_endpoint" "s3" {
   service_name        = "com.amazonaws.${data.aws_region.current.name}.s3"
   security_group_ids  = [for key, value in local.cluster_security_groups : value]
   subnet_ids          = local.all_private_subnet_ids
-  private_dns_enabled = true
   vpc_endpoint_type   = "Interface"
 
   tags = {
@@ -123,7 +117,6 @@ resource "aws_vpc_endpoint" "sts" {
   service_name        = "com.amazonaws.${data.aws_region.current.name}.sts"
   security_group_ids  = [for key, value in local.cluster_security_groups : value]
   subnet_ids          = local.all_private_subnet_ids
-  private_dns_enabled = true
   vpc_endpoint_type   = "Interface"
 
   tags = {
@@ -136,7 +129,6 @@ resource "aws_vpc_endpoint" "ssm" {
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssm"
   security_group_ids  = [for key, value in local.cluster_security_groups : value]
   subnet_ids          = local.all_private_subnet_ids
-  private_dns_enabled = true
   vpc_endpoint_type   = "Interface"
 
   tags = {
@@ -149,7 +141,6 @@ resource "aws_vpc_endpoint" "sqs" {
   service_name        = "com.amazonaws.${data.aws_region.current.name}.sqs"
   security_group_ids  = [for key, value in local.cluster_security_groups : value]
   subnet_ids          = local.all_private_subnet_ids
-  private_dns_enabled = true
   vpc_endpoint_type   = "Interface"
 
   tags = {
