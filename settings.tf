@@ -116,7 +116,7 @@ locals {
 
   iam_path                 = "/delegatedadmin/developer/"
   kubeconfig_path          = "${path.module}/kubeconfig"
-  permissions_boundary_arn = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/developer-boundary-policy"
+  permissions_boundary_arn = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/ct-ado-poweruser-permissions-boundary-policy"
   role_arn                 = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/${local.role_name}"
   role_name                = regex("arn:aws:sts::[0-9]+:assumed-role/([^/]+)/.*", data.aws_caller_identity.current.arn)[0]
 }
