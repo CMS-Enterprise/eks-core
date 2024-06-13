@@ -75,36 +75,16 @@ module "main_nodes" {
   max_size     = var.eks_main_nodes_max_size
   min_size     = var.eks_main_nodes_min_size
 
-  ami_id               = local.ami_id
-  ami_type             = local.ami_id != "BOTTLEROCKET_x86_64" ? "AL2_x86_64" : "BOTTLEROCKET_x86_64"
-  bootstrap_extra_args = local.ami_id != "BOTTLEROCKET_x86_64" ? null : local.cluster_bottlerocket_user_data
-  capacity_type        = "ON_DEMAND"
-  instance_types       = var.eks_main_node_instance_types
-  labels               = var.node_labels
-  launch_template_name = "eks-main-${local.cluster_name}"
-  platform             = local.ami_id != "BOTTLEROCKET_x86_64" ? "linux" : "bottlerocket"
-  taints               = var.node_taints
-
-  block_device_mappings = [
-    {
-      device_name = "/dev/xvda"
-      ebs = {
-        volume_size           = 5
-        volume_type           = "gp3"
-        delete_on_termination = true
-        encrypted             = true
-      }
-    },
-    {
-      device_name = "/dev/xvdb"
-      ebs = {
-        volume_size           = 100
-        volume_type           = "gp3"
-        delete_on_termination = true
-        encrypted             = true
-      }
-    }
-  ]
+  ami_id                = local.ami_id
+  ami_type              = local.ami_id != "BOTTLEROCKET_x86_64" ? "AL2_x86_64" : "BOTTLEROCKET_x86_64"
+  block_device_mappings = local.block_device_mappings
+  bootstrap_extra_args  = local.ami_id != "BOTTLEROCKET_x86_64" ? null : local.cluster_bottlerocket_user_data
+  capacity_type         = "ON_DEMAND"
+  instance_types        = var.eks_main_node_instance_types
+  labels                = var.node_labels
+  launch_template_name  = "eks-main-${local.cluster_name}"
+  platform              = local.ami_id != "BOTTLEROCKET_x86_64" ? "linux" : "bottlerocket"
+  taints                = var.node_taints
 
   tags = merge(var.eks_node_tags, {
     Name = "eks-main-${var.cluster_custom_name}"
@@ -188,48 +168,6 @@ resource "aws_eks_addon" "vpc-cni" {
   depends_on = [module.main_nodes]
 }
 
-# This installs the gp3 storage class and makes it the default
-resource "kubernetes_storage_class_v1" "gp3" {
-  storage_provisioner    = "kubernetes.io/aws-ebs"
-  reclaim_policy         = "Delete"
-  allow_volume_expansion = true
-  volume_binding_mode    = "Immediate"
-
-  parameters = {
-    type = "gp3"
-  }
-
-  metadata {
-    name = "gp3"
-    annotations = {
-      "storageclass.kubernetes.io/is-default-class" = "true"
-    }
-  }
-
-  depends_on = [
-    module.eks,
-    aws_security_group_rule.allow_ingress_additional_prefix_lists
-  ]
-}
-
-# This deletes the default gp2 storage class
-resource "null_resource" "gp2" {
-  triggers = {
-    always_run = timestamp()
-  }
-  provisioner "local-exec" {
-    command = "${path.module}/utils/k8s_bootstrap.sh ${module.eks.cluster_name} ${data.aws_region.current.name} ${local.role_arn}"
-  }
-  depends_on = [
-    kubernetes_storage_class_v1.gp3
-  ]
-  lifecycle {
-    ignore_changes = [
-      triggers
-    ]
-  }
-}
-
 #EKS Pode Identities
 module "aws_ebs_csi_pod_identity" {
   count  = var.enable_eks_pod_identities ? 1 : 0
@@ -244,6 +182,7 @@ module "aws_ebs_csi_pod_identity" {
   aws_ebs_csi_policy_name   = "EKS_ebs_csi_driver_policy"
   path                      = local.iam_path
   permissions_boundary_arn  = local.permissions_boundary_arn
+  policy_name_prefix        = "${module.eks.cluster_name}-"
 
   tags = var.pod_identity_tags
 }
@@ -260,6 +199,7 @@ module "aws_efs_csi_pod_identity" {
   aws_efs_csi_policy_name   = "EKS_efs_csi_driver_policy"
   path                      = local.iam_path
   permissions_boundary_arn  = local.permissions_boundary_arn
+  policy_name_prefix        = "${module.eks.cluster_name}-"
 
   tags = var.pod_identity_tags
 }
@@ -276,6 +216,7 @@ module "aws_lb_controller_pod_identity" {
   aws_lb_controller_policy_name   = "EKS_lb_controller_policy"
   path                            = local.iam_path
   permissions_boundary_arn        = local.permissions_boundary_arn
+  policy_name_prefix              = "${module.eks.cluster_name}-"
 
   tags = var.lb_controller_tags
 }
@@ -293,6 +234,7 @@ module "fluentbit_pod_identity" {
   attach_custom_policy     = true
   path                     = local.iam_path
   permissions_boundary_arn = local.permissions_boundary_arn
+  policy_name_prefix       = "${module.eks.cluster_name}-"
   source_policy_documents  = [data.aws_iam_policy_document.fluent-bit.json]
 
   associations = {

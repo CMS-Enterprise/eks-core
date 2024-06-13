@@ -1,5 +1,35 @@
 locals {
   ################################## EKS Settings ##################################
+  block_device_mappings = var.use_bottlerocket ? [
+    {
+      device_name = "/dev/xvda"
+      ebs = {
+        volume_size           = 8
+        volume_type           = "gp3"
+        delete_on_termination = true
+        encrypted             = true
+      }
+    },
+    {
+      device_name = "/dev/xvdb"
+      ebs = {
+        volume_size           = "300"
+        volume_type           = "gp3"
+        delete_on_termination = true
+        encrypted             = true
+      }
+    }
+    ] : [
+    {
+      device_name = "/dev/xvda"
+      ebs = {
+        volume_size           = "300"
+        volume_type           = "gp3"
+        delete_on_termination = true
+        encrypted             = true
+      }
+    }
+  ]
   cluster_bottlerocket_user_data = templatefile("${path.module}/utils/bottlerocket_config.toml.tpl",
     {
       cluster_name     = module.eks.cluster_name

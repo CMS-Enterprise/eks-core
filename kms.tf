@@ -2,7 +2,7 @@ module "cloudtrail_kms" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
-  aliases                            = ["cloudtrail"]
+  aliases                            = ["${local.cluster_name}-cloudtrail"]
   bypass_policy_lockout_safety_check = false
   create                             = true
   deletion_window_in_days            = 7
@@ -64,7 +64,7 @@ module "cloudwatch_kms" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
-  aliases                            = ["cloudwatch"]
+  aliases                            = ["${local.cluster_name}-cloudwatch"]
   bypass_policy_lockout_safety_check = false
   create                             = true
   deletion_window_in_days            = 7
@@ -107,7 +107,7 @@ module "ebs_kms" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
-  aliases                            = ["ebs"]
+  aliases                            = ["${local.cluster_name}-ebs"]
   bypass_policy_lockout_safety_check = false
   create                             = true
   deletion_window_in_days            = 7
@@ -130,7 +130,7 @@ module "s3_kms" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
-  aliases                            = ["s3"]
+  aliases                            = ["${local.cluster_name}-s3"]
   bypass_policy_lockout_safety_check = false
   create                             = true
   deletion_window_in_days            = 7
@@ -154,7 +154,7 @@ module "ssm_kms" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
 
-  aliases                            = ["ssm"]
+  aliases                            = ["${local.cluster_name}-ssm"]
   bypass_policy_lockout_safety_check = false
   create                             = true
   deletion_window_in_days            = 7

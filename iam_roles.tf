@@ -1,5 +1,5 @@
 resource "aws_iam_role" "vpc" {
-  name                 = "vpc-flow-logs"
+  name                 = "${local.cluster_name}-vpc-flow-logs"
   path                 = local.iam_path
   permissions_boundary = local.permissions_boundary_arn
 

@@ -89,10 +89,24 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   }
 }
 
+resource "aws_vpc_endpoint" "eks" {
+  vpc_id             = data.aws_vpc.vpc.id
+  service_name       = "com.amazonaws.${data.aws_region.current.name}.eks"
+  security_group_ids = [for key, value in local.cluster_security_groups : value]
+  subnet_ids         = local.all_private_subnet_ids
+  vpc_endpoint_type  = "Interface"
+
+  tags = {
+    Name = coalesce(var.vpc_endpoint_lookup_overrides, "${module.eks.cluster_name}-eks-endpoint")
+  }
+}
+
 resource "aws_vpc_endpoint" "s3" {
-  vpc_id          = data.aws_vpc.vpc.id
-  service_name    = "com.amazonaws.${data.aws_region.current.name}.s3"
-  route_table_ids = [for route_table in data.aws_route_table.all_private_route_tables : route_table.id]
+  vpc_id             = data.aws_vpc.vpc.id
+  service_name       = "com.amazonaws.${data.aws_region.current.name}.s3"
+  security_group_ids = [for key, value in local.cluster_security_groups : value]
+  subnet_ids         = local.all_private_subnet_ids
+  vpc_endpoint_type  = "Interface"
 
   tags = {
     Name = coalesce(var.vpc_endpoint_lookup_overrides, "${module.eks.cluster_name}-s3-endpoint")
@@ -132,17 +146,5 @@ resource "aws_vpc_endpoint" "sqs" {
 
   tags = {
     Name = coalesce(var.vpc_endpoint_lookup_overrides, "${module.eks.cluster_name}-sqs-endpoint")
-  }
-}
-
-resource "aws_vpc_endpoint" "eks" {
-  vpc_id             = data.aws_vpc.vpc.id
-  service_name       = "com.amazonaws.${data.aws_region.current.name}.eks"
-  security_group_ids = [for key, value in local.cluster_security_groups : value]
-  subnet_ids         = local.all_private_subnet_ids
-  vpc_endpoint_type  = "Interface"
-
-  tags = {
-    Name = coalesce(var.vpc_endpoint_lookup_overrides, "${module.eks.cluster_name}-eks-endpoint")
   }
 }
