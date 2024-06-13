@@ -255,7 +255,7 @@ module "fluentbit_pod_identity" {
   )
 
   depends_on = [
-    helm_release.fluent-bit,
+    helm_release.aws_for_fluentbit,
     aws_eks_addon.eks-pod-identity-agent
   ]
 }

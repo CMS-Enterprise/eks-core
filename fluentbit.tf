@@ -14,28 +14,35 @@ resource "aws_cloudwatch_log_group" "fluent-bit-system" {
   tags              = var.fb_tags
 }
 
-#Fluentbit HELM
-resource "helm_release" "fluent-bit" {
-  depends_on       = [module.eks, module.main_nodes, module.eks_base]
-  atomic           = true
-  name             = "fluentbit"
-  repository       = "https://fluent.github.io/helm-charts"
-  chart            = "fluent-bit"
-  version          = var.fb_chart_verison
-  create_namespace = true
-  namespace        = local.fluentbit_namespace
+
+resource "helm_release" "aws_for_fluentbit" {
+  name       = "aws-for-fluentbit"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-for-fluent-bit"
+  # version    = "0.1.0"  # replace with the desired version
 
   values = [
-    local.values
+    <<EOF
+cloudWatchLogs:
+  enabled: true
+  match: "*"
+  region: "us-east-1"
+  logGroupName: "hema-ami-fluent-bit"
+cloudWatch:
+  enabled: false
+  match: "*"
+  region: "us-east-1"
+  logGroupName: "hema-ami-fluent-bit"
+EOF
   ]
 
   set {
-    name  = "clusterName"
-    value = local.cluster_name
+    name  = "serviceAccount.create"
+    value = "true"
   }
-
   set {
     name  = "serviceAccount.name"
-    value = local.fluentbit_service_account_name
+    value = "fluentbit"
   }
+
 }
