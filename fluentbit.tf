@@ -22,7 +22,7 @@ resource "helm_release" "fluent-bit" {
   repository = "https://fluent.github.io/helm-charts"
   chart      = "fluent-bit"
   version    = var.fb_chart_verison
-  namespace  = "kube-system"
+  namespace  = "fluentbit"
 
   values = [
     local.values
