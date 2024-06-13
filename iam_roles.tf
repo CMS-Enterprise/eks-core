@@ -22,8 +22,3 @@ resource "aws_iam_role_policy_attachment" "vpc" {
   role       = aws_iam_role.vpc.name
   policy_arn = aws_iam_policy.vpc.arn
 }
-
-resource "aws_iam_role_policy_attachment" "pod-identity" {
-  role       = module.eks.cluster_iam_role_arn
-  policy_arn = aws_iam_policy.pod-identity.arn
-}

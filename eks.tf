@@ -67,7 +67,7 @@ module "main_nodes" {
 
   create_iam_role               = true
   enable_bootstrap_user_data    = var.gold_image_date != "" ? true : false
-  iam_role_additional_policies  = { ssm = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore" }
+  iam_role_additional_policies  = { ssm = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore", podIdentity = aws_iam_policy.pod-identity.arn }
   iam_role_description          = "IAM role for EKS nodes for cluster ${local.cluster_name}"
   iam_role_name                 = "eks-nodes-${local.cluster_name}"
   iam_role_path                 = local.iam_path
