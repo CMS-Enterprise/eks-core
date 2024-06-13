@@ -30,6 +30,7 @@ locals {
       }
     }
   ]
+
   cluster_bottlerocket_user_data = templatefile("${path.module}/utils/bottlerocket_config.toml.tpl",
     {
       cluster_name     = module.eks.cluster_name
@@ -54,6 +55,15 @@ locals {
     data.aws_ec2_managed_prefix_list.zscaler_pl.id
   ]
   cluster_version = var.eks_version
+
+  gold_image_bootstrap_script = join(" ",
+      ["--kubelet-extra-args '--node-labels=${k}=true"],
+      ["--pod-max-pids=1000"],
+      [for label_key, label_value in var.node_labels : "--node-labels=${label_key}=${label_value}"],
+      [for taint_key, taint_value in var.node_taints : "--register-with-taints=${taint_key}=${taint_value}"],
+      ["'"]
+    )
+  gold_image_pre_bootstrap_script = "sysctl -w net.ipv4.ip_forward=1\n"
 
   ################################## Fluentbit Settings ##################################
   fluentbit_log_name             = "${module.eks.cluster_name}-fluent-bit"

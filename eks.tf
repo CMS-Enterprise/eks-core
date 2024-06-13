@@ -75,16 +75,17 @@ module "main_nodes" {
   max_size     = var.eks_main_nodes_max_size
   min_size     = var.eks_main_nodes_min_size
 
-  ami_id                = local.ami_id
-  ami_type              = local.ami_id != "BOTTLEROCKET_x86_64" ? "AL2_x86_64" : "BOTTLEROCKET_x86_64"
-  block_device_mappings = local.block_device_mappings
-  bootstrap_extra_args  = local.ami_id != "BOTTLEROCKET_x86_64" ? null : local.cluster_bottlerocket_user_data
-  capacity_type         = "ON_DEMAND"
-  instance_types        = var.eks_main_node_instance_types
-  labels                = var.node_labels
-  launch_template_name  = "eks-main-${local.cluster_name}"
-  platform              = local.ami_id != "BOTTLEROCKET_x86_64" ? "linux" : "bottlerocket"
-  taints                = var.node_taints
+  ami_id                  = local.ami_id
+  ami_type                = local.ami_id != "BOTTLEROCKET_x86_64" ? "AL2_x86_64" : "BOTTLEROCKET_x86_64"
+  block_device_mappings   = local.block_device_mappings
+  bootstrap_extra_args    = local.ami_id != "BOTTLEROCKET_x86_64" ? (var.gold_image_date != "" ? local.gold_image_bootstrap_script : null) : local.cluster_bottlerocket_user_data
+  capacity_type           = "ON_DEMAND"
+  instance_types          = var.eks_main_node_instance_types
+  labels                  = var.node_labels
+  launch_template_name    = "eks-main-${local.cluster_name}"
+  platform                = local.ami_id != "BOTTLEROCKET_x86_64" ? "linux" : "bottlerocket"
+  pre_bootstrap_user_data = var.gold_image_date != "" ? local.gold_image_pre_bootstrap_script : null
+  taints                  = var.node_taints
 
   tags = merge(var.eks_node_tags, {
     Name = "eks-main-${var.cluster_custom_name}"
@@ -222,8 +223,8 @@ module "aws_lb_controller_pod_identity" {
 }
 
 module "fluentbit_pod_identity" {
-  count      = var.enable_eks_pod_identities ? 1 : 0
-  source     = "terraform-aws-modules/eks-pod-identity/aws"
+  count  = var.enable_eks_pod_identities ? 1 : 0
+  source = "terraform-aws-modules/eks-pod-identity/aws"
 
   name            = "fluentbit-${module.eks.cluster_name}"
   use_name_prefix = false
