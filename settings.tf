@@ -54,15 +54,7 @@ locals {
     data.aws_ec2_managed_prefix_list.cmscloud_public_pl.id,
     data.aws_ec2_managed_prefix_list.zscaler_pl.id
   ]
-  cluster_version = var.eks_version
-
-  gold_image_bootstrap_script = join(" ",
-      ["--kubelet-extra-args '--node-labels=main=true"],
-      ["--pod-max-pids=1000"],
-      [for label_key, label_value in var.node_labels : "--node-labels=${label_key}=${label_value}"],
-      [for taint_key, taint_value in var.node_taints : "--register-with-taints=${taint_key}=${taint_value}"],
-      ["'"]
-    )
+  cluster_version                 = var.eks_version
   gold_image_pre_bootstrap_script = "sysctl -w net.ipv4.ip_forward=1\n"
 
   ################################## Fluentbit Settings ##################################
@@ -103,7 +95,7 @@ locals {
   kpn_values = templatefile("${path.module}/helm/karpenter-nodes/values.yaml.tpl", local.kpn_config_settings)
 
   ################################## VPC Settings ##################################
-  all_private_subnet_ids = flatten([for subnet in data.aws_subnets.private.ids : subnet])
+  all_private_subnet_ids   = flatten([for subnet in data.aws_subnets.private.ids : subnet])
   all_container_subnet_ids = flatten([for subnet in data.aws_subnets.container.ids : subnet])
 
   ################################## Security Group Settings ##################################

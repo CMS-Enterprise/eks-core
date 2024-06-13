@@ -56,20 +56,24 @@ module "main_nodes" {
   source  = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
   version = "20.2.1"
 
-  name              = "eks-main-${local.cluster_name}"
-  cluster_ip_family = "ipv4"
-  cluster_name      = module.eks.cluster_name
-  cluster_version   = module.eks.cluster_version
-
+  name                              = "eks-main-${local.cluster_name}"
+  cluster_auth_base64               = module.eks.cluster_certificate_authority_data
+  cluster_endpoint                  = module.eks.cluster_endpoint
+  cluster_ip_family                 = "ipv4"
+  cluster_name                      = module.eks.cluster_name
   cluster_primary_security_group_id = module.eks.cluster_primary_security_group_id
-  create_iam_role                   = true
-  iam_role_additional_policies      = { ssm = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore" }
-  iam_role_description              = "IAM role for EKS nodes for cluster ${local.cluster_name}"
-  iam_role_name                     = "eks-nodes-${local.cluster_name}"
-  iam_role_path                     = local.iam_path
-  iam_role_permissions_boundary     = local.permissions_boundary_arn
-  subnet_ids                        = local.all_private_subnet_ids
-  vpc_security_group_ids            = [module.eks.node_security_group_id]
+  cluster_service_ipv4_cidr         = module.eks.cluster_service_cidr
+  cluster_version                   = module.eks.cluster_version
+
+  create_iam_role               = true
+  enable_bootstrap_user_data    = var.gold_image_date != "" ? true : false
+  iam_role_additional_policies  = { ssm = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore" }
+  iam_role_description          = "IAM role for EKS nodes for cluster ${local.cluster_name}"
+  iam_role_name                 = "eks-nodes-${local.cluster_name}"
+  iam_role_path                 = local.iam_path
+  iam_role_permissions_boundary = local.permissions_boundary_arn
+  subnet_ids                    = local.all_private_subnet_ids
+  vpc_security_group_ids        = [module.eks.node_security_group_id]
 
   desired_size = var.eks_main_nodes_desired_size
   max_size     = var.eks_main_nodes_max_size
@@ -78,7 +82,7 @@ module "main_nodes" {
   ami_id                  = local.ami_id
   ami_type                = local.ami_id != "BOTTLEROCKET_x86_64" ? "AL2_x86_64" : "BOTTLEROCKET_x86_64"
   block_device_mappings   = local.block_device_mappings
-  bootstrap_extra_args    = local.ami_id != "BOTTLEROCKET_x86_64" ? (var.gold_image_date != "" ? local.gold_image_bootstrap_script : null) : local.cluster_bottlerocket_user_data
+  bootstrap_extra_args    = local.ami_id != "BOTTLEROCKET_x86_64" ? "" : local.cluster_bottlerocket_user_data
   capacity_type           = "ON_DEMAND"
   instance_types          = var.eks_main_node_instance_types
   labels                  = var.node_labels
