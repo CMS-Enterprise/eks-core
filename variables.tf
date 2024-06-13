@@ -8,7 +8,7 @@ variable "custom_ami_id" {
 variable "env" {
   description = "The environment name"
   type        = string
-  default     = "impl"   #"dev"
+  default     = "dev"
 }
 
 variable "project" {
