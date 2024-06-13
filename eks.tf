@@ -61,7 +61,7 @@ module "main_nodes" {
   cluster_name      = module.eks.cluster_name
   cluster_version   = module.eks.cluster_version
 
-  cluster_primary_security_group_id = module.eks.cluster_security_group_id
+  cluster_primary_security_group_id = module.eks.cluster_primary_security_group_id
   create_iam_role                   = true
   iam_role_additional_policies      = { ssm = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore" }
   iam_role_description              = "IAM role for EKS nodes for cluster ${local.cluster_name}"
