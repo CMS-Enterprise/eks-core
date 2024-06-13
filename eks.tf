@@ -168,6 +168,24 @@ resource "aws_eks_addon" "vpc-cni" {
   depends_on = [module.main_nodes]
 }
 
+resource "kubernetes_manifest" "vpc_cni" {
+  for_each = toset(local.all_container_subnet_ids)
+
+  manifest = {
+    apiVersion = "crd.k8s.amazonaws.com/v1alpha1"
+    kind = "ENIConfig"
+    metadata = {
+      name = "eniconfig-${each.value}"
+    }
+    spec = {
+      subnet = each.value
+      securityGroups = [module.eks.node_security_group_id]
+    }
+  }
+
+  depends_on = [module.eks]
+}
+
 #EKS Pode Identities
 module "aws_ebs_csi_pod_identity" {
   count  = var.enable_eks_pod_identities ? 1 : 0
@@ -179,7 +197,7 @@ module "aws_ebs_csi_pod_identity" {
 
   attach_aws_ebs_csi_policy = true
   aws_ebs_csi_kms_arns      = [module.ebs_kms.key_arn]
-  aws_ebs_csi_policy_name   = "EKS_ebs_csi_driver_policy"
+  aws_ebs_csi_policy_name   = "${module.eks.cluster_name}-ebs-csi-driver"
   path                      = local.iam_path
   permissions_boundary_arn  = local.permissions_boundary_arn
   policy_name_prefix        = "${module.eks.cluster_name}-"
@@ -196,7 +214,7 @@ module "aws_efs_csi_pod_identity" {
   description     = "AWS EKS EFS CSI Driver role"
 
   attach_aws_efs_csi_policy = true
-  aws_efs_csi_policy_name   = "EKS_efs_csi_driver_policy"
+  aws_efs_csi_policy_name   = "${module.eks.cluster_name}-efs-csi-driver"
   path                      = local.iam_path
   permissions_boundary_arn  = local.permissions_boundary_arn
   policy_name_prefix        = "${module.eks.cluster_name}-"
@@ -213,7 +231,7 @@ module "aws_lb_controller_pod_identity" {
   description     = "AWS EKS ALB Controller Driver role"
 
   attach_aws_lb_controller_policy = true
-  aws_lb_controller_policy_name   = "EKS_lb_controller_policy"
+  aws_lb_controller_policy_name   = "${module.eks.cluster_name}-lb-controller"
   path                            = local.iam_path
   permissions_boundary_arn        = local.permissions_boundary_arn
   policy_name_prefix              = "${module.eks.cluster_name}-"
