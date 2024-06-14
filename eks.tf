@@ -203,18 +203,18 @@ resource "aws_eks_addon" "vpc_cni" {
   addon_version = data.aws_eks_addon_version.vpc_cni.version
 
   configuration_values = jsonencode({
-    env = {
+    Env = {
       AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
       ENI_CONFIG_ANNOTATION_DEF          = "k8s.amazonaws.com/eniConfig"
       ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
     }
-    eniConfig = {
+    ENIConfig = {
       create = true
       region = data.aws_region.current.name
       subnets = {
-        for s in data.aws_subnets.container.ids : s => {
-          id             = s
-          securityGroups = [module.eks.eks_cluster_security_group_id]
+        for subnet in data.aws_subnets.container.ids : subnet.availability_zone => {
+          id              = subnet.id
+          ssecurityGroups = [module.eks.eks_cluster_security_group_id]
         }
       }
     }
