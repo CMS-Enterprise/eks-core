@@ -50,6 +50,18 @@ module "eks" {
     "controllerManager",
     "scheduler"
   ]
+  cluster_addons = {
+    vpc-cni = {
+      before_compute = true
+      most_recent    = true # To ensure access to the latest settings provided
+      configuration_values = jsonencode({
+        env = {
+          AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
+          ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
+        }
+      })
+    }
+  }
 }
 
 module "main_nodes" {
