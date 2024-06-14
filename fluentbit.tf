@@ -40,7 +40,7 @@ resource "helm_release" "fluent-bit" {
   }
 
   set{
-    name = "serviceAccount.annotations.eks.amazonaws.com/role-arn"
+    name = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
     value = aws_iam_role.fluentbit.arn
   }
 }

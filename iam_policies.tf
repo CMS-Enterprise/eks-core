@@ -21,12 +21,12 @@ data "aws_iam_policy_document" "fluentbit_trust" {
     condition {
       test     = "StringEquals"
       values = ["system:serviceaccount:${local.fluentbit_namespace}:${local.fluentbit_service_account_name}"]
-      variable = "${module.eks.oidc_provider}.sub"
+      variable = "${module.eks.oidc_provider}:sub"
     }
     condition {
       test     = "StringEquals"
       values = ["sts.amazonaws.com"]
-      variable = "${module.eks.oidc_provider}.aud"
+      variable = "${module.eks.oidc_provider}:aud"
     }
   }
 }
