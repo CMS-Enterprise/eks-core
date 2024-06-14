@@ -97,39 +97,39 @@ module "main_nodes" {
 }
 
 module "eks_addons" {
-  source = "./addons"
+  source     = "./addons"
   depends_on = [module.main_nodes]
 
-  aws_partition                          = data.aws_partition.current.partition
-  aws_region                             = data.aws_region.current.name
-  cloudwatch_kms_key_arn                 = module.cloudwatch_kms.key_arn
-  container_subnet_ids                   = data.aws_subnets.container.ids
-  container_subnet_lookup_override       = try(var.subnet_lookup_overrides.container, "")
-  custom_ami                             = var.custom_ami_id
-  deploy_env                             = var.env
-  deploy_project                         = var.project
-  eks_cluster_iam_role_arn               = module.eks.cluster_iam_role_arn
-  eks_cluster_name                       = module.eks.cluster_name
-  eks_cluster_security_group_id          = module.eks.cluster_security_group_id
-  eks_node_security_group_id             = module.eks.node_security_group_id
-  eks_oidc_provider                      = module.eks.oidc_provider
-  eks_oidc_provider_arn                  = module.eks.oidc_provider_arn
-  fluentbit_additional_log_filters       = var.fb_additional_log_filters
-  fluentbit_chart_version                = var.fb_chart_version
-  fluentbit_drop_namespaces              = var.fb_drop_namespaces
-  fluentbit_kube_namespaces              = var.fb_kube_namespaces
-  fluentbit_log_encryption               = var.fb_log_encryption
-  fluentbit_log_filters                  = var.fb_log_filters
-  fluentbit_log_retention                = var.fb_log_retention
-  fluentbit_log_systemd                  = var.fb_log_systemd
-  fluentbit_system_log_retention         = var.fb_system_log_retention
-  fluentbit_tags                         = var.fb_tags
-  gold_image_ami_id                      = var.gold_image_date != "" ? data.aws_ami.gold_image[0].id : ""
-  iam_path                               = local.iam_path
-  iam_permissions_boundary_arn           = local.permissions_boundary_arn
-  karpenter_base_tags                    = var.karpenter_tags
-  karpenter_chart_version                = var.kp_chart_version
-  main_nodes_iam_role_arn                = module.main_nodes.iam_role_arn
+  aws_partition                    = data.aws_partition.current.partition
+  aws_region                       = data.aws_region.current.name
+  cloudwatch_kms_key_arn           = module.cloudwatch_kms.key_arn
+  container_subnet_ids             = data.aws_subnets.container.ids
+  container_subnet_lookup_override = try(var.subnet_lookup_overrides.container, "")
+  custom_ami                       = var.custom_ami_id
+  deploy_env                       = var.env
+  deploy_project                   = var.project
+  eks_cluster_iam_role_arn         = module.eks.cluster_iam_role_arn
+  eks_cluster_name                 = module.eks.cluster_name
+  eks_cluster_security_group_id    = module.eks.cluster_security_group_id
+  eks_node_security_group_id       = module.eks.node_security_group_id
+  eks_oidc_provider                = module.eks.oidc_provider
+  eks_oidc_provider_arn            = module.eks.oidc_provider_arn
+  fluentbit_additional_log_filters = var.fb_additional_log_filters
+  fluentbit_chart_version          = var.fb_chart_version
+  fluentbit_drop_namespaces        = var.fb_drop_namespaces
+  fluentbit_kube_namespaces        = var.fb_kube_namespaces
+  fluentbit_log_encryption         = var.fb_log_encryption
+  fluentbit_log_filters            = var.fb_log_filters
+  fluentbit_log_retention          = var.fb_log_retention
+  fluentbit_log_systemd            = var.fb_log_systemd
+  fluentbit_system_log_retention   = var.fb_system_log_retention
+  fluentbit_tags                   = var.fb_tags
+  gold_image_ami_id                = var.gold_image_date != "" ? data.aws_ami.gold_image[0].id : ""
+  iam_path                         = local.iam_path
+  iam_permissions_boundary_arn     = local.permissions_boundary_arn
+  karpenter_base_tags              = var.karpenter_tags
+  karpenter_chart_version          = var.kp_chart_version
+  main_nodes_iam_role_arn          = module.main_nodes.iam_role_arn
 }
 
 module "eks_base" {
@@ -197,10 +197,27 @@ resource "aws_eks_addon" "kube-proxy" {
   addon_version = data.aws_eks_addon_version.kube-proxy.version
 }
 
-resource "aws_eks_addon" "vpc-cni" {
+resource "aws_eks_addon" "vpc_cni" {
   cluster_name  = module.eks.cluster_name
   addon_name    = "vpc-cni"
-  addon_version = data.aws_eks_addon_version.vpc-cni.version
+  addon_version = data.aws_eks_addon_version.vpc_cni.version
+
+  configuration_values = jsonencode({
+    env = {
+      AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = true
+      ENI_CONFIG_LABEL_DEF               = "failure-domain.beta.kubernetes.io/zone"
+    }
+    eniConfig = {
+      create = true
+      region = data.aws_region.current.name
+      subnets = {
+        for s in data.aws_subnets.container.ids : s => {
+          id             = s
+          securityGroups = [module.eks.eks_cluster_security_group_id]
+        }
+      }
+    }
+  })
 }
 
 resource "aws_eks_addon" "aws_cloudwatch_observability" {
