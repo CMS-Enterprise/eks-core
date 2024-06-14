@@ -204,8 +204,9 @@ resource "aws_eks_addon" "vpc_cni" {
 
   configuration_values = jsonencode({
     env = {
-      AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = true
-      ENI_CONFIG_LABEL_DEF               = "failure-domain.beta.kubernetes.io/zone"
+      AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
+      ENI_CONFIG_ANNOTATION_DEF          = "k8s.amazonaws.com/eniConfig"
+      ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
     }
     eniConfig = {
       create = true
