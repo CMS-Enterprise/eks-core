@@ -103,8 +103,6 @@ module "eks_addons" {
   aws_partition                    = data.aws_partition.current.partition
   aws_region                       = data.aws_region.current.name
   cloudwatch_kms_key_arn           = module.cloudwatch_kms.key_arn
-  container_subnet_ids             = data.aws_subnets.container.ids
-  container_subnet_lookup_override = try(var.subnet_lookup_overrides.container, "")
   custom_ami                       = var.custom_ami_id
   deploy_env                       = var.env
   deploy_project                   = var.project
@@ -143,6 +141,14 @@ module "eks_base" {
 
   enable_secrets_store_csi_driver              = true
   enable_secrets_store_csi_driver_provider_aws = true
+
+  secrets_store_csi_driver_provider_aws = {
+    atomic = true
+
+    tags = {
+      Name = "secrets-store-csi-driver-${module.eks.cluster_name}"
+    }
+  }
 
   tags = {
     service = "eks"
@@ -197,7 +203,9 @@ resource "aws_eks_addon" "vpc_cni" {
 
   configuration_values = jsonencode({
     env = {
-      ENABLE_SUBNET_DISCOVERY            = "true"
+      AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
+      ENI_CONFIG_ANNOTATION_DEF          = "k8s.amazonaws.com/eniConfig"
+      ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
     }
   })
 }
