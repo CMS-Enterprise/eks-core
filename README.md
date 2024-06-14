@@ -117,4 +117,4 @@ project = "batcave"
 
 2. **README.md**:
    - The README provides an overview of the module, a table of configurable variables, usage instructions, and details on the AMI selection logic.
-   - The AMI selection logic section explains the requirements for setting the image variables and the precedence order if more than one variable is set.
+   - The AMI selection logic section explains the requirements for setting the image variables and the precedence order if more than one variable is set. 

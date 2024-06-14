@@ -103,6 +103,8 @@ module "eks_addons" {
   aws_partition                    = data.aws_partition.current.partition
   aws_region                       = data.aws_region.current.name
   cloudwatch_kms_key_arn           = module.cloudwatch_kms.key_arn
+  container_subnet_ids             = data.aws_subnets.container.ids
+  container_subnet_lookup_override = try(var.subnet_lookup_overrides.container, "")
   custom_ami                       = var.custom_ami_id
   deploy_env                       = var.env
   deploy_project                   = var.project
@@ -139,7 +141,6 @@ module "eks_base" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 
-  enable_secrets_store_csi_driver              = true
   enable_secrets_store_csi_driver_provider_aws = true
 
   secrets_store_csi_driver_provider_aws = {
@@ -199,13 +200,22 @@ resource "aws_eks_addon" "kube-proxy" {
 resource "aws_eks_addon" "vpc_cni" {
   cluster_name  = module.eks.cluster_name
   addon_name    = "vpc-cni"
-  addon_version = data.aws_eks_addon_version.vpc-cni.version
+  addon_version = data.aws_eks_addon_version.vpc_cni.version
 
   configuration_values = jsonencode({
     env = {
       AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
-      ENI_CONFIG_ANNOTATION_DEF          = "k8s.amazonaws.com/eniConfig"
       ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
+    }
+    eniConfig = {
+      create = true
+      region = data.aws_region.current.name
+      subnets = {
+        for s in data.aws_subnets.container.ids : s => {
+          id             = s
+          securityGroups = [module.eks.eks_cluster_security_group_id]
+        }
+      }
     }
   })
 }
@@ -296,7 +306,7 @@ module "aws_lb_controller_pod_identity" {
 module "aws_cloudwatch_observability_pod_identity" {
   source = "terraform-aws-modules/eks-pod-identity/aws"
 
-  name            = "aws-cloudwatch-observability-${module.eks.cluster_name}"
+  name            = "aws-cloudwatch-observability"
   use_name_prefix = false
   description     = "AWS Cloudwatch Observability role"
 
