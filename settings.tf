@@ -145,3 +145,9 @@ data "aws_eks_addon_version" "vpc-cni" {
   kubernetes_version = module.eks.cluster_version
   most_recent        = true
 }
+
+data "aws_eks_addon_version" "aws_cloudwatch_observability" {
+  addon_name         = "amazon-cloudwatch-observability"
+  kubernetes_version = module.eks.cluster_version
+  most_recent        = true
+}

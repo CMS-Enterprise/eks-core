@@ -203,6 +203,18 @@ resource "aws_eks_addon" "vpc-cni" {
   addon_version = data.aws_eks_addon_version.vpc-cni.version
 }
 
+resource "aws_eks_addon" "aws_cloudwatch_observability" {
+  cluster_name  = module.eks.cluster_name
+  addon_name    = "amazon-cloudwatch-observability"
+  addon_version = data.aws_eks_addon_version.aws_cloudwatch_observability.version
+
+  configuration_values = jsonencode({
+    advanced_metrics = {
+      enable = false
+    }
+  })
+}
+
 #EKS Pode Identities
 module "aws_ebs_csi_pod_identity" {
   count  = var.enable_eks_pod_identities ? 1 : 0
@@ -260,6 +272,21 @@ module "aws_lb_controller_pod_identity" {
   tags = var.lb_controller_tags
 
   depends_on = [aws_eks_addon.eks-pod-identity-agent]
+}
+
+module "aws_cloudwatch_observability_pod_identity" {
+  source = "terraform-aws-modules/eks-pod-identity/aws"
+
+  name            = "aws-cloudwatch-observability"
+  use_name_prefix = false
+  description     = "AWS Cloudwatch Observability role"
+
+  attach_aws_cloudwatch_observability_policy = true
+  path                                       = local.iam_path
+  permissions_boundary_arn                   = local.permissions_boundary_arn
+  policy_name_prefix                         = "${module.eks.cluster_name}-"
+
+  tags = var.cw_observability_tags
 }
 
 # Ingress for provided prefix lists
