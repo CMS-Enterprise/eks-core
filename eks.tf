@@ -144,14 +144,6 @@ module "eks_base" {
   enable_secrets_store_csi_driver              = true
   enable_secrets_store_csi_driver_provider_aws = true
 
-  secrets_store_csi_driver_provider_aws = {
-    atomic = true
-
-    tags = {
-      Name = "secrets-store-csi-driver-${module.eks.cluster_name}"
-    }
-  }
-
   tags = {
     service = "eks"
   }
