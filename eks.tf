@@ -173,8 +173,20 @@ resource "aws_eks_addon" "aws_cloudwatch_observability" {
   addon_version = data.aws_eks_addon_version.aws_cloudwatch_observability.version
 
   configuration_values = jsonencode({
-    advanced_metrics = {
-      enable = false
+    agent = {
+      config = {
+        logs = {
+          metrics_collected = {
+            app_signals = {}
+            kubernetes = {
+              enhanced_container_insights = false
+            }
+          }
+        }
+      }
+    }
+    containerLogs = {
+      enabled = false
     }
   })
 }
@@ -251,6 +263,39 @@ module "aws_cloudwatch_observability_pod_identity" {
   policy_name_prefix                         = "${module.eks.cluster_name}-"
 
   tags = var.cw_observability_tags
+
+  associations = {
+    "amazon-cloudwatch-observability-controller-manager" = {
+      namespace       = "amazon-cloudwatch"
+      cluster_name    = module.eks.cluster_name
+      service_account = "amazon-cloudwatch-observability-controller-manager"
+    }
+
+    "cloudwatch-agent" = {
+      namespace       = "amazon-cloudwatch"
+      cluster_name    = module.eks.cluster_name
+      service_account = "cloudwatch-agent"
+    }
+
+    "dcgm-exporter-service-acct" = {
+      namespace       = "amazon-cloudwatch"
+      cluster_name    = module.eks.cluster_name
+      service_account = "dcgm-exporter-service-acct"
+    }
+
+    "neuron-monitor-service-acct" = {
+      namespace       = "amazon-cloudwatch"
+      cluster_name    = module.eks.cluster_name
+      service_account = "neuron-monitor-service-acct"
+    }
+
+    "default" = {
+      namespace       = "amazon-cloudwatch"
+      cluster_name    = module.eks.cluster_name
+      service_account = "default"
+    }
+
+  }
 }
 
 # Ingress for provided prefix lists
