@@ -19,16 +19,6 @@ variable "cloudwatch_kms_key_arn" {
   type        = string
 }
 
-variable "container_subnet_ids" {
-  description = "The IDs of the container subnets"
-  type        = list(string)
-}
-
-variable "container_subnet_lookup_override" {
-  description = "The subnet lookup override for container subnets"
-  type        = string
-}
-
 variable "custom_ami" {
   description = "The ID of the custom AMI to use for the nodes"
   type        = string

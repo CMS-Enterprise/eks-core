@@ -205,19 +205,7 @@ resource "aws_eks_addon" "vpc_cni" {
 
   configuration_values = jsonencode({
     env = {
-      AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
-      ENI_CONFIG_ANNOTATION_DEF          = "k8s.amazonaws.com/eniConfig"
-      ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
-    }
-    eniConfig = {
-      create = true
-      region = data.aws_region.current.name
-      subnets = {
-        for s in data.aws_subnets.container.ids : s => {
-          id             = s
-          securityGroups = [module.eks.cluster_primary_security_group_id]
-        }
-      }
+      ENABLE_SUBNET_DISCOVERY            = "true"
     }
   })
 }
@@ -308,7 +296,7 @@ module "aws_lb_controller_pod_identity" {
 module "aws_cloudwatch_observability_pod_identity" {
   source = "terraform-aws-modules/eks-pod-identity/aws"
 
-  name            = "aws-cloudwatch-observability"
+  name            = "aws-cloudwatch-observability-${module.eks.cluster_name}"
   use_name_prefix = false
   description     = "AWS Cloudwatch Observability role"
 

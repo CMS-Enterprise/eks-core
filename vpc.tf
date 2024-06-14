@@ -1,3 +1,10 @@
+resource "aws_ec2_tag" "container_subnets" {
+  for_each    = local.all_container_subnet_ids
+  resource_id = each.value
+  key         = "kubernetes.io/role/cni"
+  value       = "1"
+}
+
 # vpc id
 data "aws_vpc" "vpc" {
   tags = {

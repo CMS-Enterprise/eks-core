@@ -38,7 +38,4 @@ locals {
 
   kp_values  = templatefile("${path.module}/values/karpenter/values.yaml.tpl", local.kp_config_settings)
   kpn_values = templatefile("${path.module}/values/karpenter-nodes/values.yaml.tpl", local.kpn_config_settings)
-
-  ##################################### VPC Settings #####################################
-  all_container_subnet_ids = flatten([for subnet in var.container_subnet_ids : subnet])
 }
