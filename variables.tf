@@ -174,7 +174,7 @@ variable "pod_identity_tags" {
 variable "fb_chart_verison" {
   description = "Fluent-bit helm chart version"
   type        = string
-  default     = "0.30.3"
+  default     = "0.1.33"
 }
 
 variable "fb_log_encryption" {

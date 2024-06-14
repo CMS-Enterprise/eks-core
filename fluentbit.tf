@@ -20,7 +20,7 @@ resource "helm_release" "fluent-bit" {
   atomic           = true
   name             = "fluentbit"
   repository       = "https://aws.github.io/eks-charts"
-  chart            = "eks/aws-for-fluent-bit"
+  chart            = "aws-for-fluent-bit"
   version          = var.fb_chart_verison
   create_namespace = true
   namespace        = local.fluentbit_namespace
