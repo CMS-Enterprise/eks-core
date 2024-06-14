@@ -147,7 +147,7 @@ module "eks_base" {
     atomic = true
 
     tags = {
-      Name = "secrets-store-csi-driver-${var.cluster_custom_name}"
+      Name = "secrets-store-csi-driver-${module.eks.cluster_name}"
     }
   }
 
