@@ -212,8 +212,8 @@ resource "aws_eks_addon" "vpc_cni" {
       create = true
       region = data.aws_region.current.name
       subnets = {
-        for subnet in data.aws_subnets.container.subnets : subnet.availability_zone => {
-          id             = subnet.id
+        for s in data.aws_subnets.container.ids : s => {
+          id             = s
           securityGroups = [module.eks.eks_cluster_security_group_id]
         }
       }
