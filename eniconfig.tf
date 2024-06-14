@@ -4,7 +4,7 @@ resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {
 }
 
 resource "kubectl_manifest" "eni_config" {
-  for_each = zipmap(local.all_private_subnet_ids)
+  for_each = (local.all_container_subnet_ids)
 
   yaml_body = yamlencode({
     apiVersion = "crd.k8s.amazonaws.com/v1alpha1"
