@@ -226,40 +226,6 @@ module "aws_lb_controller_pod_identity" {
   depends_on = [aws_eks_addon.eks-pod-identity-agent]
 }
 
-module "fluentbit_pod_identity" {
-  count  = var.enable_eks_pod_identities ? 1 : 0
-  source = "terraform-aws-modules/eks-pod-identity/aws"
-
-  name            = "fluentbit-${module.eks.cluster_name}"
-  use_name_prefix = false
-  description     = "AWS EKS fluentbit role"
-
-
-  attach_custom_policy     = true
-  path                     = local.iam_path
-  permissions_boundary_arn = local.permissions_boundary_arn
-  policy_name_prefix       = "${module.eks.cluster_name}-"
-  source_policy_documents  = [data.aws_iam_policy_document.fluent-bit.json]
-
-  associations = {
-    default = {
-      cluster_name    = local.cluster_name
-      namespace       = local.fluentbit_namespace
-      service_account = local.fluentbit_service_account_name
-    }
-  }
-
-  tags = merge(
-    var.pod_identity_tags,
-    var.fb_tags
-  )
-
-  depends_on = [
-    helm_release.fluent-bit,
-    aws_eks_addon.eks-pod-identity-agent
-  ]
-}
-
 # Ingress for provided prefix lists
 resource "aws_security_group_rule" "allow_ingress_additional_prefix_lists" {
   for_each          = local.cluster_security_groups
