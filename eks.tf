@@ -141,6 +141,7 @@ module "eks_base" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 
+  enable_secrets_store_csi_driver              = true
   enable_secrets_store_csi_driver_provider_aws = true
 
   secrets_store_csi_driver_provider_aws = {
@@ -200,21 +201,21 @@ resource "aws_eks_addon" "kube-proxy" {
 resource "aws_eks_addon" "vpc_cni" {
   cluster_name  = module.eks.cluster_name
   addon_name    = "vpc-cni"
-  addon_version = data.aws_eks_addon_version.vpc_cni.version
+  addon_version = data.aws_eks_addon_version.vpc-cni.version
 
   configuration_values = jsonencode({
-    Env = {
+    env = {
       AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
       ENI_CONFIG_ANNOTATION_DEF          = "k8s.amazonaws.com/eniConfig"
       ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
     }
-    ENIConfig = {
+    eniConfig = {
       create = true
       region = data.aws_region.current.name
       subnets = {
         for s in data.aws_subnets.container.ids : s => {
           id             = s
-          securityGroups = [module.eks.eks_cluster_security_group_id]
+          securityGroups = [module.eks.cluster_primary_security_group_id]
         }
       }
     }
