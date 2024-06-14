@@ -59,6 +59,7 @@ locals {
 
   ################################## VPC Settings ##################################
   all_private_subnet_ids   = flatten([for subnet in data.aws_subnets.private.ids : subnet])
+  all_container_subnet_ids = flatten([for subnet in data.aws_subnets.container.ids : subnet])
 
   ################################## Security Group Settings ##################################
   eks_local = [
