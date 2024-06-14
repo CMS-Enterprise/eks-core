@@ -144,14 +144,6 @@ module "eks_base" {
   enable_secrets_store_csi_driver              = true
   enable_secrets_store_csi_driver_provider_aws = true
 
-  secrets_store_csi_driver_provider_aws = {
-    atomic = true
-
-    tags = {
-      Name = "secrets-store-csi-driver-${module.eks.cluster_name}"
-    }
-  }
-
   tags = {
     service = "eks"
   }
@@ -308,7 +300,7 @@ module "aws_lb_controller_pod_identity" {
 module "aws_cloudwatch_observability_pod_identity" {
   source = "terraform-aws-modules/eks-pod-identity/aws"
 
-  name            = "aws-cloudwatch-observability"
+  name            = "aws-cloudwatch-observability-${module.eks.cluster_name}"
   use_name_prefix = false
   description     = "AWS Cloudwatch Observability role"
 
