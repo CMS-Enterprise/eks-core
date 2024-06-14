@@ -1,34 +1,32 @@
 #Karpenter Terraform
 module "karpenter" {
   source     = "terraform-aws-modules/eks/aws//modules/karpenter"
-  depends_on = [module.eks, module.main_nodes, module.eks_base]
 
-  cluster_name                      = module.eks.cluster_name
+  cluster_name                      = var.eks_cluster_name
   create_access_entry               = false
   create_node_iam_role              = false
   create_pod_identity_association   = true
   enable_pod_identity               = true
   enable_spot_termination           = true
-  iam_policy_name                   = "${module.eks.cluster_name}-karpenter-policy"
-  iam_policy_path                   = local.iam_path
-  iam_role_path                     = local.iam_path
-  iam_role_permissions_boundary_arn = local.permissions_boundary_arn
+  iam_policy_name                   = "${var.eks_cluster_name}-karpenter-policy"
+  iam_policy_path                   = var.iam_path
+  iam_role_path                     = var.iam_path
+  iam_role_permissions_boundary_arn = var.iam_permissions_boundary_arn
   namespace                         = local.karpenter_namespace
-  node_iam_role_arn                 = module.main_nodes.iam_role_arn
+  node_iam_role_arn                 = var.main_nodes_iam_role_arn
   service_account                   = local.karpenter_service_account_name
 
 
-  tags = var.karpenter_tags
+  tags = var.karpenter_base_tags
 }
 
 #Karpenter HELM
 resource "helm_release" "karpenter-crd" {
-  depends_on       = [module.eks, module.main_nodes, module.eks_base, module.karpenter]
   atomic           = true
   name             = "karpenter"
   repository       = "oci://public.ecr.aws/karpenter"
   chart            = "karpenter"
-  version          = var.kp_chart_verison
+  version          = var.karpenter_chart_version
   create_namespace = true
   namespace        = local.karpenter_namespace
 
@@ -44,6 +42,8 @@ resource "helm_release" "karpenter-crd" {
     name  = "settings.isolatedVPC"
     value = true
   }
+
+  depends_on = [module.karpenter]
 }
 
 #Karpenter Nodes HELM
@@ -51,7 +51,7 @@ resource "helm_release" "karpenter-nodes" {
   depends_on = [helm_release.karpenter-crd]
   atomic     = true
   name       = "karpenter-nodes"
-  repository = "${path.module}/helm"
+  repository = "${path.module}/values"
   chart      = "karpenter-nodes"
   version    = "1.0.0"
   namespace  = local.karpenter_namespace

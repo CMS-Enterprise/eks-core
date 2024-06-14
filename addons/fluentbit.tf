@@ -1,27 +1,26 @@
 #Cloudwatch Log Group
 resource "aws_cloudwatch_log_group" "fluent-bit" {
   name              = local.fluentbit_log_name
-  retention_in_days = var.fb_log_retention
-  kms_key_id        = var.fb_log_encryption ? module.cloudwatch_kms.key_arn : null
-  tags              = var.fb_tags
+  retention_in_days = var.fluentbit_log_retention
+  kms_key_id        = var.fluentbit_log_encryption ? var.cloudwatch_kms_key_arn : null
+  tags              = var.fluentbit_tags
 }
 
 resource "aws_cloudwatch_log_group" "fluent-bit-system" {
-  count             = var.fb_log_systemd ? 1 : 0
+  count             = var.fluentbit_log_systemd ? 1 : 0
   name              = local.fluentbit_system_log_name
-  retention_in_days = var.fb_system_log_retention
-  kms_key_id        = var.fb_log_encryption ? module.cloudwatch_kms.key_arn : null
-  tags              = var.fb_tags
+  retention_in_days = var.fluentbit_system_log_retention
+  kms_key_id        = var.fluentbit_log_encryption ? var.cloudwatch_kms_key_arn : null
+  tags              = var.fluentbit_tags
 }
 
 #Fluentbit HELM
 resource "helm_release" "fluent-bit" {
-  depends_on       = [module.eks, module.main_nodes, module.eks_base]
   atomic           = true
   name             = "fluentbit"
   repository       = "https://aws.github.io/eks-charts"
   chart            = "aws-for-fluent-bit"
-  version          = var.fb_chart_verison
+  version          = var.fluentbit_chart_version
   create_namespace = true
   namespace        = local.fluentbit_namespace
 
@@ -31,7 +30,7 @@ resource "helm_release" "fluent-bit" {
 
   set {
     name  = "clusterName"
-    value = local.cluster_name
+    value = var.eks_cluster_name
   }
 
   set {

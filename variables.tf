@@ -171,7 +171,7 @@ variable "pod_identity_tags" {
 }
 
 ################################# Fluent-bit #################################
-variable "fb_chart_verison" {
+variable "fb_chart_version" {
   description = "Fluent-bit helm chart version"
   type        = string
   default     = "0.1.33"
@@ -207,7 +207,7 @@ variable "fb_system_log_retention" {
   default     = 7
 }
 
-variable "drop_namespaces" {
+variable "fb_drop_namespaces" {
   type = list(string)
   default = [
     "kube-system",
@@ -216,7 +216,7 @@ variable "drop_namespaces" {
   description = "Fluent-bit doesn't send logs for these namespaces"
 }
 
-variable "kube_namespaces" {
+variable "fb_kube_namespaces" {
   type = list(string)
   default = [
     "kube.*",
@@ -225,7 +225,7 @@ variable "kube_namespaces" {
   description = "Kubernetes namespaces"
 }
 
-variable "log_filters" {
+variable "fb_log_filters" {
   type = list(string)
   default = [
     "kube-probe",
@@ -236,7 +236,7 @@ variable "log_filters" {
   description = "Fluent-bit doesn't send logs if message consists of these values"
 }
 
-variable "additional_log_filters" {
+variable "fb_additional_log_filters" {
   type = list(string)
   default = [
     "ELB-HealthChecker",
@@ -246,7 +246,7 @@ variable "additional_log_filters" {
 }
 
 ################################# Karpenter Variables #################################
-variable "kp_chart_verison" {
+variable "kp_chart_version" {
   description = "Karpenter helm chart version"
   type        = string
   default     = "0.37.0"

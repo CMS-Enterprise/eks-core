@@ -97,6 +97,17 @@ If none of these variables are set, the Terraform configuration will not proceed
 By following this guide, you should be able to deploy an EKS cluster using this Terraform module.
 If you encounter any issues or have further questions, consult the Terraform and AWS documentation.
 
+## Questions
+1. What does the error below mean?
+```bash
+Error: no matching EC2 VPC found
+```
+This means that you probably have an incorrect value being passed in your module call. You need to set both the `env` and `project` variables to the correct values. For example:
+```hcl
+env = "dev"
+project = "batcave"
+```
+
 ### Explanation:
 
 1. **Terraform Configuration**:

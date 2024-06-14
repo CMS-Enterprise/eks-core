@@ -1,10 +1,3 @@
-resource "aws_iam_role" "fluentbit" {
-  name                 = "${module.eks.cluster_name}-fluentbit"
-  path                 = local.iam_path
-  permissions_boundary = local.permissions_boundary_arn
-  assume_role_policy = data.aws_iam_policy_document.fluentbit_trust.json
-}
-
 resource "aws_iam_role" "vpc" {
   name                 = "${local.cluster_name}-vpc-flow-logs"
   path                 = local.iam_path

@@ -15,12 +15,11 @@ data "aws_subnets" "private" {
   }
 }
 
-# container subnets
 data "aws_subnets" "container" {
   filter {
     name = "tag:Name"
     values = [
-      try(var.subnet_lookup_overrides.container, "${var.project}-*-${var.env}-unroutable-*")
+      try(var.subnet_lookup_overrides.private, "${var.project}-*-${var.env}-unroutable-*")
     ]
   }
 }
@@ -37,9 +36,9 @@ data "aws_ec2_managed_prefix_list" "cmscloud_security_tools" {
   name = "cmscloud-security-tools"
 }
 
-data "aws_ec2_managed_prefix_list" "cmscloud_public_pl" {
-  name = "cmscloud-public"
-}
+# data "aws_ec2_managed_prefix_list" "cmscloud_public_pl" {
+#   name = "cmscloud-public"
+# }
 
 data "aws_ec2_managed_prefix_list" "zscaler_pl" {
   name = "zscaler"
