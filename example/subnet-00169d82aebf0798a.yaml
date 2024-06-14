@@ -1,8 +1,0 @@
-apiVersion: crd.k8s.amazonaws.com/v1alpha1
-kind: ENIConfig
-metadata:
-  name: subnet-00169d82aebf0798a
-spec:
-  securityGroups:
-    - sg-0d33a5338beac132e
-  subnet: subnet-00169d82aebf0798a

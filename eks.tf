@@ -144,19 +144,6 @@ module "eks_base" {
   enable_secrets_store_csi_driver              = true
   enable_secrets_store_csi_driver_provider_aws = true
 
-  # secrets_store_csi_driver_provider_aws = {
-  #   atomic = true
-
-  # secrets_store_csi_driver_provider_aws = {
-  #   repository    = "https://github.com/kubernetes-sigs/secrets-store-csi-driver"
-  #   chart         = "charts/secrets-store-csi-driver"
-  #   chart_version = "1.4.1"
-  #   atomic        = true
-
-  # tags = {
-  #   Name = "secrets-store-csi-driver-${module.eks.cluster_name}"
-  # }
-
   tags = {
     service = "eks"
   }
@@ -203,11 +190,11 @@ resource "aws_eks_addon" "kube-proxy" {
   addon_version = data.aws_eks_addon_version.kube-proxy.version
 }
 
-# resource "aws_eks_addon" "vpc-cni" {
-#   cluster_name  = module.eks.cluster_name
-#   addon_name    = "vpc-cni"
-#   addon_version = data.aws_eks_addon_version.vpc-cni.version
-# }
+resource "aws_eks_addon" "vpc-cni" {
+  cluster_name  = module.eks.cluster_name
+  addon_name    = "vpc-cni"
+  addon_version = data.aws_eks_addon_version.vpc-cni.version
+}
 
 resource "aws_eks_addon" "aws_cloudwatch_observability" {
   cluster_name  = module.eks.cluster_name
