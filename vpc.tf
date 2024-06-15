@@ -23,6 +23,11 @@ data "aws_subnets" "container" {
   }
 }
 
+data "aws_subnet" "container" {
+  for_each = toset(local.all_container_subnet_ids)
+  id = each.key
+}
+
 data "aws_ec2_managed_prefix_list" "vpn_prefix_list" {
   name = "cmscloud-vpn"
 }

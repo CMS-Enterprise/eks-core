@@ -97,8 +97,24 @@ If none of these variables are set, the Terraform configuration will not proceed
 By following this guide, you should be able to deploy an EKS cluster using this Terraform module.
 If you encounter any issues or have further questions, consult the Terraform and AWS documentation.
 
+## Gotchas
+1. We have seen some instances (from a fresh deployment) where the VPC CNI add on can take longer than expected to create,
+or hangs all together, and causes the nodes to not properly assign IP addresses to pods.
+If this happens, the best course of action is to attempt to destroy the cluster and re-create it.
+If the VPC CNI successfully deploys, but you are still seeing unhealthy nodes,
+or you cannot get the vpc cni to successfully deploy, you may need to manually apply the VPC CNI ENI config to the cluster, then rerun the apply.
+This can be done with the command below. Make sure you use the name of the module you are using to call this module, in the example directory, this is `main-eks`.
+Do not worry if the `terraform state rm` command fails, it is just to remove the state of the null resource, so it can be re-applied.
+```hcl
+terraform state rm module.<name-of-your-module-call>.null_resource.generate_eni_configs
+terraform apply -target module.<name-of-your-module-call>.null_resource.generate_eni_configs
+```
+
 ## Questions
-1. What does the error below mean?
+1. How long does this script normally take to execute?
+The script can take anywhere from 10 to 30 minutes to create.
+It is vastly dependent upon the VPN connection and the traffic on the AWS API.
+2. What does the error below mean?
 ```bash
 Error: no matching EC2 VPC found
 ```
@@ -106,6 +122,38 @@ This means that you probably have an incorrect value being passed in your module
 ```hcl
 env = "dev"
 project = "batcave"
+```
+3. What options are available for the `eks_access_entries` variable?
+Here is an example of the `eks_access_entries` variable:
+```hcl
+eks_access_entries = {
+    techAdmin = {
+      principal_arn = "arn:aws:iam::123456789012:role/techadmin"
+      type          = "STANDARD"
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    },
+    readOnly = {
+      kubernetes_groups = []
+      principal_arn = "arn:aws:iam::123456789012:role/readonly"
+      type          = "STANDARD"
+      policy_associations = {
+        readonly = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
+          access_scope = {
+            namespaces = ["default", "kube-system"]
+            type = "namespace"
+          }
+        }
+      }
+    }
+}
 ```
 
 ### Explanation:
