@@ -7,3 +7,4 @@ k8s/.terraform
 
 # Editor backups
 .*.sw?
+.envrc
