@@ -18,7 +18,7 @@ resource "kubectl_manifest" "eni_config" {
       name = each.value.availability_zone
     }
     spec = {
-      securityGroups = [local.cluster_security_groups.node]
+      securityGroups = module.eks.cluster_primary_security_group_id
       subnet         = each.value.id
     }
   })
