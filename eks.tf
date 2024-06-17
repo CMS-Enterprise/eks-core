@@ -236,16 +236,6 @@ resource "aws_eks_addon" "aws_cloudwatch_observability" {
   depends_on = [module.main_nodes]
 }
 
-resource "null_resource" "generate_eni_configs" {
-  for_each = data.aws_subnet.container
-
-  provisioner "local-exec" {
-    command = <<EOT
-      ${path.module}/utils/eni_config.sh "${module.eks.cluster_primary_security_group_id}" "${each.value.id}" "${each.value.availability_zone}" "${module.eks.cluster_name}"
-    EOT
-  }
-}
-
 #EKS Pode Identities
 module "aws_ebs_csi_pod_identity" {
   count  = var.enable_eks_pod_identities ? 1 : 0
