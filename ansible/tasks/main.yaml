@@ -1,0 +1,71 @@
+---
+
+- name: Pull kubeconfig from EKS
+  command: >
+    aws eks update-kubeconfig
+    --name {{ cluster_name }}
+    --region {{ region }}
+    --kubeconfig {{ kubeconfig_path }}
+  args:
+    creates: "{{ kubeconfig_path }}"
+  register: kubeconfig_result
+
+- name: Install Fluentbit
+  helm:
+    atomic: true
+    chart_repo_url: "{{ fluentbit_repo }}"
+    chart_version: "{{ fluentbit_version }}"
+    create_namespace: true
+    kubeconfig: "{{ kubeconfig_path }}"
+    release_name: fluentbit
+    release_namespace: "{{ fluentbit_namespace }}"
+    release_state: "{{ deploy_fluentbit }}"
+    update_repo_cache: true
+    values_files:
+      - "{{ playbook_dir }}/templates/fluentbit_values.yaml.j2"
+    set_values:
+      - value: clusterName={{ cluster_name }}
+        value_type: str
+      - value: serviceAccount.name={{ fluentbit_service_account_name }}
+        value_type: str
+      - value: serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn={{ fluentbit_iam_role_arn }}
+        value_type: str
+  when: deploy_fluentbit
+
+- name: Install Karpenter
+  helm:
+    atomic: true
+    chart_repo_url: "{{ karpenter_repo }}"
+    chart_version: "{{ karpenter_version }}"
+    create_namespace: true
+    kubeconfig: "{{ kubeconfig_path }}"
+    release_name: karpenter
+    release_namespace: "{{ karpenter_namespace }}"
+    release_state: "{{ deploy_karpenter }}"
+    update_repo_cache: true
+    values_files:
+      - "{{ playbook_dir }}/templates/karpenter_values.yaml.j2"
+    set_values:
+      - value: serviceAccount.name={{ karpenter_service_account_name }}
+  when: deploy_karpenter
+
+- name: Install Karpenter Nodes
+  helm:
+    atomic: true
+    chart_repo_url: "{{ karpenter_nodes_repo }}"
+    chart_version: "{{ karpenter_nodes_version }}"
+    create_namespace: true
+    kubeconfig: "{{ kubeconfig_path }}"
+    release_name: karpenter-nodes
+    release_namespace: "{{ karpenter_namespace }}"
+    release_state: "{{ deploy_karpenter }}"
+    update_repo_cache: true
+    values_files:
+      - "{{ playbook_dir }}/templates/karpenter_nodes_values.yaml.j2"
+  when: deploy_karpenter
+
+- name: Rotate Nodes
+  command: >
+    aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances
+    --filters "Name=tag:eks:nodegroup-name,Values={{ node_group_name }}"
+    --query "Reservations[*].Instances[*].InstanceId" --output text)

@@ -1,0 +1,21 @@
+---
+
+############### REQUIRED TO BE PASSED AS EXTRA VARS ###############
+cluster_name: ""
+region: "us-east-1"
+node_group_name: ""
+###################################################################
+kubeconfig_path: "{{ playbook_dir }}/files/kubeconfig"
+
+deploy_fluentbit: true
+fluentbit_repo: https://aws.github.io/eks-charts
+fluentbit_namespace: fluentbit
+fluentbit_version: 0.1.33
+fluentbit_service_account_name: fluentbit
+fluentbit_iam_role_arn: ""
+
+deploy_karpenter: true
+karpenter_repo: https://charts.karpenter.sh
+karpenter_namespace: karpenter
+karpenter_version: 0.37.0
+karpenter_service_account_name: karpenter

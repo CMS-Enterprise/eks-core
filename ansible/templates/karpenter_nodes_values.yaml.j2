@@ -5,18 +5,17 @@ nodeClass:
       description: "EC2NodeClass for running Amazon Linux 2 nodes with custom user data"
 
   spec:
-    amiFamily: ${amiFamily}
-    amiID: ${amiID}
-    bottlerocket: ${bottlerocket}
-    role: ${iamRole}
-    subnetTag: ${subnetTag}
-    securityGroupID: ${securityGroupID}   
-    tags:
-      ${tags}
+    amiFamily: {{ karpenter_ami_family }}
+    amiID: {{ karpenter_ami_id }}
+    bottlerocket: {{ karpenter_bottlerocket }}
+    role: {{ karpenter_iam_role }}
+    subnetTag: {{ karpenter_subnet_tag }}
+    securityGroupID:  {{ karpenter_security_group_id }}
+    tags: {{ karpenter_tags }}
 
 nodePool:
   metadata:
-    name: "default" 
+    name: "default"
     annotations:
       kubernetes.io/description: "General purpose NodePool for generic workloads"
   spec:
