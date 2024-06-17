@@ -9,4 +9,3 @@ k8s/.terraform
 .*.sw?
 *.backup
 .envrc
-*.backup
