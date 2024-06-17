@@ -157,7 +157,17 @@ eks_access_entries = {
    - The `image_var_validation` local variable checks if both `custom_ami_id` and `gold_image_date` are set, or if `use_bottlerocket` is set to `true` and either `custom_ami_id` or `gold_image_date` are set.
    - The `ami_id` local variable determines the AMI ID to use based on the precedence order: `gold_image_date`, `custom_ami_id`, `use_bottlerocket`.
    - The `null_resource.validate_vars` resource uses a `local-exec` provisioner to run a shell script that checks the `image_var_validation` condition and exits with an error if it is true.
+   - The following environment variables need to be configured:
+     - `AWS_ACCESS_KEY_ID`
+     - `AWS_SECRET_ACCESS_KEY`
+     - `AWS_DEFAULT_REGION`
+     - `AWS_SESSION_TOKEN` (if using temporary credentials)
+      OR
+     - `AWS_PROFILE` (if using named profile)
 2. **README.md**:
 
    - The README provides an overview of the module, a table of configurable variables, usage instructions, and details on the AMI selection logic.
    - The AMI selection logic section explains the requirements for setting the image variables and the precedence order if more than one variable is set.
+3. **Execution**:
+
+   - You will see that after the cluster and nodes have come up, and all addons are deployed, the nodes will destroy. This is intended behavior as the nodes are cycled to assure they are utilizing the latest VPC CNI configuration.

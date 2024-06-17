@@ -373,3 +373,16 @@ resource "aws_security_group_rule" "https-vpc-ingress" {
   security_group_id = module.eks.cluster_primary_security_group_id
   cidr_blocks       = data.aws_vpc.vpc.cidr_block_associations.*.cidr_block
 }
+
+resource "null_resource" "terminate_nodes" {
+  provisioner "local-exec" {
+    command = <<EOT
+      aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filters "Name=tag:eks:nodegroup-name,Values=${split(":", module.main_nodes.node_group_id)[1]}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+    EOT
+  }
+
+  depends_on = [
+    module.eks_addons,
+    aws_eks_addon.vpc_cni
+  ]
+}
