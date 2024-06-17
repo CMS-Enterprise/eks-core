@@ -1,5 +1,5 @@
-provider "kubectl" {
-  host                   = module.eks.cluster_endpoint
+provider kubectl {
+   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
@@ -18,7 +18,7 @@ resource "kubectl_manifest" "eni_config" {
       name = each.value.availability_zone
     }
     spec = {
-      securityGroups = module.eks.cluster_primary_security_group_id
+      securityGroups = [module.eks.cluster_primary_security_group_id] 
       subnet         = each.value.id
     }
   })

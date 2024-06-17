@@ -9,45 +9,45 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 
 Below is a table of the variables you can configure in this module, along with their types and default values.
 
-|             Variable Name             |      Type      |                         Default Value                          |                                                                              Description                                                                              |
-|:-------------------------------------:|:--------------:|:--------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|              Variable Name              |       Type       |                          Default Value                          |                                                                              Description                                                                              |
+| :-------------------------------------: | :--------------: | :--------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 |            `custom_ami_id`            |    `string`    |                              `""`                              |                                                              The custom AMI ID to use for the EKS nodes.                                                              |
-|                 `env`                 |    `string`    |                            `"dev"`                             |                                                                         The environment name.                                                                         |
-|               `project`               |    `string`    |                          `"batcave"`                           |                                                                           The project name.                                                                           |
-|       `subnet_lookup_overrides`       | `map(string)`  |                              `{}`                              |    Some Subnets don't follow standard naming conventions. Use this map to override the query used for looking up Subnets. Ex: { private = "foo-west-nonpublic-*" }    |
-|       `create_s3_vpc_endpoint`        |     `bool`     |                             `true`                             |                                                            Toggle on/off the creation of s3 VPC endpoint.                                                             |
+|                 `env`                 |    `string`    |                            `"dev"`                            |                                                                         The environment name.                                                                         |
+|               `project`               |    `string`    |                          `"batcave"`                          |                                                                           The project name.                                                                           |
+|       `subnet_lookup_overrides`       | `map(string)` |                              `{}`                              |    Some Subnets don't follow standard naming conventions. Use this map to override the query used for looking up Subnets. Ex: { private = "foo-west-nonpublic-*" }    |
+|       `create_s3_vpc_endpoint`       |     `bool`     |                             `true`                             |                                                            Toggle on/off the creation of s3 VPC endpoint.                                                            |
 |    `vpc_endpoint_lookup_overrides`    |    `string`    |                              `""`                              | Some VPC endpoints don't follow standard naming conventions. Use this map to override the query used for looking up Subnets. Ex: { private = "foo-west-nonpublic-*" } |
-|         `vpc_lookup_override`         |    `string`    |                              `""`                              |             Some VPCs don't follow standard naming conventions. Use this to override the query used to lookup VPC names. Accepts wildcard in form of '*'              |
-|           `gold_image_date`           |    `string`    |                              `""`                              |                                                                  Gold Image Date in YYYY-MM format.                                                                   |
-|          `use_bottlerocket`           |     `bool`     |                            `false`                             |                                                                  Use Bottlerocket AMI for EKS nodes.                                                                  |
-|         `cluster_custom_name`         |    `string`    |                              N/A                               |                            The name of the EKS cluster. Must contain a '-'. Cluster name defaults to `main-test` if no value is provided.                             |
-|         `eks_access_entries`          | `map(object)`  |                              `{}`                              |                                                            The access entries to apply to the EKS cluster.                                                            |
-|          `eks_cluster_tags`           | `map(string)`  |                              `{}`                              |                                                                 The tags to apply to the EKS cluster.                                                                 |
-|     `eks_main_nodes_desired_size`     |    `number`    |                              `3`                               |                                                             The desired size of the main EKS node group.                                                              |
-|       `eks_main_nodes_max_size`       |    `number`    |                              `6`                               |                                                               The max size of the main EKS node group.                                                                |
-|       `eks_main_nodes_min_size`       |    `number`    |                              `3`                               |                                                               The min size of the main EKS node group.                                                                |
-|            `eks_node_tags`            | `map(string)`  |                              `{}`                              |                                                                  The tags to apply to the EKS nodes.                                                                  |
-| `eks_security_group_additional_rules` | `map(object)`  |                              `{}`                              |                                                        Additional rules to add to the EKS node security group.                                                        |
+|         `vpc_lookup_override`         |    `string`    |                              `""`                              |             Some VPCs don't follow standard naming conventions. Use this to override the query used to lookup VPC names. Accepts wildcard in form of '*'             |
+|           `gold_image_date`           |    `string`    |                              `""`                              |                                                                  Gold Image Date in YYYY-MM format.                                                                  |
+|          `use_bottlerocket`          |     `bool`     |                            `false`                            |                                                                  Use Bottlerocket AMI for EKS nodes.                                                                  |
+|         `cluster_custom_name`         |    `string`    |                               N/A                               |                           The name of the EKS cluster. Must contain a '-'. Cluster name defaults to `main-test` if no value is provided.                           |
+|         `eks_access_entries`         | `map(object)` |                              `{}`                              |                                                            The access entries to apply to the EKS cluster.                                                            |
+|          `eks_cluster_tags`          | `map(string)` |                              `{}`                              |                                                                 The tags to apply to the EKS cluster.                                                                 |
+|     `eks_main_nodes_desired_size`     |    `number`    |                              `3`                              |                                                             The desired size of the main EKS node group.                                                             |
+|       `eks_main_nodes_max_size`       |    `number`    |                              `6`                              |                                                               The max size of the main EKS node group.                                                               |
+|       `eks_main_nodes_min_size`       |    `number`    |                              `3`                              |                                                               The min size of the main EKS node group.                                                               |
+|            `eks_node_tags`            | `map(string)` |                              `{}`                              |                                                                  The tags to apply to the EKS nodes.                                                                  |
+| `eks_security_group_additional_rules` | `map(object)` |                              `{}`                              |                                                        Additional rules to add to the EKS node security group.                                                        |
 |             `eks_version`             |    `string`    |                            `"1.29"`                            |                                                                    The version of the EKS cluster.                                                                    |
-|             `node_labels`             | `map(string)`  |                              `{}`                              |                                                                 The labels to apply to the EKS nodes.                                                                 |
-|             `node_taints`             | `map(string)`  |                              `{}`                              |                                                                 The taints to apply to the EKS nodes.                                                                 |
-|         `lb_controller_tags`          | `map(string)`  |                              `{}`                              |                                                          The tags to apply to the Load Balancer Controller.                                                           |
-|      `enable_eks_pod_identities`      |     `bool`     |                             `true`                             |                                                                      Enable EKS Pod Identities.                                                                       |
-|          `pod_identity_tags`          | `map(string)`  |                              `{}`                              |                                                               The tags to apply to the Pod Identities.                                                                |
-|          `fb_chart_verison`           |    `string`    |                           `"0.30.3"`                           |                                                                    Fluent-bit helm chart version.                                                                     |
+|             `node_labels`             | `map(string)` |                              `{}`                              |                                                                 The labels to apply to the EKS nodes.                                                                 |
+|             `node_taints`             | `map(string)` |                              `{}`                              |                                                                 The taints to apply to the EKS nodes.                                                                 |
+|         `lb_controller_tags`         | `map(string)` |                              `{}`                              |                                                          The tags to apply to the Load Balancer Controller.                                                          |
+|      `enable_eks_pod_identities`      |     `bool`     |                             `true`                             |                                                                      Enable EKS Pod Identities.                                                                      |
+|          `pod_identity_tags`          | `map(string)` |                              `{}`                              |                                                               The tags to apply to the Pod Identities.                                                               |
+|          `fb_chart_verison`          |    `string`    |                           `"0.30.3"`                           |                                                                    Fluent-bit helm chart version.                                                                    |
 |          `fb_log_encryption`          |     `bool`     |                             `true`                             |                                                                   Enable Fluent-bit log encryption.                                                                   |
-|           `fb_log_systemd`            |     `bool`     |                             `true`                             |                                                           Enable Fluent-bit cloudwatch logging for systemd.                                                           |
-|               `fb_tags`               | `map(string)`  |                              `{}`                              |                                                            The tags to apply to the fluent-bit deployment.                                                            |
-|          `fb_log_retention`           |    `number`    |                              `7`                               |                                                                    Days to retain Fluent-bit logs.                                                                    |
-|       `fb_system_log_retention`       |    `number`    |                              `7`                               |                                                                Days to retain Fluent-bit systemd logs.                                                                |
-|           `drop_namespaces`           | `list(string)` |               `["kube-system", "cert-manager"]`                |                                                          Fluent-bit doesn't send logs for these namespaces.                                                           |
-|           `kube_namespaces`           | `list(string)` |                 `["kube.*", "cert-manager.*"]`                 |                                                                        Kubernetes namespaces.                                                                         |
+|           `fb_log_systemd`           |     `bool`     |                             `true`                             |                                                           Enable Fluent-bit cloudwatch logging for systemd.                                                           |
+|               `fb_tags`               | `map(string)` |                              `{}`                              |                                                            The tags to apply to the fluent-bit deployment.                                                            |
+|          `fb_log_retention`          |    `number`    |                              `7`                              |                                                                    Days to retain Fluent-bit logs.                                                                    |
+|       `fb_system_log_retention`       |    `number`    |                              `7`                              |                                                                Days to retain Fluent-bit systemd logs.                                                                |
+|           `drop_namespaces`           | `list(string)` |               `["kube-system", "cert-manager"]`               |                                                          Fluent-bit doesn't send logs for these namespaces.                                                          |
+|           `kube_namespaces`           | `list(string)` |                 `["kube.*", "cert-manager.*"]`                 |                                                                        Kubernetes namespaces.                                                                        |
 |             `log_filters`             | `list(string)` |      `["kube-probe", "health", "prometheus", "liveness"]`      |                                                   Fluent-bit doesn't send logs if message consists of these values.                                                   |
-|       `additional_log_filters`        | `list(string)` | `["ELB-HealthChecker", "Amazon-Route53-Health-Check-Service"]` |                                                   Fluent-bit doesn't send logs if message consists of these values.                                                   |
-|          `kp_chart_verison`           |    `string`    |                           `"0.37.0"`                           |                                                                     Karpenter helm chart version.                                                                     |
-|           `karpenter_tags`            | `map(string)`  |                              `{}`                              |                                                            The tags to apply to the Karpenter deployment.                                                             |
-|          `main_bucket_tags`           | `map(string)`  |                              `{}`                              |                                                                 The tags to apply to the main bucket.                                                                 |
-|         `logging_bucket_tags`         | `map(string)`  |                              `{}`                              |                                                               The tags to apply to the logging bucket.                                                                |
+|       `additional_log_filters`       | `list(string)` | `["ELB-HealthChecker", "Amazon-Route53-Health-Check-Service"]` |                                                   Fluent-bit doesn't send logs if message consists of these values.                                                   |
+|          `kp_chart_verison`          |    `string`    |                           `"0.37.0"`                           |                                                                     Karpenter helm chart version.                                                                     |
+|           `karpenter_tags`           | `map(string)` |                              `{}`                              |                                                            The tags to apply to the Karpenter deployment.                                                            |
+|          `main_bucket_tags`          | `map(string)` |                              `{}`                              |                                                                 The tags to apply to the main bucket.                                                                 |
+|         `logging_bucket_tags`         | `map(string)` |                              `{}`                              |                                                               The tags to apply to the logging bucket.                                                               |
 
 ## Usage
 
@@ -64,11 +64,13 @@ module "eks" {
 ### AMI Selection Logic
 
 You must specify one of the following variables to declare what image to use for the EKS nodes:
+
 - `gold_image_date`
 - `custom_ami_id`
 - `use_bottlerocket`
 
 If more than one variable is set, they take precedence in the following order:
+
 1. `gold_image_date`
 2. `custom_ami_id`
 3. `use_bottlerocket`
@@ -79,13 +81,12 @@ If none of these variables are set, the Terraform configuration will not proceed
 
 1. **Add the Module to Your Terraform Configuration**
 
-    Include the module in your Terraform configuration file as shown in the usage example above.
-    Make sure to replace `github.com/<your-github-repo>/path-to-module` with the actual GitHub repository URL and path to the module,
-    and specify the version you want to use.
-
+   Include the module in your Terraform configuration file as shown in the usage example above.
+   Make sure to replace `github.com/<your-github-repo>/path-to-module` with the actual GitHub repository URL and path to the module,
+   and specify the version you want to use.
 2. **Initialize and Apply Terraform**
 
-    Initialize and apply the Terraform configuration:
+   Initialize and apply the Terraform configuration:
 
    ```bash
    terraform init
@@ -97,34 +98,27 @@ If none of these variables are set, the Terraform configuration will not proceed
 By following this guide, you should be able to deploy an EKS cluster using this Terraform module.
 If you encounter any issues or have further questions, consult the Terraform and AWS documentation.
 
-## Gotchas
-1. We have seen some instances (from a fresh deployment) where the VPC CNI add on can take longer than expected to create,
-or hangs all together, and causes the nodes to not properly assign IP addresses to pods.
-If this happens, the best course of action is to attempt to destroy the cluster and re-create it.
-If the VPC CNI successfully deploys, but you are still seeing unhealthy nodes,
-or you cannot get the vpc cni to successfully deploy, you may need to manually apply the VPC CNI ENI config to the cluster, then rerun the apply.
-This can be done with the command below. Make sure you use the name of the module you are using to call this module, in the example directory, this is `main-eks`.
-Do not worry if the `terraform state rm` command fails, it is just to remove the state of the null resource, so it can be re-applied.
-```hcl
-terraform state rm module.<name-of-your-module-call>.null_resource.generate_eni_configs
-terraform apply -target module.<name-of-your-module-call>.null_resource.generate_eni_configs
-```
-
 ## Questions
+
 1. How long does this script normally take to execute?
-The script can take anywhere from 10 to 30 minutes to create.
-It is vastly dependent upon the VPN connection and the traffic on the AWS API.
+   The script can take anywhere from 10 to 30 minutes to create.
+   It is vastly dependent upon the VPN connection and the traffic on the AWS API.
 2. What does the error below mean?
+
 ```bash
 Error: no matching EC2 VPC found
 ```
+
 This means that you probably have an incorrect value being passed in your module call. You need to set both the `env` and `project` variables to the correct values. For example:
+
 ```hcl
 env = "dev"
 project = "batcave"
 ```
+
 3. What options are available for the `eks_access_entries` variable?
-Here is an example of the `eks_access_entries` variable:
+   Here is an example of the `eks_access_entries` variable:
+
 ```hcl
 eks_access_entries = {
     techAdmin = {
@@ -159,10 +153,11 @@ eks_access_entries = {
 ### Explanation:
 
 1. **Terraform Configuration**:
+
    - The `image_var_validation` local variable checks if both `custom_ami_id` and `gold_image_date` are set, or if `use_bottlerocket` is set to `true` and either `custom_ami_id` or `gold_image_date` are set.
    - The `ami_id` local variable determines the AMI ID to use based on the precedence order: `gold_image_date`, `custom_ami_id`, `use_bottlerocket`.
    - The `null_resource.validate_vars` resource uses a `local-exec` provisioner to run a shell script that checks the `image_var_validation` condition and exits with an error if it is true.
-
 2. **README.md**:
+
    - The README provides an overview of the module, a table of configurable variables, usage instructions, and details on the AMI selection logic.
-   - The AMI selection logic section explains the requirements for setting the image variables and the precedence order if more than one variable is set. 
+   - The AMI selection logic section explains the requirements for setting the image variables and the precedence order if more than one variable is set.
