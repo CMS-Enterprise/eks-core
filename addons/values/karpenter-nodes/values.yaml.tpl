@@ -44,4 +44,4 @@ nodePool:
         nodeClassRef:
           apiVersion: "karpenter.k8s.aws/v1beta1"
           kind: "EC2NodeClass"
-          name: "default"
+          name: "main"
