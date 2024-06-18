@@ -5,6 +5,9 @@ cluster_name: ""
 region: "us-east-1"
 node_group_name: ""
 ###################################################################
+argocd_namespace: argocd
+argocd_project: default
+
 kubeconfig_path: "{{ playbook_dir }}/files/kubeconfig"
 
 deploy_fluentbit: true

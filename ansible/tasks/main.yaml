@@ -10,6 +10,20 @@
     creates: "{{ kubeconfig_path }}"
   register: kubeconfig_result
 
+- name: Install ArgoCD
+  helm:
+    atomic: true
+    chart_repo_url: https://argoproj.github.io/argo-helm
+    chart_version: 3.12.3
+    create_namespace: true
+    kubeconfig: "{{ kubeconfig_path }}"
+    release_name: argocd
+    release_namespace: "{{ argocd_namespace }}"
+    release_state: present
+    update_repo_cache: true
+    values_files:
+      - "{{ playbook_dir }}/templates/argocd_values.yaml.j2"
+
 - name: Install Fluentbit
   helm:
     atomic: true
