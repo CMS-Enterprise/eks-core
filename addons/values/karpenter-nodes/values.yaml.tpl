@@ -1,6 +1,6 @@
 nodeClass:
   metadata:
-    name: "main"
+    name: "default"
     annotations:
       description: "EC2NodeClass for running Amazon Linux 2 nodes with custom user data"
 
@@ -44,4 +44,4 @@ nodePool:
         nodeClassRef:
           apiVersion: "karpenter.k8s.aws/v1beta1"
           kind: "EC2NodeClass"
-          name: "main"
+          name: "default"

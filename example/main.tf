@@ -17,3 +17,7 @@ module "main-eks" {
 }
 
 
+output "node_role_arn" {
+  description = "role for testing"
+  value       = module.main-eks.node_role_arn
+}

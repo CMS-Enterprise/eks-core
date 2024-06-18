@@ -29,7 +29,7 @@ locals {
   kpn_config_settings = {
     amiFamily       = var.bottlerocket_enabled ? "Bottlerocket" : (var.gold_image_ami_id != "" ? "Custom" : "AL2")
     amiID           = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
-    iamRole         = var.eks_cluster_iam_role_arn
+    iamRole         = var.main_nodes_iam_role_arn
     subnetTag       = "${var.deploy_project}-*-${var.deploy_env}-private-*"
     tags            = yamlencode(var.karpenter_base_tags)
     bottlerocket    = var.bottlerocket_enabled
