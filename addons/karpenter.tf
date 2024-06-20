@@ -13,7 +13,7 @@ module "karpenter" {
   iam_role_path                     = var.iam_path
   iam_role_permissions_boundary_arn = var.iam_permissions_boundary_arn
   namespace                         = local.karpenter_namespace
-  node_iam_role_arn                 = var.main_nodes_iam_role_arn
+  node_iam_role_arn                 = var.eks_node_iam_role_arn
   service_account                   = local.karpenter_service_account_name
 
 

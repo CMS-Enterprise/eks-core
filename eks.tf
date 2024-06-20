@@ -82,13 +82,13 @@ module "main_nodes" {
   ami_id                  = local.ami_id
   ami_type                = local.ami_id != "BOTTLEROCKET_x86_64" ? "AL2_x86_64" : "BOTTLEROCKET_x86_64"
   block_device_mappings   = local.block_device_mappings
-  bootstrap_extra_args    = local.ami_id != "BOTTLEROCKET_x86_64" ? "" : local.cluster_bottlerocket_user_data
+  bootstrap_extra_args    = local.bootstrap_extra_args
   capacity_type           = "ON_DEMAND"
   instance_types          = var.eks_main_node_instance_types
   labels                  = var.node_labels
   launch_template_name    = "eks-main-${local.cluster_name}"
   platform                = local.ami_id != "BOTTLEROCKET_x86_64" ? "linux" : "bottlerocket"
-  pre_bootstrap_user_data = var.gold_image_date != "" ? local.gold_image_pre_bootstrap_script : null
+  pre_bootstrap_user_data = local.pre_bootstrap_user_data
   taints                  = var.node_taints
 
   tags = merge(var.eks_node_tags, {
@@ -102,16 +102,22 @@ module "eks_addons" {
 
   aws_partition                    = data.aws_partition.current.partition
   aws_region                       = data.aws_region.current.name
+  bootstrap_extra_args             = local.bootstrap_extra_args
   cloudwatch_kms_key_arn           = module.cloudwatch_kms.key_arn
+  cluster_ca_data                  = module.eks.cluster_certificate_authority_data
+  cluster_endpoint                 = module.eks.cluster_endpoint
   custom_ami                       = var.custom_ami_id
   deploy_env                       = var.env
   deploy_project                   = var.project
-  eks_cluster_iam_role_arn         = module.eks.cluster_iam_role_arn
+  eks_cluster_cidr                 = module.eks.cluster_service_cidr
+  eks_cluster_ip_family            = module.eks.cluster_ip_family
   eks_cluster_name                 = module.eks.cluster_name
   eks_cluster_security_group_id    = module.eks.cluster_security_group_id
+  eks_node_iam_role_arn            = module.main_nodes.iam_role_arn
   eks_node_security_group_id       = module.eks.node_security_group_id
   eks_oidc_provider                = module.eks.oidc_provider
   eks_oidc_provider_arn            = module.eks.oidc_provider_arn
+  enable_bootstrap_user_data       = local.enable_bootstrap_user_data
   fluentbit_additional_log_filters = var.fb_additional_log_filters
   fluentbit_chart_version          = var.fb_chart_version
   fluentbit_drop_namespaces        = var.fb_drop_namespaces
@@ -128,6 +134,8 @@ module "eks_addons" {
   karpenter_base_tags              = var.karpenter_tags
   karpenter_chart_version          = var.kp_chart_version
   main_nodes_iam_role_arn          = module.main_nodes.iam_role_arn
+  post_bootstrap_user_data         = local.post_bootstrap_user_data
+  pre_bootstrap_user_data          = local.pre_bootstrap_user_data
 }
 
 module "eks_base" {

@@ -10,7 +10,9 @@ nodeClass:
     bottlerocket: ${bottlerocket}
     role: ${iamRole}
     subnetTag: ${subnetTag}
-    securityGroupID: ${securityGroupID}   
+    securityGroupID: ${securityGroupID}
+    userData: |
+      ${userData}
     tags:
       ${tags}
 

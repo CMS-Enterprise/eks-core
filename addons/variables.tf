@@ -8,10 +8,25 @@ variable "aws_region" {
   type        = string
 }
 
+variable "bootstrap_extra_args" {
+  description = "Extra arguments to pass to the bootstrap script"
+  type        = string
+}
+
 variable "bottlerocket_enabled" {
   description = "Whether to use Bottlerocket AMIs for the nodes"
   type        = bool
   default     = false
+}
+
+variable "cluster_ca_data" {
+  description = "The CA data for the EKS cluster"
+  type        = string
+}
+
+variable "cluster_endpoint" {
+  description = "The endpoint for the EKS cluster"
+  type        = string
 }
 
 variable "cloudwatch_kms_key_arn" {
@@ -35,8 +50,13 @@ variable "deploy_project" {
   type        = string
 }
 
-variable "eks_cluster_iam_role_arn" {
-  description = "The ARN of the IAM role to use for the EKS cluster"
+variable "eks_cluster_cidr" {
+  description = "The CIDR block to use for the EKS cluster"
+  type        = string
+}
+
+variable "eks_cluster_ip_family" {
+  description = "The IP family to use for the EKS cluster"
   type        = string
 }
 
@@ -47,6 +67,11 @@ variable "eks_cluster_name" {
 
 variable "eks_cluster_security_group_id" {
   description = "The ID of the security group to use for the EKS cluster"
+  type        = string
+}
+
+variable "eks_node_iam_role_arn" {
+  description = "The ARN of the IAM role to use for the EKS nodes"
   type        = string
 }
 
@@ -63,6 +88,11 @@ variable "eks_oidc_provider" {
 variable "eks_oidc_provider_arn" {
   description = "The ARN of the OIDC provider for the EKS cluster"
   type        = string
+}
+
+variable "enable_bootstrap_user_data" {
+  description = "Whether to enable the bootstrap user data"
+  type        = bool
 }
 
 variable "fluentbit_additional_log_filters" {
@@ -143,5 +173,15 @@ variable "karpenter_chart_version" {
 
 variable "main_nodes_iam_role_arn" {
   description = "The ARN of the IAM role to use for the main nodes"
+  type        = string
+}
+
+variable "post_bootstrap_user_data" {
+  description = "User data to run after the bootstrap script"
+  type        = string
+}
+
+variable "pre_bootstrap_user_data" {
+  description = "User data to run before the bootstrap script"
   type        = string
 }

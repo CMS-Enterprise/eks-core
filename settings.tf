@@ -31,6 +31,11 @@ locals {
     }
   ]
 
+  bootstrap_extra_args       = local.ami_id != "BOTTLEROCKET_x86_64" ? "" : local.cluster_bottlerocket_user_data
+  enable_bootstrap_user_data = var.gold_image_date != "" ? true : false
+  post_bootstrap_user_data   = ""
+  pre_bootstrap_user_data    = var.gold_image_date != "" ? local.gold_image_pre_bootstrap_script : null
+
   cluster_bottlerocket_user_data = templatefile("${path.module}/utils/bottlerocket_config.toml.tpl",
     {
       cluster_name     = module.eks.cluster_name
@@ -51,7 +56,7 @@ locals {
     data.aws_ec2_managed_prefix_list.vpn_prefix_list.id,
     data.aws_ec2_managed_prefix_list.cmscloud_shared_services_pl.id,
     data.aws_ec2_managed_prefix_list.cmscloud_security_tools.id,
-#     data.aws_ec2_managed_prefix_list.cmscloud_public_pl.id,
+    #     data.aws_ec2_managed_prefix_list.cmscloud_public_pl.id,
     data.aws_ec2_managed_prefix_list.zscaler_pl.id
   ]
   cluster_version                 = var.eks_version
