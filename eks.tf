@@ -260,10 +260,7 @@ module "aws_ebs_csi_pod_identity" {
   tags = var.pod_identity_tags
 
   depends_on = [aws_eks_addon.eks-pod-identity-agent]
-  association_defaults = {
-    namespace       = "kube-system"
-    service_account = "ebs-csi-controller-sa"
-  }
+
 }
 
 module "aws_efs_csi_pod_identity" {
