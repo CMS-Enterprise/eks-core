@@ -100,6 +100,7 @@ module "eks_addons" {
   source     = "./addons"
   depends_on = [module.main_nodes]
 
+  available_availability_zones     = local.available_availability_zone_names
   aws_partition                    = data.aws_partition.current.partition
   aws_region                       = data.aws_region.current.name
   bootstrap_extra_args             = local.bootstrap_extra_args
@@ -109,6 +110,7 @@ module "eks_addons" {
   custom_ami                       = var.custom_ami_id
   deploy_env                       = var.env
   deploy_project                   = var.project
+  ebs_kms_key_id                   = module.ebs_kms.key_id
   eks_cluster_cidr                 = module.eks.cluster_service_cidr
   eks_cluster_ip_family            = module.eks.cluster_ip_family
   eks_cluster_name                 = module.eks.cluster_name

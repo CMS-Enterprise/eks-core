@@ -46,17 +46,124 @@ resource "helm_release" "karpenter-crd" {
   depends_on = [module.karpenter]
 }
 
-#Karpenter Nodes HELM
-resource "helm_release" "karpenter-nodes" {
-  depends_on = [helm_release.karpenter-crd]
-  atomic     = true
-  name       = "karpenter-nodes"
-  repository = "${path.module}/values"
-  chart      = "karpenter-nodes"
-  version    = "1.0.0"
-  namespace  = local.karpenter_namespace
+resource "kubectl_manifest" "karpenter_nodepool" {
+  yaml_body = yamlencode({
+    apiVersion = "karpenter.sh/v1beta1"
+    kind = "NodePool"
+    metadata = {
+      name = var.karpenter_nodepool_name == "" ? "default" : var.karpenter_nodepool_name
+    }
+    spec = {
+      template = {
+        spec = {
+          nodeClassRef = {
+            apiVersion = "karpenter.k8s.aws/v1beta1"
+            kind = "EC2NodeClass"
+            name = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
+          }
+          taints = [ for key, value in var.karpenter_nodepool_taints : {
+            key    = key
+            effect = value
+          }]
+          requirements = [
+            {
+              key = "karpenter.k8s.aws/instance-category"
+              operator = "In"
+              values = ["c"]
+            },
+            {
+              key = "karpenter.k8s.aws/instance-family"
+              operator = "In"
+              values = ["c5"]
+            },
+            {
+              key = "karpenter.k8s.aws/instance-cpu"
+              operator = "In"
+              values = ["4", "8"]
+            },
+            {
+              key = "topology.kubernetes.io/zone"
+              operator = "In"
+              values = var.available_availability_zones
+            },
+            {
+              key = "karpenter.sh/capacity-type"
+              operator = "In"
+              values = ["on-demand"]
+            }
+          ]
+        }
+      }
+      disruption = {
+        consolidationPolicy = "WhenUnderutilized"
+        expireAfter = "160h"
+      }
+    }
+  })
+}
 
-  values = [
-    local.kpn_values
-  ]
+resource "kubectl_manifest" "karpenter_ec2nodeclass" {
+  yaml_body = yamlencode({
+    apiVersion = "karpenter.k8s.aws/v1beta1"
+    kind = "EC2NodeClass"
+    metadata = {
+      name = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
+    }
+    spec = {
+      amiFamily = var.bottlerocket_enabled ? "Bottlerocket" : (var.gold_image_ami_id != "" ? "Custom" : "AL2")
+      subnetSelectorTerms = [
+        {
+          tags = {
+            Name = "${var.deploy_project}-*-${var.deploy_env}-private-*"
+          }
+        }
+      ]
+      securityGroupSelectorTerms = [
+        {
+          id = var.eks_node_security_group_id
+        }
+      ]
+      instanceProfile = var.eks_launch_template_name
+      amiSelectorTerms = [
+        {
+          id = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
+        }
+      ]
+      userData = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
+      tags = var.karpenter_base_tags
+      blockDeviceMappings = var.bottlerocket_enabled ? [
+        {
+          deviceName = "/dev/xvda"
+          ebs = {
+            volumeSize = "8G"
+            volumeType = "gp3"
+            deleteOnTermination = true
+            encrypted = true
+            kmsKeyId = var.ebs_kms_key_id
+          }
+        },
+        {
+          deviceName = "/dev/xvdb"
+          ebs = {
+            volumeSize = "300G"
+            volumeType = "gp3"
+            deleteOnTermination = true
+            encrypted = true
+            kmsKeyId = var.ebs_kms_key_id
+          }
+        }
+      ] : [
+        {
+          deviceName = "/dev/xvda"
+          ebs = {
+            volumeSize = "300G"
+            volumeType = "gp3"
+            deleteOnTermination = true
+            encrypted = true
+            kmsKeyId = var.ebs_kms_key_id
+          }
+        }
+      ]
+    }
+  })
 }

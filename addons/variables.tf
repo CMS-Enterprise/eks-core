@@ -1,3 +1,8 @@
+variable "available_availability_zones" {
+  description = "The available availability zones"
+  type        = list(string)
+}
+
 variable "aws_partition" {
   description = "The AWS partition to deploy into"
   type        = string
@@ -47,6 +52,11 @@ variable "deploy_env" {
 
 variable "deploy_project" {
   description = "The project to deploy"
+  type        = string
+}
+
+variable "ebs_kms_key_id" {
+  description = "The ID of the KMS key to use for EBS volumes"
   type        = string
 }
 
@@ -174,6 +184,24 @@ variable "karpenter_base_tags" {
 variable "karpenter_chart_version" {
   description = "The version of the Karpenter chart to use"
   type        = string
+}
+
+variable "karpenter_ec2nodeclass_name" {
+  description = "The name of the Karpenter EC2 node class"
+  type        = string
+  default     = ""
+}
+
+variable "karpenter_nodepool_name" {
+  description = "The name of the Karpenter node pool"
+  type        = string
+  default     = ""
+}
+
+variable "karpenter_nodepool_taints" {
+  description = "The taints to use for the Karpenter node pool"
+  type        = map(string)
+  default     = {}
 }
 
 variable "main_nodes_iam_role_arn" {

@@ -38,17 +38,5 @@ locals {
     cluster_name = var.eks_cluster_name
   }
 
-  kpn_config_settings = {
-    amiFamily       = var.bottlerocket_enabled ? "Bottlerocket" : (var.gold_image_ami_id != "" ? "Custom" : "AL2")
-    amiID           = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
-    iamRole         = var.eks_launch_template_name
-    subnetTag       = "${var.deploy_project}-*-${var.deploy_env}-private-*"
-    tags            = yamlencode(var.karpenter_base_tags)
-    bottlerocket    = var.bottlerocket_enabled
-    securityGroupID = var.eks_node_security_group_id
-    userData        = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
-  }
-
   kp_values  = templatefile("${path.module}/values/karpenter/values.yaml.tpl", local.kp_config_settings)
-  kpn_values = templatefile("${path.module}/values/karpenter-nodes/values.yaml.tpl", local.kpn_config_settings)
 }
