@@ -100,6 +100,8 @@ resource "kubectl_manifest" "karpenter_nodepool" {
       }
     }
   })
+
+  depends_on = [helm_release.karpenter-crd]
 }
 
 resource "kubectl_manifest" "karpenter_ec2nodeclass" {
@@ -166,4 +168,6 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
       ]
     }
   })
+
+  depends_on = [helm_release.karpenter-crd]
 }
