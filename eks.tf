@@ -196,7 +196,10 @@ resource "aws_eks_addon" "aws-efs-csi-driver" {
 
   depends_on = [module.main_nodes]
 }
-
+resource "aws_iam_role_policy_attachment" "efsstorage" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
+  role       = module.main_nodes.iam_role_name
+}
 resource "aws_eks_addon" "coredns" {
   cluster_name  = module.eks.cluster_name
   addon_name    = "coredns"
