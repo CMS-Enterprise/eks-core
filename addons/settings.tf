@@ -23,7 +23,7 @@ locals {
   karpenter_service_account_name = "karpenter"
 
   user_data = {
-    cluster_auth_base64        = base64encode(var.cluster_ca_data)
+    cluster_auth_base64        = var.cluster_ca_data
     cluster_endpoint           = var.cluster_endpoint
     cluster_cidr               = var.eks_cluster_cidr
     cluster_ip_family          = var.eks_cluster_ip_family
