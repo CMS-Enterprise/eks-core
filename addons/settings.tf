@@ -39,4 +39,9 @@ locals {
   }
 
   kp_values  = templatefile("${path.module}/values/karpenter/values.yaml.tpl", local.kp_config_settings)
+  iam_instance_profile_name = tolist(data.aws_iam_instance_profiles.nodes.names)
+}
+
+data "aws_iam_instance_profiles" "nodes" {
+  role_name = var.eks_node_iam_role_name
 }

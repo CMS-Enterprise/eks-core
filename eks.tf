@@ -117,6 +117,7 @@ module "eks_addons" {
   eks_cluster_security_group_id    = module.eks.cluster_security_group_id
   eks_launch_template_name         = module.main_nodes.launch_template_name
   eks_node_iam_role_arn            = module.main_nodes.iam_role_arn
+  eks_node_iam_role_name           = module.main_nodes.iam_role_name
   eks_node_security_group_id       = module.eks.node_security_group_id
   eks_oidc_provider                = module.eks.oidc_provider
   eks_oidc_provider_arn            = module.eks.oidc_provider_arn

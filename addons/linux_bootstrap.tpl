@@ -1,4 +1,5 @@
 %{ if enable_bootstrap_user_data ~}
+#!/bin/bash
 set -e
 %{ endif ~}
 ${pre_bootstrap_user_data ~}

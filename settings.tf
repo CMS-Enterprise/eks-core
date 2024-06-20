@@ -1,6 +1,5 @@
 locals {
   ################################## EKS Settings ##################################
-  asg_names = [for arn in module.main_nodes.autoscaling_group_schedule_arns : regex("arn:aws:autoscaling:[^:]+:[^:]+:scheduledUpdateGroupAction/([^/]+)/[^/]+", arn)[0]]
   block_device_mappings = var.use_bottlerocket ? [
     {
       device_name = "/dev/xvda"

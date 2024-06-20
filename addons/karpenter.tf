@@ -123,7 +123,7 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
           id = var.eks_node_security_group_id
         }
       ]
-      instanceProfile = var.eks_launch_template_name
+      instanceProfile = local.iam_instance_profile_name[0]
       amiSelectorTerms = [
         {
           id = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami

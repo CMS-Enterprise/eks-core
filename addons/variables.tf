@@ -90,6 +90,11 @@ variable "eks_node_iam_role_arn" {
   type        = string
 }
 
+variable "eks_node_iam_role_name" {
+  description = "The ARN of the IAM name to use for the EKS nodes"
+  type        = string
+}
+
 variable "eks_node_security_group_id" {
   description = "The ID of the security group to use for the EKS nodes"
   type        = string
