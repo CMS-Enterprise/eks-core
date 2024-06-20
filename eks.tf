@@ -174,6 +174,11 @@ resource "aws_eks_addon" "aws-ebs-csi-driver" {
   addon_version = data.aws_eks_addon_version.aws-ebs-csi-driver.version
 
   depends_on = [module.main_nodes]
+
+}
+resource "aws_iam_role_policy_attachment" "storage" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  role       = module.main_nodes.iam_role_name
 }
 
 resource "aws_eks_addon" "aws-efs-csi-driver" {
