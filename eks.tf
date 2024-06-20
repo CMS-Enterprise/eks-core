@@ -142,6 +142,10 @@ module "eks_base" {
   enable_secrets_store_csi_driver              = true
   enable_secrets_store_csi_driver_provider_aws = true
 
+  enable_aws_load_balancer_controller = true
+  aws_load_balancer_controller = {
+    create_role = false
+  }
   secrets_store_csi_driver_provider_aws = {
     atomic = true
 
@@ -291,6 +295,18 @@ module "aws_lb_controller_pod_identity" {
   policy_name_prefix              = "${module.eks.cluster_name}-"
 
   tags = var.lb_controller_tags
+
+  # Pod Identity Associations
+  association_defaults = {
+    namespace       = "kube-system"
+    service_account = "aws-load-balancer-controller-sa"
+  }
+
+  associations = {
+    ex-one = {
+      cluster_name = "${module.eks.cluster_name}"
+    }
+  }
 
   depends_on = [aws_eks_addon.eks-pod-identity-agent]
 }
