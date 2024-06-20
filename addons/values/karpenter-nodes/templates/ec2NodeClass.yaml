@@ -34,7 +34,7 @@ spec:
         deleteOnTermination: true
         encrypted: true
   {{- end }}
-  role: "{{ .Values.nodeClass.spec.role }}"
+  instanceProfile: "{{ .Values.nodeClass.spec.instanceProfile }}"
   associatePublicIPAddress: {{ .Values.nodeClass.spec.associatePublicIPAddress | default false }}   
   subnetSelectorTerms:
     - tags:

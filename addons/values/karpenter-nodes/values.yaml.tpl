@@ -8,7 +8,7 @@ nodeClass:
     amiFamily: ${amiFamily}
     amiID: ${amiID}
     bottlerocket: ${bottlerocket}
-    role: ${iamRole}
+    instanceProfile: ${iamRole}
     subnetTag: ${subnetTag}
     securityGroupID: ${securityGroupID}   
     tags:
