@@ -151,6 +151,67 @@ variable "node_taints" {
   default     = {}
 }
 
+################################# EFS Variables #################################
+variable "efs_availability_zone_name" {
+  description = "The availability zone for the EFS"
+  type        = string
+  default     = ""
+}
+
+variable "efs_encryption_enabled" {
+  description = "Enable encryption for the EFS"
+  type        = bool
+  default     = true
+}
+
+variable "efs_lifecycle_policy_transition_to_archive" {
+  description = "The transition to archive policy for the EFS"
+  type        = string
+  default     = "AFTER_180_DAYS"
+}
+
+variable "efs_lifecycle_policy_transition_to_ia" {
+  description = "The transition to IA policy for the EFS"
+  type        = string
+  default     = "AFTER_90_DAYS"
+}
+
+variable "efs_lifecycle_policy_transition_to_primary_storage_class" {
+  description = "The transition to primary storage class policy for the EFS"
+  type        = string
+  default     = "AFTER_1_ACCESS"
+}
+
+variable "efs_provisioned_throughput_in_mibps" {
+  description = "The provisioned throughput for the EFS"
+  type        = number
+  default     = 0
+}
+
+variable "efs_performance_mode" {
+  description = "The performance mode for the EFS"
+  type        = string
+  default     = "generalPurpose"
+}
+
+variable "efs_protection_replication_overwrite" {
+  description = "The replication overwrite protection for the EFS"
+  type        = string
+  default     = "DISABLED"
+}
+
+variable "efs_tags" {
+  description = "The tags to apply to the EFS"
+  type        = map(string)
+  default     = {}
+}
+
+variable "efs_throughput_mode" {
+  description = "The throughput mode for the EFS"
+  type        = string
+  default     = "bursting"
+}
+
 ################################# Load Balancer Controller Variables #################################
 variable "lb_controller_tags" {
   description = "The tags to apply to the Load Balancer Controller"

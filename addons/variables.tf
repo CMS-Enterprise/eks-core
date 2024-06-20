@@ -70,6 +70,11 @@ variable "eks_cluster_security_group_id" {
   type        = string
 }
 
+variable "eks_launch_template_name" {
+  description = "The name of the launch template for the EKS nodes"
+  type        = string
+}
+
 variable "eks_node_iam_role_arn" {
   description = "The ARN of the IAM role to use for the EKS nodes"
   type        = string

@@ -90,6 +90,6 @@ resource "aws_ec2_tag" "internal_elb_controller" {
 resource "aws_ec2_tag" "all_subnets" {
   for_each    = toset(data.aws_subnets.all_subnets.ids)
   resource_id = each.value
-  key         = "kubernetes.io/cluster/${local.cluster_name}"
+  key         = "kubernetes.io/cluster/${module.eks.cluster_name}"
   value       = "shared"
 }

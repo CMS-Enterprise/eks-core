@@ -126,6 +126,29 @@ module "ebs_kms" {
   }
 }
 
+module "efs_kms" {
+  source  = "terraform-aws-modules/kms/aws"
+  version = "3.0.0"
+
+  aliases                            = ["${local.cluster_name}-efs"]
+  bypass_policy_lockout_safety_check = false
+  create                             = true
+  deletion_window_in_days            = 7
+  description                        = "Encrypt and decrypt data for EFS"
+  enable_default_policy              = true
+  enable_key_rotation                = true
+  is_enabled                         = true
+  key_administrators                 = [data.aws_caller_identity.current.arn] # Needs to change to the specific need-to-know roles
+  key_owners                         = [data.aws_caller_identity.current.arn]
+  key_usage                          = "ENCRYPT_DECRYPT"
+  key_users                          = ["*"]
+  rotation_period_in_days            = 90
+
+  tags = {
+    Name = "EFS"
+  }
+}
+
 module "s3_kms" {
   source  = "terraform-aws-modules/kms/aws"
   version = "3.0.0"
