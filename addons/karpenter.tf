@@ -132,7 +132,7 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
         }
       ]
       userData = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
-      tags = var.karpenter_base_tags
+      tags = merge(var.karpenter_base_tags, {Name = "eks-karpenter-${var.eks_cluster_name}"})
       blockDeviceMappings = var.bottlerocket_enabled ? [
         {
           deviceName = "/dev/xvda"
