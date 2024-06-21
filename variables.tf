@@ -123,12 +123,16 @@ variable "eks_node_tags" {
 variable "eks_security_group_additional_rules" {
   description = "Additional rules to add to the EKS node security group"
   type = map(object({
-    description                   = string
+    description                   = optional(string)
     protocol                      = string
     type                          = string
     from_port                     = number
     to_port                       = number
-    source_cluster_security_group = bool
+    cidr_blocks                   = optional(list(string))
+    ipv6_cidr_blocks              = optional(list(string))
+    prefix_list_ids               = optional(list(string))
+    source_cluster_security_group = optional(bool)
+    self                          = optional(bool)
   }))
   default = {}
 }
