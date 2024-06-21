@@ -181,6 +181,21 @@ node_taints = {
 }
 ```
 
+5. What is an example for the `eks_security_group_additional_rules` variable?
+
+```hcl
+eks_security_group_additional_rules = {
+    rule1 = {
+      description = "Allow inbound HTTP and HTTPS traffic"
+      protocol    = "TCP"
+      type        = "inbound"
+      from_port   = 80
+      to_port     = 443
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+```
+
 ### Explanation:
 
 1. **Terraform Configuration**:
