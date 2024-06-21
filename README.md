@@ -118,6 +118,7 @@ If you encounter any issues or have further questions, consult the Terraform and
 1. How long does this script normally take to execute?
    The script can take anywhere from 10 to 30 minutes to create.
    It is vastly dependent upon the VPN connection and the traffic on the AWS API.
+
 2. What does the error below mean?
 
 ```bash
@@ -162,6 +163,21 @@ eks_access_entries = {
         }
       }
     }
+}
+```
+
+4. What is an example of the `node_labels` and `node_taints` variables?
+
+```hcl
+node_labels = {
+  cluster = "some-cluster-name"
+  type = "gpu"
+}
+
+node_taints = {
+  key = "gpu"
+  value = "true"
+  effect = "NoSchedule"
 }
 ```
 
