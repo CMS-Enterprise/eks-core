@@ -11,17 +11,9 @@ webhook:
       effect: "NoSchedule"
 
 affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: usage
-          operator: In
-          values:
-          - karpenter
   podAntiAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       - topologyKey: "kubernetes.io/hostname"
 settings:
-  clusterName: ${cluster_name}
-  interruptionQueue: "Karpenter-"${cluster_name}
+  clusterName: "${cluster_name}"
+  interruptionQueue: "Karpenter-${cluster_name}"

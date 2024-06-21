@@ -1,14 +1,7 @@
-resource "aws_iam_role" "ebs_csi_driver" {
-  name                 = "ebs-csi-driver-role-${module.eks.cluster_name}"
-  path                 = "/delegatedadmin/developer/"
-  permissions_boundary = data.aws_iam_policy.permissions_boundary.arn
-  assume_role_policy   = data.aws_iam_policy_document.ebs-csi-driver.json
-}
-
 resource "aws_iam_role" "vpc" {
-  name                 = "vpc-flow-logs"
-  path                 = "/delegatedadmin/developer/"
-  permissions_boundary = data.aws_iam_policy.permissions_boundary.arn
+  name                 = "${local.cluster_name}-vpc-flow-logs"
+  path                 = local.iam_path
+  permissions_boundary = local.permissions_boundary_arn
 
   assume_role_policy = jsonencode({
     Version : "2012-10-17",

@@ -3,6 +3,9 @@
 k8s/.terraform
 *.tfvars
 .DS_Store
+*.tfstate
 
 # Editor backups
 .*.sw?
+*.backup
+.envrc
