@@ -1,4 +1,4 @@
-# Terraform EKS Module README
+# Terraform EKS Module
 
 ## Overview
 
@@ -100,6 +100,12 @@ If none of these variables are set, the Terraform configuration will not proceed
    terraform init
    terraform apply
    ```
+   
+### Recommendations
+
+- Remove, or alter, the existing storage class for gp2 volumes.
+If you want to keep the gp2 storage class, you can remove the annotation on it that specifies it as the default storage class.
+This will prevent a conflict with the gp3 storage class, which is the updated default storage class for EKS nodes.
 
 ## Conclusion
 
