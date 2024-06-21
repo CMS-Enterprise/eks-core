@@ -9,10 +9,6 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 
 Below is a table of the variables you can configure in this module, along with their types and default values.
 
-Here is the updated markdown table with the new variables added:
-
-Here's the updated markdown table with the variables provided:
-
 |                       Variable Name                        |       Type       |                         Default Value                          |                                                                             Description                                                                             |
 |:----------------------------------------------------------:|:----------------:|:--------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |                      `custom_ami_id`                       |     `string`     |                              `""`                              |                                                             The custom AMI ID to use for the EKS nodes.                                                             |
@@ -81,6 +77,8 @@ Here's the updated markdown table with the variables provided:
 ## Usage
 
 To use this module, include it in your Terraform configuration as follows:
+
+You can also view the example usage in the `main.tf` file in the `example` directory.
 
 ```hcl
 module "eks" {
