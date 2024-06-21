@@ -151,7 +151,14 @@ module "eks_base" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 
-  enable_secrets_store_csi_driver              = true
+  enable_secrets_store_csi_driver = {
+    values = [
+      <<-EOT
+        syncSecret:
+          enabled: true
+      EOT
+    ]
+  }
   enable_secrets_store_csi_driver_provider_aws = true
 
   enable_aws_load_balancer_controller = true
