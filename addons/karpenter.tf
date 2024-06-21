@@ -73,40 +73,14 @@ resource "kubectl_manifest" "karpenter_nodepool" {
             key    = key
             effect = value
           }]
-          requirements = var.karpenter_nodepool_requirements == [] ? [
-            {
-              key = "karpenter.k8s.aws/instance-category"
-              operator = "In"
-              values = ["r"]
-            },
-            {
-              key = "karpenter.k8s.aws/instance-family"
-              operator = "In"
-              values = ["r5", "r6"]
-            },
-            {
-              key = "karpenter.k8s.aws/instance-cpu"
-              operator = "In"
-              values = ["4", "8", "16"]
-            },
-            {
-              key = "topology.kubernetes.io/zone"
-              operator = "In"
-              values = var.available_availability_zones
-            },
-            {
-              key = "karpenter.sh/capacity-type"
-              operator = "In"
-              values = ["on-demand"]
-            }
-          ] : var.karpenter_nodepool_requirements
+          requirements = var.karpenter_nodepool_requirements
         }
       }
       kubelet = var.karpenter_nodepool_kubelet
-      disruption = var.karpenter_nodepool_disruption == {} ? {
+      disruption = {
         consolidationPolicy = "WhenUnderutilized"
         expireAfter = "160h"
-      } : var.karpenter_nodepool_disruption
+      }
       limits = var.karpenter_nodepool_limits
       weight = var.karpenter_nodepool_weight
     }
@@ -124,20 +98,20 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
     }
     spec = {
       amiFamily = var.bottlerocket_enabled ? "Bottlerocket" : (var.gold_image_ami_id != "" ? "Custom" : "AL2")
-      subnetSelectorTerms = var.karpenter_ec2nodeclass_subnet_selector_terms == [] ? [
+      subnetSelectorTerms = [
         {
           tags = {
             Name = "${var.deploy_project}-*-${var.deploy_env}-private-*"
           }
         }
-      ] : var.karpenter_ec2nodeclass_subnet_selector_terms
-      securityGroupSelectorTerms = var.karpenter_ec2nodeclass_security_group_selector_terms == [] ? [
+      ]
+      securityGroupSelectorTerms = [
         {
           id = var.eks_node_security_group_id
         }
-      ] : var.karpenter_ec2nodeclass_security_group_selector_terms
+      ]
       instanceProfile = local.iam_instance_profile_name[0]
-      amiSelectorTerms = var.bottlerocket_enabled ? [] : [
+      amiSelectorTerms = [
         {
           id = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
         }

@@ -47,8 +47,6 @@ Below is a table of the variables you can configure in this module, along with t
 |                `fb_additional_log_filters`                 | `list(string)` | `["ELB-HealthChecker", "Amazon-Route53-Health-Check-Service"]` |                                                  Fluent-bit doesn't send logs if message consists of these values.                                                  |
 |                     `kp_chart_version`                     |    `string`    |                           `"0.37.0"`                           |                                                                    Karpenter helm chart version.                                                                    |
 |                   `kp_ec2nodeclass_name`                   |    `string`    |                          `"default"`                           |                                                                   The name of the EC2 Node Class.                                                                   |
-|      `kp_ec2nodeclass_security_group_selector_terms`       |   `set(any)`   |                              `[]`                              |                                 The security group selector terms for the EC2 Node Class. Defaults to the EKS node security group.                                  |
-|          `kp_ec2nodeclass_subnet_selector_terms`           |   `set(any)`   |                              `[]`                              |                                           The subnet selector terms for the EC2 Node Class. Defaults to private subnets.                                            |
 |                   `kp_ec2nodeclass_tags`                   | `map(string)`  |                              `{}`                              |                                                                  The tags for the EC2 Node Class.                                                                   |
 |                 `kp_nodepool_annotations`                  | `map(string)`  |                              `{}`                              |                                                            The annotations for the Karpenter node pool.                                                             |
 |                  `kp_nodepool_disruption`                  |   `map(any)`   |                              `{}`                              |                                                  The disruption consolidation policy for the Karpenter node pool.                                                   |
@@ -78,8 +76,6 @@ Below is a table of the variables you can configure in this module, along with t
 
 To use this module, include it in your Terraform configuration as follows:
 
-You can also view the example usage in the `main.tf` file in the `example` directory.
-
 ```hcl
 module "eks" {
   source  = "git::https://github.com/CMS-Enterprise/Energon-Kube.git?ref=<release-version>"
@@ -87,6 +83,8 @@ module "eks" {
   variable = value
 }
 ```
+
+You can also view the example usage in the `main.tf` file in the `example` directory.
 
 ### AMI Selection Logic
 
@@ -160,6 +158,7 @@ If none of these variables are set, the Terraform configuration will not proceed
 1. How long does this script normally take to execute?
    The script can take anywhere from 10 to 30 minutes to create.
    It is vastly dependent upon the VPN connection and the traffic on the AWS API.
+
 2. What does the error below mean?
 
 ```bash
@@ -246,6 +245,11 @@ kp_nodepool_requirements = [
   }
 ]
 ```
+
+5. What does the error `Error: no matching EC2 VPC found` mean?
+
+   This error occurs when the module is unable to find a matching EC2 VPC based on the provided `project` and `env` values.
+   Check your `project` and `env` values in your main.tf, or where ever the module is called.
 
 ## Conclusion
 

@@ -196,16 +196,6 @@ variable "karpenter_ec2nodeclass_name" {
   type        = string
 }
 
-variable "karpenter_ec2nodeclass_security_group_selector_terms" {
-  description = "The security group selector terms to use for the Karpenter EC2 node class"
-  type        = set(any)
-}
-
-variable "karpenter_ec2nodeclass_subnet_selector_terms" {
-  description = "The subnet selector terms to use for the Karpenter EC2 node class"
-  type        = set(any)
-}
-
 variable "karpenter_ec2nodeclass_tags" {
   description = "The tags to use for the Karpenter EC2 node class"
   type        = map(string)

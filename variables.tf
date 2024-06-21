@@ -326,18 +326,6 @@ variable "kp_ec2nodeclass_name" {
   default     = "default"
 }
 
-variable "kp_ec2nodeclass_security_group_selector_terms" {
-  description = "The security group selector terms for the EC2 Node Class. Defaults to the EKS node security group."
-  type        = set(any)
-  default     = []
-}
-
-variable "kp_ec2nodeclass_subnet_selector_terms" {
-  description = "The subnet selector terms for the EC2 Node Class. Defaults to private subnets."
-  type        = set(any)
-  default     = []
-}
-
 variable "kp_ec2nodeclass_tags" {
   description = "The tags for the EC2 Node Class"
   type        = map(string)
@@ -389,7 +377,33 @@ variable "kp_nodepool_name" {
 variable "kp_nodepool_requirements" {
   description = "The requirements for the Karpenter node pool"
   type        = set(any)
-  default     = []
+  default     = [
+    {
+      key = "karpenter.k8s.aws/instance-category"
+      operator = "In"
+      values = ["r"]
+    },
+    {
+      key = "karpenter.k8s.aws/instance-family"
+      operator = "In"
+      values = ["r5", "r6"]
+    },
+    {
+      key = "karpenter.k8s.aws/instance-cpu"
+      operator = "In"
+      values = ["4", "8", "16"]
+    },
+    {
+      key = "topology.kubernetes.io/zone"
+      operator = "In"
+      values = ["us-east-1a", "us-east-1b", "us-east-1c"]
+    },
+    {
+      key = "karpenter.sh/capacity-type"
+      operator = "In"
+      values = ["on-demand"]
+    }
+  ]
 }
 
 variable "kp_nodepool_startup_taints" {

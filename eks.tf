@@ -138,8 +138,6 @@ module "eks_addons" {
   karpenter_base_tags                                  = var.karpenter_tags
   karpenter_chart_version                              = var.kp_chart_version
   karpenter_ec2nodeclass_name                          = var.kp_ec2nodeclass_name
-  karpenter_ec2nodeclass_security_group_selector_terms = var.kp_ec2nodeclass_security_group_selector_terms
-  karpenter_ec2nodeclass_subnet_selector_terms         = var.kp_ec2nodeclass_subnet_selector_terms
   karpenter_ec2nodeclass_tags                          = var.kp_ec2nodeclass_tags
   karpenter_nodepool_annotations                       = var.kp_nodepool_annotations
   karpenter_nodepool_disruption                        = var.kp_nodepool_disruption
