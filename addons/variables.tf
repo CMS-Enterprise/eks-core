@@ -194,19 +194,71 @@ variable "karpenter_chart_version" {
 variable "karpenter_ec2nodeclass_name" {
   description = "The name of the Karpenter EC2 node class"
   type        = string
-  default     = ""
+}
+
+variable "karpenter_ec2nodeclass_security_group_selector_terms" {
+  description = "The security group selector terms to use for the Karpenter EC2 node class"
+  type        = list(map(any))
+}
+
+variable "karpenter_ec2nodeclass_subnet_selector_terms" {
+  description = "The subnet selector terms to use for the Karpenter EC2 node class"
+  type        = list(map(any))
+}
+
+variable "karpenter_ec2nodeclass_tags" {
+  description = "The tags to use for the Karpenter EC2 node class"
+  type        = map(string)
+}
+
+variable "karpenter_nodepool_annotations" {
+  description = "The annotations to use for the Karpenter node pool"
+  type        = map(string)
+}
+
+variable "karpenter_nodepool_disruption" {
+  description = "The disruption to use for the Karpenter node pool"
+  type        = map(any)
+}
+
+variable "karpenter_nodepool_kubelet" {
+  description = "The kubelet arguments to use for the Karpenter node pool"
+  type        = map(any)
+}
+
+variable "karpenter_nodepool_labels" {
+  description = "The labels to use for the Karpenter node pool"
+  type        = map(string)
+}
+
+variable "karpenter_nodepool_limits" {
+  description = "The limits to use for the Karpenter node pool"
+  type        = map(string)
 }
 
 variable "karpenter_nodepool_name" {
   description = "The name of the Karpenter node pool"
   type        = string
-  default     = ""
+}
+
+variable "karpenter_nodepool_requirements" {
+  description = "The requirements for the Karpenter node pool"
+  type        = map(string)
+}
+
+variable "karpenter_nodepool_startup_taints" {
+  description = "The startup taints to use for the Karpenter node pool"
+  type        = map(string)
 }
 
 variable "karpenter_nodepool_taints" {
   description = "The taints to use for the Karpenter node pool"
   type        = map(string)
-  default     = {}
+}
+
+variable "karpenter_nodepool_weight" {
+  description = "The weight to use for the Karpenter node pool"
+  type        = number
 }
 
 variable "main_nodes_iam_role_arn" {

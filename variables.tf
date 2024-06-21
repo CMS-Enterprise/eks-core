@@ -320,6 +320,90 @@ variable "kp_chart_version" {
   default     = "0.37.0"
 }
 
+variable "kp_ec2nodeclass_name" {
+  description = "The name of the EC2 Node Class"
+  type        = string
+  default     = "default"
+}
+
+variable "kp_ec2nodeclass_security_group_selector_terms" {
+  description = "The security group selector terms for the EC2 Node Class. Defaults to the EKS node security group."
+  type        = list(map(any))
+  default     = []
+}
+
+variable "kp_ec2nodeclass_subnet_selector_terms" {
+  description = "The subnet selector terms for the EC2 Node Class. Defaults to private subnets."
+  type        = list(map(any))
+  default     = []
+}
+
+variable "kp_ec2nodeclass_tags" {
+  description = "The tags for the EC2 Node Class"
+  type        = map(string)
+  default     = {}
+}
+
+variable "kp_nodepool_annotations" {
+  description = "The annotations for the Karpenter node pool"
+  type        = map(string)
+  default     = {}
+}
+
+variable "kp_nodepool_disruption" {
+  description = "The disruption consolidation policy for the Karpenter node pool"
+  type        = map(any)
+  default     = {}
+}
+
+variable "kp_nodepool_kubelet" {
+  description = "The kubelet arguments for the Karpenter node pool"
+  type        = map(any)
+  default     = {}
+}
+
+variable "kp_nodepool_labels" {
+  description = "The labels for the Karpenter node pool"
+  type        = map(string)
+  default     = {}
+}
+
+variable "kp_nodepool_limits" {
+  description = "The limits for the Karpenter node pool"
+  type        = map(string)
+  default     = {}
+}
+
+variable "kp_nodepool_weight" {
+  description = "The weight for the Karpenter node pool. Higher number means more priority."
+  type        = number
+  default     = 10
+}
+
+variable "kp_nodepool_name" {
+  description = "The name of the Karpenter node pool"
+  type        = string
+  default     = "default"
+}
+
+variable "kp_nodepool_requirements" {
+  description = "The requirements for the Karpenter node pool"
+  type        = map(string)
+  default     = {}
+}
+
+variable "kp_nodepool_startup_taints" {
+  description = "The startup taints for the Karpenter node pool"
+  type        = map(string)
+  default     = {}
+}
+
+variable "kp_nodepool_taints" {
+  description = "The taints for the Karpenter node pool"
+  type        = map(string)
+  default     = {}
+}
+
 variable "karpenter_tags" {
   description = "The tags to apply to the Karpenter deployment"
   type        = map(string)

@@ -51,35 +51,43 @@ resource "kubectl_manifest" "karpenter_nodepool" {
     apiVersion = "karpenter.sh/v1beta1"
     kind = "NodePool"
     metadata = {
-      name = var.karpenter_nodepool_name == "" ? "default" : var.karpenter_nodepool_name
+      name = var.karpenter_nodepool_name
     }
     spec = {
       template = {
+        metadata = {
+          labels = var.karpenter_nodepool_labels
+          annotations = var.karpenter_nodepool_annotations
+        }
         spec = {
           nodeClassRef = {
             apiVersion = "karpenter.k8s.aws/v1beta1"
             kind = "EC2NodeClass"
-            name = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
+            name = var.karpenter_ec2nodeclass_name
           }
           taints = [ for key, value in var.karpenter_nodepool_taints : {
             key    = key
             effect = value
           }]
-          requirements = [
+          startupTaints = [ for key, value in var.karpenter_nodepool_startup_taints : {
+            key    = key
+            effect = value
+          }]
+          requirements = var.karpenter_nodepool_requirements == {} ? [
             {
               key = "karpenter.k8s.aws/instance-category"
               operator = "In"
-              values = ["c"]
+              values = ["r"]
             },
             {
               key = "karpenter.k8s.aws/instance-family"
               operator = "In"
-              values = ["c5"]
+              values = ["r5", "r6"]
             },
             {
               key = "karpenter.k8s.aws/instance-cpu"
               operator = "In"
-              values = ["4", "8"]
+              values = ["4", "8", "16"]
             },
             {
               key = "topology.kubernetes.io/zone"
@@ -91,13 +99,16 @@ resource "kubectl_manifest" "karpenter_nodepool" {
               operator = "In"
               values = ["on-demand"]
             }
-          ]
+          ] : var.karpenter_nodepool_requirements
         }
       }
-      disruption = {
+      kubelet = var.karpenter_nodepool_kubelet
+      disruption = var.karpenter_nodepool_disruption == {} ? {
         consolidationPolicy = "WhenUnderutilized"
         expireAfter = "160h"
-      }
+      } : var.karpenter_nodepool_disruption
+      limits = var.karpenter_nodepool_limits
+      weight = var.karpenter_nodepool_weight
     }
   })
 
@@ -109,30 +120,30 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
     apiVersion = "karpenter.k8s.aws/v1beta1"
     kind = "EC2NodeClass"
     metadata = {
-      name = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
+      name = var.karpenter_ec2nodeclass_name
     }
     spec = {
       amiFamily = var.bottlerocket_enabled ? "Bottlerocket" : (var.gold_image_ami_id != "" ? "Custom" : "AL2")
-      subnetSelectorTerms = [
+      subnetSelectorTerms = var.karpenter_ec2nodeclass_subnet_selector_terms == [] ? [
         {
           tags = {
             Name = "${var.deploy_project}-*-${var.deploy_env}-private-*"
           }
         }
-      ]
-      securityGroupSelectorTerms = [
+      ] : var.karpenter_ec2nodeclass_subnet_selector_terms
+      securityGroupSelectorTerms = var.karpenter_ec2nodeclass_security_group_selector_terms == [] ? [
         {
           id = var.eks_node_security_group_id
         }
-      ]
+      ] : var.karpenter_ec2nodeclass_security_group_selector_terms
       instanceProfile = local.iam_instance_profile_name[0]
-      amiSelectorTerms = [
+      amiSelectorTerms = var.bottlerocket_enabled ? [] : [
         {
           id = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
         }
       ]
       userData = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
-      tags = merge(var.karpenter_base_tags, {Name = "eks-karpenter-${var.eks_cluster_name}"})
+      tags = merge(var.karpenter_ec2nodeclass_tags, {Name = "eks-karpenter-${var.eks_cluster_name}"})
       blockDeviceMappings = var.bottlerocket_enabled ? [
         {
           deviceName = "/dev/xvda"
