@@ -328,13 +328,13 @@ variable "kp_ec2nodeclass_name" {
 
 variable "kp_ec2nodeclass_security_group_selector_terms" {
   description = "The security group selector terms for the EC2 Node Class. Defaults to the EKS node security group."
-  type        = list(map(any))
+  type        = set(any)
   default     = []
 }
 
 variable "kp_ec2nodeclass_subnet_selector_terms" {
   description = "The subnet selector terms for the EC2 Node Class. Defaults to private subnets."
-  type        = list(map(any))
+  type        = set(any)
   default     = []
 }
 
@@ -388,8 +388,8 @@ variable "kp_nodepool_name" {
 
 variable "kp_nodepool_requirements" {
   description = "The requirements for the Karpenter node pool"
-  type        = map(string)
-  default     = {}
+  type        = set(any)
+  default     = []
 }
 
 variable "kp_nodepool_startup_taints" {

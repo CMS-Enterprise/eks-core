@@ -73,7 +73,7 @@ resource "kubectl_manifest" "karpenter_nodepool" {
             key    = key
             effect = value
           }]
-          requirements = var.karpenter_nodepool_requirements == {} ? [
+          requirements = var.karpenter_nodepool_requirements == [] ? [
             {
               key = "karpenter.k8s.aws/instance-category"
               operator = "In"

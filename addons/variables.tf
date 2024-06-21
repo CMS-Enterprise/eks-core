@@ -198,12 +198,12 @@ variable "karpenter_ec2nodeclass_name" {
 
 variable "karpenter_ec2nodeclass_security_group_selector_terms" {
   description = "The security group selector terms to use for the Karpenter EC2 node class"
-  type        = list(map(any))
+  type        = set(any)
 }
 
 variable "karpenter_ec2nodeclass_subnet_selector_terms" {
   description = "The subnet selector terms to use for the Karpenter EC2 node class"
-  type        = list(map(any))
+  type        = set(any)
 }
 
 variable "karpenter_ec2nodeclass_tags" {
@@ -243,7 +243,7 @@ variable "karpenter_nodepool_name" {
 
 variable "karpenter_nodepool_requirements" {
   description = "The requirements for the Karpenter node pool"
-  type        = map(string)
+  type        = set(any)
 }
 
 variable "karpenter_nodepool_startup_taints" {
