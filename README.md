@@ -7,10 +7,6 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 
 ## Variables
 
-Below is a table of the variables you can configure in this module, along with their types and default values.
-
-Here is the updated markdown table with the new variables added:
-
 |                       Variable Name                        |      Type      |                         Default Value                          |                                                                             Description                                                                             |
 |:----------------------------------------------------------:|:--------------:|:--------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |                      `custom_ami_id`                       |    `string`    |                              `""`                              |                                                             The custom AMI ID to use for the EKS nodes.                                                             |
@@ -60,9 +56,6 @@ Here is the updated markdown table with the new variables added:
 |           `efs_protection_replication_overwrite`           |    `string`    |                           `DISABLED`                           |                                                          The replication overwrite protection for the EFS.                                                          |
 |                         `efs_tags`                         | `map(string)`  |                              `{}`                              |                                                                    The tags to apply to the EFS.                                                                    |
 |                   `efs_throughput_mode`                    |    `string`    |                           `bursting`                           |                                                                  The throughput mode for the EFS.                                                                   |
-
-
-This table now includes all the variables you provided, along with their descriptions, types, and default values.
 
 ## Usage
 
