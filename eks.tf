@@ -284,11 +284,7 @@ module "aws_ebs_csi_pod_identity" {
   permissions_boundary_arn  = local.permissions_boundary_arn
   policy_name_prefix        = "${module.eks.cluster_name}-"
 
-  tags = merge(
-    var.pod_identity_tags,
-    {
-      Cluster = local.cluster_name
-  })
+  tags = merge(var.pod_identity_tags, { Cluster = local.cluster_name })
 
   depends_on = [aws_eks_addon.eks-pod-identity-agent]
 }
@@ -307,11 +303,7 @@ module "aws_efs_csi_pod_identity" {
   permissions_boundary_arn  = local.permissions_boundary_arn
   policy_name_prefix        = "${module.eks.cluster_name}-"
 
-  tags = merge(
-    var.pod_identity_tags,
-    {
-      Cluster = local.cluster_name
-  })
+  tags = merge(var.pod_identity_tags, { Cluster = local.cluster_name })
 
   depends_on = [aws_eks_addon.eks-pod-identity-agent]
 }
@@ -330,11 +322,7 @@ module "aws_lb_controller_pod_identity" {
   permissions_boundary_arn        = local.permissions_boundary_arn
   policy_name_prefix              = "${module.eks.cluster_name}-"
 
-  tags = merge(
-    var.pod_identity_tags,
-    {
-      Cluster = local.cluster_name
-  })
+  tags = merge(var.pod_identity_tags, { Cluster = local.cluster_name })
 
   # Pod Identity Associations
   association_defaults = {
@@ -344,7 +332,7 @@ module "aws_lb_controller_pod_identity" {
 
   associations = {
     ex-one = {
-      cluster_name = "${module.eks.cluster_name}"
+      cluster_name = module.eks.cluster_name
     }
   }
 
@@ -363,11 +351,7 @@ module "aws_cloudwatch_observability_pod_identity" {
   permissions_boundary_arn                   = local.permissions_boundary_arn
   policy_name_prefix                         = "${module.eks.cluster_name}-"
 
-  tags = merge(
-    var.pod_identity_tags,
-    {
-      Cluster = local.cluster_name
-  })
+  tags = merge(var.pod_identity_tags, { Cluster = local.cluster_name })
 
   associations = {
     "amazon-cloudwatch-observability-controller-manager" = {
