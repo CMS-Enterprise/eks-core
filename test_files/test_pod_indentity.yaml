@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-identity
+  labels:
+    app: pod-identity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-identity
+  template:
+    metadata:
+      labels:
+        app: pod-identity
+    spec:
+      serviceAccountName: pod-identity
+      containers:
+      - name: pod-identity
+        image: makoreactor/debug:latest
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-identity
+  labels:
+    app: pod-identity
+    

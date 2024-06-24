@@ -28,8 +28,8 @@ provider "aws" {
 module "main-eks" {
   source = "../"
 
-  cluster_custom_name = "eks-core-dev"
-  env                 = "dev"
-  gold_image_date     = "2024-05"
-  project             = "eks-core"
+  cluster_custom_name = "hasan-test1"
+  env                 = "impl"
+  gold_image_date     = "2024-06"
+  project             = "batcave"
 }

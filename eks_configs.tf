@@ -1,18 +1,18 @@
-resource "kubectl_manifest" "eni_config" {
-  for_each = data.aws_subnet.container
+// resource "kubectl_manifest" "eni_config" {
+//   for_each = data.aws_subnet.container
 
-  yaml_body = yamlencode({
-    apiVersion = "crd.k8s.amazonaws.com/v1alpha1"
-    kind       = "ENIConfig"
-    metadata = {
-      name = each.value.availability_zone
-    }
-    spec = {
-      securityGroups = [module.eks.cluster_primary_security_group_id]
-      subnet         = each.value.id
-    }
-  })
-}
+//   yaml_body = yamlencode({
+//     apiVersion = "crd.k8s.amazonaws.com/v1alpha1"
+//     kind       = "ENIConfig"
+//     metadata = {
+//       name = each.value.availability_zone
+//     }
+//     spec = {
+//       securityGroups = [module.eks.cluster_primary_security_group_id]
+//       subnet         = each.value.id
+//     }
+//   })
+// }
 
 resource "kubectl_manifest" "efs_storage_class" {
   yaml_body = yamlencode({

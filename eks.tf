@@ -178,6 +178,15 @@ module "eks_base" {
     }
   }
 
+   secrets_store_csi_driver = {
+    values = [
+      <<-EOT
+        syncSecret:
+          enabled: true
+      EOT
+    ]
+  }
+
   tags = {
     service = "eks"
   }
