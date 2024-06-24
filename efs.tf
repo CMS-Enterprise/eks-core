@@ -23,3 +23,10 @@ resource "aws_efs_file_system" "main" {
 
   tags = merge(var.efs_tags, { "Name" = "efs-${module.eks.cluster_name}" })
 }
+
+resource "aws_efs_mount_target" "main" {
+  for_each        = toset(local.all_private_subnet_ids)
+  file_system_id  = aws_efs_file_system.main.id
+  subnet_id       = each.value
+  security_groups = [module.eks.node_security_group_id]
+}
