@@ -116,6 +116,8 @@ If you encounter any issues or have further questions, consult the Terraform and
 1. How long does this script normally take to execute?
    The script can take anywhere from 10 to 30 minutes to create.
    It is vastly dependent upon the VPN connection and the traffic on the AWS API.
+   The node rotation that occurs at the end of the script generally takes about 5–10 minutes for all nodes to cycle.
+   This will increase as you increase the `desired_value` for the auto-scaling group.
 
 2. What does the error below mean?
 
