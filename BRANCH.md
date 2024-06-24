@@ -76,7 +76,7 @@ Create a PR from `${TICKET_ID}-${DESCRIPTION}` into `dev` on github.
 
 After the PR is approved and merged, QA will periodically create a PR from `dev` into `test`.
 If the automated testing attached as required actions for this PR succeed,
-merges will from `dev` to `test` and `test` to `stable`.
+merges will be perfomed from `dev` to `test` and from `test` to `stable`.
 
 ### Emergency Bug Fixes
 
@@ -122,3 +122,20 @@ git push origin "${NEW_TAG}"
 ```
 
 Update the deployed environment from the newly created tag.
+
+## Tagging for Release
+
+Once all deisred updates are present in `stable`, a new release can be created.
+The following commands merge `stable` into `main` with the default merge commit message then tag the result.
+
+```bash
+git switch stable
+git pull
+git switch main
+git merge --no-ff origin/stable --no-edit
+git tag -a -m "Tagging Release ${NEW_TAG}" "${NEW_TAG}"
+git push origin main
+git push origin "${NEW_TAG}"
+```
+
+Once the tag has been pushed, go into the GitHub interface and create a release from the existing tag `${NEW_TAG}`.
