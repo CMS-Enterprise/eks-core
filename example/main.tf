@@ -8,7 +8,7 @@ provider "aws" {
 }
 
 module "main-eks" {
-  source = "git::https://github.com/CMS-Enterprise/Energon-Kube.git?ref=3.0.0"
+  source = "git::https://github.com/CMS-Enterprise/Energon-Kube.git?ref=feature/null_resource_fix"
 
   cluster_custom_name = "max-test"
   env                 = "impl"
