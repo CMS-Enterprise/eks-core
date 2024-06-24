@@ -8,7 +8,7 @@ provider "aws" {
 }
 
 module "main-eks" {
-  source = "git::https://github.com/CMS-Enterprise/Energon-Kube.git?ref=3.0.0"
+  source = "git::https://github.com/CMS-Enterprise/Energon-Kube.git?ref=3.0.1"
 
   cluster_custom_name = "temp-test"
   env                 = "impl"
