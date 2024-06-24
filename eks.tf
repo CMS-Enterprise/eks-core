@@ -437,7 +437,7 @@ resource "aws_security_group_rule" "https-vpc-ingress" {
 resource "null_resource" "terminate_nodes" {
   provisioner "local-exec" {
     command = <<EOT
-      export AWS_REGION="${data.aws_region.current.name}" && aws ec2 terminate-instances --region $AWS_REGION --instance-ids $(aws ec2 describe-instances --filters "Name=tag:eks:nodegroup-name,Values=${split(":", module.main_nodes.node_group_id)[1]}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+      aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filters "Name=tag:eks:nodegroup-name,Values=${split(":", module.main_nodes.node_group_id)[1]}" --query "Reservations[*].Instances[*].InstanceId" --output text)
     EOT
   }
 
