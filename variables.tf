@@ -216,20 +216,6 @@ variable "efs_throughput_mode" {
   default     = "bursting"
 }
 
-################################# Load Balancer Controller Variables #################################
-variable "lb_controller_tags" {
-  description = "The tags to apply to the Load Balancer Controller"
-  type        = map(string)
-  default     = {}
-}
-
-################################# Cloudwatch Observability Variables #################################
-variable "cw_observability_tags" {
-  description = "The tags to apply to the Cloudwatch Observability add-on"
-  type        = map(string)
-  default     = {}
-}
-
 ################################# Pod Identities #################################
 variable "enable_eks_pod_identities" {
   type    = bool
