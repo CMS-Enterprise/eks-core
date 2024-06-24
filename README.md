@@ -9,8 +9,11 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 
 ## Variables
 
+## Variables
+
 |                       Variable Name                        |      Type      |                         Default Value                          |                                                                             Description                                                                             |
 |:----------------------------------------------------------:|:--------------:|:--------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|                      `custom_ami_id`                       |    `string`    |                              `""`                              |                                                             The custom AMI ID to use for the EKS nodes.                                                             |
 |                           `env`                            |    `string`    |                            `"dev"`                             |                                                                        The environment name.                                                                        |
 |                         `project`                          |    `string`    |                          `"batcave"`                           |                                                                          The project name.                                                                          |
 |                 `subnet_lookup_overrides`                  | `map(string)`  |                              `{}`                              |   Some Subnets don't follow standard naming conventions. Use this map to override the query used for looking up Subnets. Ex: { private = "foo-west-nonpublic-*" }   |
@@ -52,6 +55,7 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 |           `efs_protection_replication_overwrite`           |    `string`    |                           `DISABLED`                           |                                                          The replication overwrite protection for the EFS.                                                          |
 |                         `efs_tags`                         | `map(string)`  |                              `{}`                              |                                                                    The tags to apply to the EFS.                                                                    |
 |                   `efs_throughput_mode`                    |    `string`    |                           `bursting`                           |                                                                  The throughput mode for the EFS.                                                                    |
+
 
 ## Usage
 
