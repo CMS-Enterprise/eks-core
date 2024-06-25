@@ -1,7 +1,8 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.11.0"
-
+  # TODO: Parametrize the all variables and make them default.
+  # TODO: Include environment into the names
   access_entries                               = var.eks_access_entries
   authentication_mode                          = "API_AND_CONFIG_MAP"
   cloudwatch_log_group_class                   = "STANDARD"
