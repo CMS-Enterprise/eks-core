@@ -47,12 +47,14 @@ variable "gold_image_date" {
   }
 }
 
+# TODO : Please remove Bottle Rocket for now as it is not approved. Including this will cause extra documentation for SecOps, which is out of scope.
 variable "use_bottlerocket" {
   description = "Use Bottlerocket AMI for EKS nodes"
   type        = bool
   default     = false
 }
 
+# TODO: I think you are already tracking this. It will not allow any values without testing.
 ################################# EKS Variables #################################
 variable "cluster_custom_name" {
   description = "The name of the EKS cluster"
@@ -64,6 +66,7 @@ variable "cluster_custom_name" {
   }
 }
 
+# TODO: Please add documentation or references for this. It is very important. Create a separate ticket to track this.
 variable "eks_access_entries" {
   description = "The access entries to apply to the EKS cluster"
   type = map(object({
@@ -90,12 +93,14 @@ variable "eks_cluster_tags" {
   default     = {}
 }
 
+
 variable "eks_main_nodes_desired_size" {
   description = "The desired size of the main EKS node group"
   type        = number
   default     = 3
 }
 
+# TODO: please start with t3a.large and keep it as default with a price tag of ~170$ a month.
 variable "eks_main_node_instance_types" {
   description = "The instance types for the main EKS node group"
   type        = list(string)
@@ -123,16 +128,12 @@ variable "eks_node_tags" {
 variable "eks_security_group_additional_rules" {
   description = "Additional rules to add to the EKS node security group"
   type = map(object({
-    description                   = optional(string)
+    description                   = string
     protocol                      = string
     type                          = string
     from_port                     = number
     to_port                       = number
-    cidr_blocks                   = optional(list(string))
-    ipv6_cidr_blocks              = optional(list(string))
-    prefix_list_ids               = optional(list(string))
-    source_cluster_security_group = optional(bool)
-    self                          = optional(bool)
+    source_cluster_security_group = bool
   }))
   default = {}
 }
@@ -149,6 +150,7 @@ variable "node_labels" {
   default     = {}
 }
 
+# TODO: Example for this for better understanding.
 variable "node_taints" {
   description = "The taints to apply to the EKS nodes"
   type        = map(string)
@@ -156,11 +158,13 @@ variable "node_taints" {
 }
 
 ################################# EFS Variables #################################
+# TODO: Please us-east-1a as default and keep it as default.
 variable "efs_availability_zone_name" {
   description = "The availability zone for the EFS"
   type        = string
   default     = ""
 }
+
 
 variable "efs_encryption_enabled" {
   description = "Enable encryption for the EFS"
@@ -173,6 +177,7 @@ variable "efs_lifecycle_policy_transition_to_archive" {
   type        = string
   default     = "AFTER_180_DAYS"
 }
+
 
 variable "efs_lifecycle_policy_transition_to_ia" {
   description = "The transition to IA policy for the EFS"
@@ -214,6 +219,20 @@ variable "efs_throughput_mode" {
   description = "The throughput mode for the EFS"
   type        = string
   default     = "bursting"
+}
+
+################################# Load Balancer Controller Variables #################################
+variable "lb_controller_tags" {
+  description = "The tags to apply to the Load Balancer Controller"
+  type        = map(string)
+  default     = {}
+}
+
+################################# Cloudwatch Observability Variables #################################
+variable "cw_observability_tags" {
+  description = "The tags to apply to the Cloudwatch Observability add-on"
+  type        = map(string)
+  default     = {}
 }
 
 ################################# Pod Identities #################################
@@ -328,3 +347,5 @@ variable "logging_bucket_tags" {
   type        = map(string)
   default     = {}
 }
+
+# TODO: Please include default tags and they  resource level tage should merge if customer need any additional tags

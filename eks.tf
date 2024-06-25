@@ -55,11 +55,13 @@ module "eks" {
 
 module "main_nodes" {
   source  = "terraform-aws-modules/eks/aws//modules/eks-managed-node-group"
+  # TODO: Parametrize the all variables and make this default.
   version = "20.2.1"
 
   name                              = "eks-main-${local.cluster_name}"
   cluster_auth_base64               = module.eks.cluster_certificate_authority_data
   cluster_endpoint                  = module.eks.cluster_endpoint
+  # TODO: Parametrize the all variables and make this default.
   cluster_ip_family                 = "ipv4"
   cluster_name                      = module.eks.cluster_name
   cluster_primary_security_group_id = module.eks.cluster_primary_security_group_id

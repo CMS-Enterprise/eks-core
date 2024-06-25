@@ -100,7 +100,7 @@ module "s3_logs" {
       ]
     }
   ]
-
+  # TODO: This will create recursive logging. Please disable this.
   logging = {}
 
   server_side_encryption_configuration = {
@@ -117,6 +117,7 @@ module "s3_logs" {
     Name = "${local.cluster_name}-Logs"
   })
 
+  #TODO: please disable this
   versioning = {
     enabled = true
   }
