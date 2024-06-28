@@ -44,7 +44,7 @@ module "cloudtrail_kms" {
           identifiers = ["*"]
         }
       ]
-      resources = [module.s3_logs.s3_bucket_arn]
+      resources = [data.aws_s3_bucket.logs.arn]
       condition = [
         {
           test     = "Null"

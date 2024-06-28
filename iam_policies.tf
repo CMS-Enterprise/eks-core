@@ -22,7 +22,7 @@ data "aws_iam_policy_document" "vpc" {
     effect  = "Allow"
     actions = ["s3:PutObject"]
     resources = [
-      "${module.s3_logs.s3_bucket_arn}/*"
+      "${data.aws_s3_bucket.logs.arn}/*"
     ]
   }
 }

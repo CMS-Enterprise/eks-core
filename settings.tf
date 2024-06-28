@@ -1,25 +1,6 @@
 locals {
   ################################## EKS Settings ##################################
-  block_device_mappings = var.use_bottlerocket ? [
-    {
-      device_name = "/dev/xvda"
-      ebs = {
-        volume_size           = 8
-        volume_type           = "gp3"
-        delete_on_termination = true
-        encrypted             = true
-      }
-    },
-    {
-      device_name = "/dev/xvdb"
-      ebs = {
-        volume_size           = "300"
-        volume_type           = "gp3"
-        delete_on_termination = true
-        encrypted             = true
-      }
-    }
-    ] : [
+  block_device_mappings = [
     {
       device_name = "/dev/xvda"
       ebs = {
@@ -31,22 +12,11 @@ locals {
     }
   ]
 
-  bootstrap_extra_args       = local.ami_id != "BOTTLEROCKET_x86_64" ? "" : local.cluster_bottlerocket_user_data
   enable_bootstrap_user_data = var.gold_image_date != "" ? true : false
-  post_bootstrap_user_data   = ""
-  pre_bootstrap_user_data    = var.gold_image_date != "" ? local.gold_image_pre_bootstrap_script : null
+  post_bootstrap_user_data   = var.node_post_bootstrap_script
+  pre_bootstrap_user_data    = var.gold_image_date != "" ? local.gold_image_pre_bootstrap_script : var.node_pre_bootstrap_script
 
-  cluster_bottlerocket_user_data = templatefile("${path.module}/utils/bottlerocket_config.toml.tpl",
-    {
-      cluster_name     = module.eks.cluster_name
-      cluster_endpoint = module.eks.cluster_endpoint
-      cluster_ca_data  = module.eks.cluster_certificate_authority_data
-      node_labels      = join("\n", [for label, value in var.node_labels : "\"${label}\" = \"${value}\""])
-      node_taints      = join("\n", [for taint, value in var.node_taints : "\"${taint}\" = \"${value}\""])
-    }
-  )
-
-  cluster_name = var.cluster_custom_name == "" ? "main-test" : var.cluster_custom_name
+  cluster_name = "${var.program_office}-${var.ado}-${var.env}-${var.cluster_custom_name}"
   cluster_security_groups = {
     node            = module.eks.node_security_group_id
     cluster         = module.eks.cluster_security_group_id
@@ -75,24 +45,13 @@ locals {
   ]
 
   ################################## Misc Config ##################################
-  ami_id = var.gold_image_date != "" ? data.aws_ami.gold_image[0].id : (
-    var.custom_ami_id != "" ? var.custom_ami_id : (
-      var.use_bottlerocket ? "BOTTLEROCKET_x86_64" : ""
-    )
-  )
-
+  ami_id                            = var.gold_image_date != "" ? data.aws_ami.gold_image[0].id : var.custom_ami_id
   available_availability_zone_names = [for az in data.aws_availability_zones.available.names : az]
   iam_path                          = "/delegatedadmin/developer/"
   kubeconfig_path                   = "${path.module}/kubeconfig"
   permissions_boundary_arn          = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/ct-ado-poweruser-permissions-boundary-policy"
   role_arn                          = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/${local.role_name}"
   role_name                         = regex("arn:aws:sts::[0-9]+:assumed-role/([^/]+)/.*", data.aws_caller_identity.current.arn)[0]
-}
-
-resource "random_string" "s3" {
-  length  = 12
-  upper   = false
-  special = false
 }
 
 data "aws_region" "current" {}
@@ -115,6 +74,10 @@ data "aws_ami" "gold_image" {
   most_recent = true
   name_regex  = "^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}"
   owners      = ["743302140042"]
+}
+
+data "aws_s3_bucket" "logs" {
+  bucket = "cms-cloud-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
 }
 
 data "aws_eks_addon_version" "aws-ebs-csi-driver" {
