@@ -112,7 +112,7 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
       name = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
     }
     spec = {
-      amiFamily = var.bottlerocket_enabled ? "Bottlerocket" : (var.gold_image_ami_id != "" ? "Custom" : "AL2")
+      amiFamily = var.gold_image_ami_id != "" ? "Custom" : "AL2"
       subnetSelectorTerms = [
         {
           tags = {
@@ -133,28 +133,7 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
       ]
       userData = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
       tags = merge(var.karpenter_base_tags, {Name = "eks-karpenter-${var.eks_cluster_name}"})
-      blockDeviceMappings = var.bottlerocket_enabled ? [
-        {
-          deviceName = "/dev/xvda"
-          ebs = {
-            volumeSize = "8G"
-            volumeType = "gp3"
-            deleteOnTermination = true
-            encrypted = true
-            kmsKeyId = var.ebs_kms_key_id
-          }
-        },
-        {
-          deviceName = "/dev/xvdb"
-          ebs = {
-            volumeSize = "300G"
-            volumeType = "gp3"
-            deleteOnTermination = true
-            encrypted = true
-            kmsKeyId = var.ebs_kms_key_id
-          }
-        }
-      ] : [
+      blockDeviceMappings = [
         {
           deviceName = "/dev/xvda"
           ebs = {

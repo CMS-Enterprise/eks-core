@@ -18,12 +18,6 @@ variable "bootstrap_extra_args" {
   type        = string
 }
 
-variable "bottlerocket_enabled" {
-  description = "Whether to use Bottlerocket AMIs for the nodes"
-  type        = bool
-  default     = false
-}
-
 variable "cluster_ca_data" {
   description = "The CA data for the EKS cluster"
   type        = string

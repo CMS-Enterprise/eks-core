@@ -143,8 +143,6 @@ project = "batcave"
 
 1. **Terraform Configuration**:
 
-   - The `image_var_validation` local variable checks if both `custom_ami_id` and `gold_image_date` are set, or if `use_bottlerocket` is set to `true` and either `custom_ami_id` or `gold_image_date` are set.
-   - The `ami_id` local variable determines the AMI ID to use based on the precedence order: `gold_image_date`, `custom_ami_id`, `use_bottlerocket`.
    - The `null_resource.validate_vars` resource uses a `local-exec` provisioner to run a shell script that checks the `image_var_validation` condition and exits with an error if it is true.
    - The following environment variables need to be configured:
      - `AWS_ACCESS_KEY_ID`
