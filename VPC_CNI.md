@@ -120,7 +120,8 @@ Secondary unroutable CIDR blocks are essential for:
 
 - [AWS VPC CNI Plugin Documentation](https://docs.aws.amazon.com/eks/latest/userguide/pod-networking.html)
 - [Kubernetes Networking](https://kubernetes.io/docs/concepts/cluster-administration/networking/)
-- [Troubleshooting EKS Networking](https://aws.amazon.com/premiumsupport/knowledge-center/eks-troubleshoot-pods/)
+- [Troubleshooting EKS Networking](https://repost.aws/knowledge-center/eks-cni-plugin-troubleshooting)
+- [Troubleshooting VPC CNI](https://github.com/aws/amazon-vpc-cni-k8s/blob/master/docs/troubleshooting.md)
 
 ---
 
