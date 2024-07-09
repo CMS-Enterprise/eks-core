@@ -17,7 +17,7 @@ module "eks" {
   cluster_version                              = local.cluster_version
   control_plane_subnet_ids                     = local.all_private_subnet_ids
   create_cloudwatch_log_group                  = true
-  create_cluster_primary_security_group_tags   = true
+  create_cluster_primary_security_group_tags   = false
   create_cluster_security_group                = true
   create_iam_role                              = true
   create_kms_key                               = true

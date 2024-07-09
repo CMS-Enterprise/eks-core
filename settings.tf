@@ -87,6 +87,7 @@ locals {
   permissions_boundary_arn          = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:policy/cms-cloud-admin/ct-ado-poweruser-permissions-boundary-policy"
   role_arn                          = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/${local.role_name}"
   role_name                         = regex("arn:aws:sts::[0-9]+:assumed-role/([^/]+)/.*", data.aws_caller_identity.current.arn)[0]
+  argocd_cd_secret_name             = "${local.cluster_name}-argocd-admin-password"
 }
 
 resource "random_string" "s3" {

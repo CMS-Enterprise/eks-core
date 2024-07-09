@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: repo-server
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-repo-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-repo-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-repo-server
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: argocd-repo-server
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/part-of: argocd
+              topologyKey: kubernetes.io/hostname
+            weight: 5
+      automountServiceAccountToken: false
+      containers:
+      - args:
+        - /usr/local/bin/argocd-repo-server
+        env:
+          - name: HELM_PLUGINS
+            value: /custom-tools/helm-plugins/
+            # Tell Helm Secrets plugin to use tools at specific paths
+          - name: HELM_SECRETS_SOPS_PATH
+            value: /custom-tools/sops
+          - name: HELM_SECRETS_VALS_PATH
+            value: /custom-tools/vals
+          - name: HELM_SECRETS_KUBECTL_PATH
+            value: /custom-tools/kubectl
+            #Helm Secrets would store curl in custom-tools but curl already located in /usr/bin/curl
+          - name: HELM_SECRETS_CURL_PATH
+            value: /usr/bin/curl
+          - name: HELM_SECRETS_BACKEND_ARGS
+            value: "--config /dev/null"
+
+          # https://github.com/jkroepke/helm-secrets/wiki/Security-in-shared-environments
+          - name: HELM_SECRETS_VALUES_ALLOW_SYMLINKS
+            value: "false"
+          - name: HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH
+            value: "false"
+          - name: HELM_SECRETS_VALUES_ALLOW_PATH_TRAVERSAL
+            value: "false"
+          - name: HELM_SECRETS_HELM_PATH
+            value: /usr/local/bin/helm
+          - name: HELM_SECRETS_URL_VARIABLE_EXPANSION
+            value: "true"
+        volumes:
+          - name: custom-tools
+            emptyDir: { }
+        volumeMounts:
+          - mountPath: /custom-tools
+            name: custom-tools
+          - mountPath: /usr/local/sbin/helm
+            subPath: helm
+            name: custom-tools
+        initContainers:
+          - name: download-tools
+            image: alpine:latest
+            command: [sh, -ec]
+            #these environment variables must be updated overtime
+            env:
+              - name: HELM_SECRETS_VERSION
+                value: "4.2.2"
+              - name: KUBECTL_VERSION
+                value: "1.26.1"
+              - name: VALS_VERSION
+                value: "0.18.0"
+              - name: SOPS_VERSION
+                value: "3.7.3"
+            args:
+              - |
+                mkdir -p /custom-tools/helm-plugins
+                wget -qO- https://github.com/jkroepke/helm-secrets/releases/download/v$${HELM_SECRETS_VERSION}/helm-secrets.tar.gz | tar -C /custom-tools/helm-plugins -xzf-;
+
+                wget -qO /custom-tools/sops https://github.com/mozilla/sops/releases/download/v$${SOPS_VERSION}/sops-v$${SOPS_VERSION}.linux
+                wget -qO /custom-tools/kubectl https://dl.k8s.io/release/v$${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+
+                wget -qO- https://github.com/variantdev/vals/releases/download/v$${VALS_VERSION}/vals_$${VALS_VERSION}_linux_amd64.tar.gz | tar -xzf- -C /custom-tools/ vals;
+
+                chmod +x /custom-tools/*
+            volumeMounts:
+              - mountPath: /custom-tools
+                name: custom-tools

@@ -1,0 +1,22 @@
+aws_region: us-east-1
+argocd_install: present
+argocd_cli_version: 1.0.2
+argocd_k8s_namespace: argocd
+service_type: LoadBalancer
+cluster_name: max-test
+project: batcave
+env: dev
+domain: "{{ project }}-{{ env }}.internal.cms.gov"
+
+
+# User
+admin_name: admin
+current_admin_password: ""
+
+
+# applications
+argocd_applications:
+  - repo: 
+    path: guestbook
+    dest_server: https://kubernetes.default.svc
+    dest_namespace: argocd

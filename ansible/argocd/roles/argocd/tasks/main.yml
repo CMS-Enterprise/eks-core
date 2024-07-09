@@ -1,0 +1,183 @@
+---
+#Ensure the Kuberentes python package is installed
+- name: Install k8s python package
+  ansible.builtin.pip:
+    name: kubernetes
+  delegate_to: localhost
+
+#Create Namespace
+- name: ARGOCD NAMESPACE | Create dedicated namespace
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: "{{ argocd_k8s_namespace }}"
+    state: "{{ argocd_install }}"
+  run_once: yes
+
+#Deploy ArgoCD Manifests
+- name: ARGOCD INSTALL | Deploy Kubernetes objects
+  run_once: yes
+  block:
+    - name: Fetch ArgoCD server pod name
+      shell: kubectl get po -n {{ argocd_k8s_namespace }} -l app.kubernetes.io/name=argocd-server -o jsonpath={.items[*].metadata.name}
+      register: argocd_k8s_pod_name
+      ignore_errors: yes
+
+    - name: Set ArgoCD installation status
+      set_fact:
+        argocd_installed: "{{ argocd_k8s_pod_name.stdout != '' }}"
+
+    - name: ARGOCD KUBERNETES | Download Kubernetes yaml file definition
+      get_url:
+        url: https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+        dest: /tmp/argocd_install.yaml
+        validate_certs: no
+      when: not argocd_installed
+
+    - name: ARGOCD KUBERNETES | Manage Kubernetes objects
+      kubernetes.core.k8s:
+        namespace: "{{ argocd_k8s_namespace }}"
+        src: /tmp/argocd_install.yaml
+        state: "{{ argocd_install }}"
+      when: not argocd_installed
+  always:
+    - name: ARGOCD KUBERNETES | Clean installation
+      file:
+        path: /tmp/argocd_install.yaml
+        state: absent
+      when: not argocd_installed
+
+#Download ArgoCD CLI
+- name: Install ArgoCD CLI
+  homebrew:
+    name: argocd
+    state: present
+
+#Change ADMIN user Password
+- name: ARGOCD INSTALL | Manage admin user
+  run_once: yes
+  block:
+    - name: Start port-forward to ArgoCD service
+      shell: nohup kubectl port-forward svc/argocd-server -n {{ argocd_k8s_namespace }} 8080:443 > /tmp/port-forward.log 2>&1 &
+      async: 0
+      poll: 0
+      changed_when: false
+      register: port_forward_job
+
+    - name: Wait for port-forward to start
+      wait_for:
+        host: 127.0.0.1
+        port: 8080
+        delay: 10
+        timeout: 60
+
+    - name: ARGOCD USERS | Fetch ArgoCD server password
+      shell: kubectl get secret argocd-initial-admin-secret -n {{ argocd_k8s_namespace }} -o jsonpath="{.data.password}" | base64 --decode
+      register: argocd_k8s_init_password
+
+    - name: ARGOCD USERS | Set ArgoCD password fact
+      set_fact:
+        argocd_current_admin_password: "{{ argocd_k8s_init_password.stdout }}"
+
+    - name: ARGOCD USERS | Log into ArgoCD with CLI
+      shell: argocd login localhost:8080 --username admin --password {{ argocd_current_admin_password }} --insecure
+
+    - name: Generate a random alphanumeric password with specific special characters
+      shell: |
+        python3 -c "import random; import string; \
+        chars = string.ascii_letters + string.digits + '$@#'; \
+        print(''.join(random.choice(chars) for _ in range(12)))"
+      register: generated_password
+
+    - name: ARGOCD USERS | Manage ArgoCD Admin password
+      shell: argocd account update-password --current-password {{ argocd_current_admin_password }} --new-password {{ generated_password.stdout }} --insecure
+
+    - name: Stop port-forwarding
+      shell: pkill -f "kubectl port-forward svc/argocd-server -n {{ argocd_k8s_namespace }} 8080:443"
+      ignore_errors: yes
+
+    - name: Store the new ArgoCD Admin password in AWS Secrets Manager
+      shell: echo {{ generated_password.stdout }} | base64 --decode | xargs -I {} aws secretsmanager update-secret --secret-id {{ cluster_name }}-argocd-admin-password --secret-string {}
+      environment:
+        AWS_DEFAULT_REGION: "{{ aws_region }}"
+
+
+#Setup Service, Cert, and DNS
+- name: ARGOCD SERVICE | Set facts
+  run_once: yes
+  block:
+    - name: get ACM certificate arn
+      shell: aws acm list-certificates --region {{ aws_region }} --query "CertificateSummaryList[?DomainName=='{{ domain }}'].CertificateArn | [0]" --output text --no-cli-pager
+      register: acm_arn
+
+    - name: Patch the ArgoCD service with necessary annotations
+      kubernetes.core.k8s:
+        state: patched
+        kind: Service
+        namespace: "{{ argocd_k8s_namespace }}"
+        name: argocd-server
+        merge_type: strategic-merge
+        definition:
+          metadata:
+            annotations:
+              service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+              service.beta.kubernetes.io/aws-load-balancer-name: "argocd-ingress-ALB"
+              service.beta.kubernetes.io/aws-load-balancer-ip-address-type: "ipv4"
+              service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+              service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "{{ acm_arn.stdout }}"
+              service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: "ELBSecurityPolicy-2016-08"
+              service.beta.kubernetes.io/aws-load-balancer-security-groups: "sg-0ca5b90ade2d2fe89"
+          spec:    
+            type: "{{ service_type }}"    
+
+    - name: Wait for 5 seconds
+      pause:
+        seconds: 5
+
+    - name: Retrieve the ALB CNAME from the service status
+      shell: kubectl get svc argocd-server -n {{ argocd_k8s_namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      register: alb_cname
+
+    - name: Create a CNAME record in Route 53
+      amazon.aws.route53:
+        state: present
+        zone: "{{ domain }}"
+        record: "{{ domain }}"
+        type: CNAME
+        value: "{{ alb_cname.stdout }}"
+        ttl: 300     
+
+#Install the Master Application
+# - name: ARGOCD INSTALL | Manage applications
+#   shell: argocd app create master --repo {{ item.repo }} --path {{ item.path }} --dest-server {{ item.dest_server }} --dest-namespace {{ item.dest_namespace }}
+#   with_items: "{{ argocd_applications }}"
+#   run_once: yes
+
+# - name: ARGOCD APPLICATIONS| Sync defined applications
+#   shell: argocd app sync {{ item.path }}
+#   with_items: "{{ argocd_applications }}"
+#   run_once: yes
+
+
+#Uninstall ArgoCD
+- name: ARGOCD UNINSTALL | Delete Kubernetes objects
+  kubernetes.core.k8s:
+    namespace: "{{ argocd_k8s_namespace }}"
+    src: /tmp/argocd_install.yaml
+    state: "{{ argocd_install }}"
+  when: argocd_install == "absent"   
+  
+
+- name: ARGOCD UNINSTALL | Delete namespace
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: "{{ argocd_k8s_namespace }}"
+    state: "{{ argocd_install }}"
+  when: argocd_install == "absent"
+
+- name: ARGOCD UNINSTALL | Delete command line tool
+  file:
+    path: "{{ argocd_cli_path }}"
+    state: absent
+  when: argocd_install == "absent"  

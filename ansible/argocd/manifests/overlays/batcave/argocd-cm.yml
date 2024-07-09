@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+data:
+  application.instanceLabelKey: "argocd.argoproj.io/instance"
+  dex.config: 
+  repositories: |
+    - name: stable
+      type: helm
+      url: https://charts.helm.sh/stable
+    - name: Bitnami
+      type: helm
+      url: https://charts.bitnami.com/bitnami
+  resource.customizations: |
+    admissionregistration.k8s.io/MutatingWebhookConfiguration:
+      ignoreDifferences: |
+        jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+        - /webhooks/1/clientConfig/caBundle
+    admissionregistration.k8s.io/ValidatingWebhookConfiguration:
+      ignoreDifferences: |
+        jsonPointers:
+        - /webhooks/0/clientConfig/caBundle
+        - /webhooks/1/clientConfig/caBundle
+    apps/Deployment:
+      ignoreDifferences: |
+        jsonPointers:
+        - /spec/template/metadata/annotations/kubectl.kubernetes.io~1restartedAt
+  resource.exclusions: |
+    - apiGroups:
+      - "velero.io"
+      kinds:
+      - Backup
+      - DeleteBackupRequest
+      - DownloadRequest
+      - PodVolumeBackup
+      - PodVolumeRestore
+      - ResticRepository
+      - Restore
+      - ServerStatusRequest
+      clusters:
+      - "*"
+  url: https://argocd.batcave.cms.gov

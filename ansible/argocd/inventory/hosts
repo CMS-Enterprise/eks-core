@@ -1,0 +1,3 @@
+[k8s]
+localhost ansible_connection=local
+
