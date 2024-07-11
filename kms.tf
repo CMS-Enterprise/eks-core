@@ -5,7 +5,7 @@ module "cloudtrail_kms" {
   aliases                            = ["${local.cluster_name}-cloudtrail"]
   bypass_policy_lockout_safety_check = false
   create                             = true
-  deletion_window_in_days            = 7
+  deletion_window_in_days            = 30
   description                        = "Encrypt and decrypt data for cloudtrail"
   enable_default_policy              = true
   enable_key_rotation                = true
@@ -44,7 +44,7 @@ module "cloudtrail_kms" {
           identifiers = ["*"]
         }
       ]
-      resources = [module.s3_logs.s3_bucket_arn]
+      resources = [data.aws_s3_bucket.logs.arn]
       condition = [
         {
           test     = "Null"

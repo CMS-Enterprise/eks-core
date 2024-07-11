@@ -80,14 +80,14 @@ module "main_nodes" {
   min_size     = var.eks_main_nodes_min_size
 
   ami_id                  = local.ami_id
-  ami_type                = local.ami_id != "BOTTLEROCKET_x86_64" ? "AL2_x86_64" : "BOTTLEROCKET_x86_64"
+  ami_type                = "AL2_x86_64"
   block_device_mappings   = local.block_device_mappings
-  bootstrap_extra_args    = local.bootstrap_extra_args
+  bootstrap_extra_args    = var.node_bootstrap_extra_args
   capacity_type           = "ON_DEMAND"
   instance_types          = var.eks_main_node_instance_types
   labels                  = var.node_labels
   launch_template_name    = "eks-main-${local.cluster_name}"
-  platform                = local.ami_id != "BOTTLEROCKET_x86_64" ? "linux" : "bottlerocket"
+  platform                = "linux"
   pre_bootstrap_user_data = local.pre_bootstrap_user_data
   taints                  = var.node_taints
 
@@ -103,13 +103,13 @@ module "eks_addons" {
   available_availability_zones     = local.available_availability_zone_names
   aws_partition                    = data.aws_partition.current.partition
   aws_region                       = data.aws_region.current.name
-  bootstrap_extra_args             = local.bootstrap_extra_args
+  bootstrap_extra_args             = var.node_bootstrap_extra_args
   cloudwatch_kms_key_arn           = module.cloudwatch_kms.key_arn
   cluster_ca_data                  = module.eks.cluster_certificate_authority_data
   cluster_endpoint                 = module.eks.cluster_endpoint
   custom_ami                       = var.custom_ami_id
   deploy_env                       = var.env
-  deploy_project                   = var.project
+  deploy_project                   = var.ado
   ebs_kms_key_id                   = module.ebs_kms.key_id
   eks_cluster_cidr                 = module.eks.cluster_service_cidr
   eks_cluster_ip_family            = module.eks.cluster_ip_family

@@ -1,4 +1,9 @@
-################################# Main Variables #################################
+################################# Required Variables #################################
+variable "cluster_custom_name" {
+  description = "The name of the EKS cluster"
+  type        = string
+}
+
 variable "custom_ami_id" {
   description = "The custom AMI ID to use for the EKS nodes"
   type        = string
@@ -8,13 +13,16 @@ variable "custom_ami_id" {
 variable "env" {
   description = "The environment name"
   type        = string
-  default     = "dev"
 }
 
-variable "project" {
-  description = "The project name"
+variable "ado" {
+  description = "The ado name"
   type        = string
-  default     = "batcave"
+}
+
+variable "program_office" {
+  description = "The program office name"
+  type        = string
 }
 
 ################################# VPC Variables #################################
@@ -47,22 +55,7 @@ variable "gold_image_date" {
   }
 }
 
-variable "use_bottlerocket" {
-  description = "Use Bottlerocket AMI for EKS nodes"
-  type        = bool
-  default     = false
-}
-
 ################################# EKS Variables #################################
-variable "cluster_custom_name" {
-  description = "The name of the EKS cluster"
-  type        = string
-
-  validation {
-    condition     = can(regex("-", var.cluster_custom_name))
-    error_message = "The Cluster Name must contain a '-'. Example: 'name-test'"
-  }
-}
 
 variable "eks_access_entries" {
   description = "The access entries to apply to the EKS cluster"
@@ -88,6 +81,18 @@ variable "eks_cluster_tags" {
   description = "The tags to apply to the EKS cluster"
   type        = map(string)
   default     = {}
+}
+
+variable "eks_gp3_reclaim_policy" {
+  description = "The reclaim policy for the EKS gp3 volumes"
+  type        = string
+  default     = "Retain"
+}
+
+variable "eks_gp3_volume_binding_mode" {
+  description = "The volume binding mode for the EKS gp3 volumes"
+  type        = string
+  default     = "WaitForFirstConsumer"
 }
 
 variable "eks_main_nodes_desired_size" {
@@ -143,6 +148,24 @@ variable "eks_version" {
   default     = "1.29"
 }
 
+variable "node_bootstrap_extra_args" {
+  description = "Any extra arguments to pass to the bootstrap script for the EKS nodes"
+  type        = string
+  default     = ""
+}
+
+variable "node_pre_bootstrap_script" {
+  description = "The pre-bootstrap script to run on the EKS nodes"
+  type        = string
+  default     = ""
+}
+
+variable "node_post_bootstrap_script" {
+  description = "The post-bootstrap script to run on the EKS nodes"
+  type        = string
+  default     = ""
+}
+
 variable "node_labels" {
   description = "The labels to apply to the EKS nodes"
   type        = map(string)
@@ -160,6 +183,12 @@ variable "efs_availability_zone_name" {
   description = "The availability zone for the EFS"
   type        = string
   default     = ""
+}
+
+variable "efs_directory_permissions" {
+  description = "The directory permissions for the EFS"
+  type        = string
+  default     = "0700"
 }
 
 variable "efs_encryption_enabled" {

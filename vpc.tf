@@ -1,6 +1,6 @@
 data "aws_vpc" "vpc" {
   tags = {
-    Name = coalesce(var.vpc_lookup_override, "${var.project}-*-${var.env}")
+    Name = coalesce(var.vpc_lookup_override, "${var.ado}-*-${var.env}")
   }
 }
 
@@ -17,7 +17,7 @@ data "aws_subnets" "public" {
   filter {
     name = "tag:Name"
     values = [
-      try(var.subnet_lookup_overrides.private, "${var.project}-*-${var.env}-public-*")
+      try(var.subnet_lookup_overrides.public, "${var.ado}-*-${var.env}-public-*")
     ]
   }
 }
@@ -27,7 +27,7 @@ data "aws_subnets" "private" {
   filter {
     name = "tag:Name"
     values = [
-      try(var.subnet_lookup_overrides.private, "${var.project}-*-${var.env}-private-*")
+      try(var.subnet_lookup_overrides.private, "${var.ado}-*-${var.env}-private-*")
     ]
   }
 }
@@ -36,7 +36,7 @@ data "aws_subnets" "container" {
   filter {
     name = "tag:Name"
     values = [
-      try(var.subnet_lookup_overrides.private, "${var.project}-*-${var.env}-unroutable-*")
+      try(var.subnet_lookup_overrides.container, "${var.ado}-*-${var.env}-unroutable-*")
     ]
   }
 }
