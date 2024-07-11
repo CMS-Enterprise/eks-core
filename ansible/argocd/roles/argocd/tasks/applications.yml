@@ -1,0 +1,5 @@
+---
+#Install the Master Application
+- name: ARGOCD INSTALL | Manage applications
+  shell: argocd app create master --repo {{ repo }} --path master-ops --dest-server {{ dest_server }} --dest-namespace {{ argocd_k8s_namespace }}
+  run_once: yes

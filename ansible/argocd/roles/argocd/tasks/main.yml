@@ -47,30 +47,119 @@
         state: absent
       when: not argocd_installed
 
-#Download ArgoCD CLI
-- name: Install ArgoCD CLI
-  homebrew:
-    name: argocd
-    state: present
+#Check ArgoCD CLI
+- name: Check if ArgoCD CLI is installed on OS
+    include_tasks: cli.yml
+
+#Setup Service, Cert, and DNS
+- name: ARGOCD SERVICE | Set facts
+  run_once: yes
+  block:
+    - name: ARGOCD SERVICE | get ACM certificate arn
+      shell: aws acm list-certificates --region {{ aws_region }} --query "CertificateSummaryList[?DomainName=='{{ domain }}'].CertificateArn | [0]" --output text --no-cli-pager
+      register: acm_arn
+
+    - name: ARGOCD SERVICE | Create GRPC service
+      kubernetes.core.k8s:
+        state: present
+        definition: 
+          apiVersion: v1
+          kind: Service
+          metadata:
+            annotations:
+              alb.ingress.kubernetes.io/backend-protocol-version: GRPC 
+            labels:
+              app: argogrpc
+            name: argogrpc
+            namespace: argocd
+          spec:
+            ports:
+            - name: "443"
+              port: 443
+              protocol: TCP
+              targetPort: 8080
+            selector:
+              app.kubernetes.io/name: argocd-server
+            sessionAffinity: None
+            type: NodePort
+
+    - name: ARGOCD SERVICE | Patch UI service
+      kubernetes.core.k8s:
+        state: patched
+        kind: Service
+        namespace: "{{ argocd_k8s_namespace }}"
+        name: argocd-server
+        merge_type: strategic-merge
+        definition: 
+          spec:
+            type: NodePort        
+
+    - name: ARGOCD SERVICE | Apply ArgoCD Ingress
+      kubernetes.core.k8s:
+        state: present
+        definition: 
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: argocd-server-ingress
+            namespace: argocd
+            annotations:
+              alb.ingress.kubernetes.io/scheme: "internal"
+              alb.ingress.kubernetes.io/load-balancer-name: "argocd-ingress-alb"
+              alb.ingress.kubernetes.io/certificate-arn: "{{ acm_arn.stdout }}"
+              alb.ingress.kubernetes.io/ssl-policy: "ELBSecurityPolicy-TLS13-1-2-2021-06"
+              alb.ingress.kubernetes.io/security-groups: "sg-0ca5b90ade2d2fe89"
+              alb.ingress.kubernetes.io/backend-protocol: HTTPS
+              alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+              alb.ingress.kubernetes.io/ssl-redirect: '443'
+              alb.ingress.kubernetes.io/ip-address-type: ipv4
+              alb.ingress.kubernetes.io/target-type: instance
+              alb.ingress.kubernetes.io/conditions.argogrpc: |
+                [{"field":"http-header","httpHeaderConfig":{"httpHeaderName": "Content-Type", "values":["application/grpc"]}}]
+          spec:
+            ingressClassName: alb
+            rules:
+            - host: "argocd-{{ cluster_name }}.{{ domain }}"
+              http:
+                paths:
+                - path: /*
+                  pathType: ImplementationSpecific  
+                  backend:
+                    service:
+                      name: argogrpc
+                      port:
+                        number: 443
+                - path: /*
+                  pathType: ImplementationSpecific
+                  backend:
+                    service:
+                      name: argocd-server
+                      port:
+                        number: 443        
+
+    - name: ARGOCD SERVICE | Wait for 5 seconds for ALB to be ensured
+      pause:
+        seconds: 5
+
+    - name: ARGOCD SERVICE | Retrieve the ALB CNAME from the Ingress status
+      shell: kubectl get ingress argocd-server-ingress -n {{ argocd_k8s_namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+      register: alb_cname
+
+    - name: ARGOCD SERVICE | Create a CNAME record in Route 53
+      amazon.aws.route53:
+        state: present
+        zone: "{{ domain }}"
+        record: "argocd-{{ cluster_name }}.{{ domain }}"
+        type: CNAME
+        value: "{{ alb_cname.stdout }}"
+        ttl: 300
+        private_zone: true
+        overwrite: true
 
 #Change ADMIN user Password
 - name: ARGOCD INSTALL | Manage admin user
   run_once: yes
   block:
-    - name: Start port-forward to ArgoCD service
-      shell: nohup kubectl port-forward svc/argocd-server -n {{ argocd_k8s_namespace }} 8080:443 > /tmp/port-forward.log 2>&1 &
-      async: 0
-      poll: 0
-      changed_when: false
-      register: port_forward_job
-
-    - name: Wait for port-forward to start
-      wait_for:
-        host: 127.0.0.1
-        port: 8080
-        delay: 10
-        timeout: 60
-
     - name: ARGOCD USERS | Fetch ArgoCD server password
       shell: kubectl get secret argocd-initial-admin-secret -n {{ argocd_k8s_namespace }} -o jsonpath="{.data.password}" | base64 --decode
       register: argocd_k8s_init_password
@@ -80,84 +169,24 @@
         argocd_current_admin_password: "{{ argocd_k8s_init_password.stdout }}"
 
     - name: ARGOCD USERS | Log into ArgoCD with CLI
-      shell: argocd login localhost:8080 --username admin --password {{ argocd_current_admin_password }} --insecure
+      shell: argocd login argocd-{{ cluster_name }}.{{ domain }} --username admin --password {{ argocd_current_admin_password }} --grpc-web
 
-    - name: Generate a random alphanumeric password with specific special characters
-      shell: |
-        python3 -c "import random; import string; \
-        chars = string.ascii_letters + string.digits + '$@#'; \
-        print(''.join(random.choice(chars) for _ in range(12)))"
-      register: generated_password
+    - name: ARGOCD USERS | Generate a temporary password
+      set_fact:
+        generated_password: "{{ lookup('ansible.builtin.password', '/tmp/passwordfile', chars=['ascii_letters', 'digits', 'punctuation']) }}"
 
     - name: ARGOCD USERS | Manage ArgoCD Admin password
-      shell: argocd account update-password --current-password {{ argocd_current_admin_password }} --new-password {{ generated_password.stdout }} --insecure
+      shell: argocd account update-password --current-password {{ argocd_current_admin_password }} --new-password {{ generated_password }} --insecure
 
-    - name: Stop port-forwarding
-      shell: pkill -f "kubectl port-forward svc/argocd-server -n {{ argocd_k8s_namespace }} 8080:443"
-      ignore_errors: yes
-
-    - name: Store the new ArgoCD Admin password in AWS Secrets Manager
-      shell: echo {{ generated_password.stdout }} | base64 --decode | xargs -I {} aws secretsmanager update-secret --secret-id {{ cluster_name }}-argocd-admin-password --secret-string {}
+    - name: ARGOCD USERS | Store the new ArgoCD Admin password in AWS Secrets Manager
+      shell: aws secretsmanager update-secret --secret-id {{ cluster_name }}-argocd-admin-password --secret-string {{ generated_password }}
       environment:
-        AWS_DEFAULT_REGION: "{{ aws_region }}"
+        AWS_DEFAULT_REGION: "{{ aws_region }}" 
+  when: not argocd_installed             
 
-
-#Setup Service, Cert, and DNS
-- name: ARGOCD SERVICE | Set facts
-  run_once: yes
-  block:
-    - name: get ACM certificate arn
-      shell: aws acm list-certificates --region {{ aws_region }} --query "CertificateSummaryList[?DomainName=='{{ domain }}'].CertificateArn | [0]" --output text --no-cli-pager
-      register: acm_arn
-
-    - name: Patch the ArgoCD service with necessary annotations
-      kubernetes.core.k8s:
-        state: patched
-        kind: Service
-        namespace: "{{ argocd_k8s_namespace }}"
-        name: argocd-server
-        merge_type: strategic-merge
-        definition:
-          metadata:
-            annotations:
-              service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
-              service.beta.kubernetes.io/aws-load-balancer-name: "argocd-ingress-ALB"
-              service.beta.kubernetes.io/aws-load-balancer-ip-address-type: "ipv4"
-              service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
-              service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "{{ acm_arn.stdout }}"
-              service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: "ELBSecurityPolicy-2016-08"
-              service.beta.kubernetes.io/aws-load-balancer-security-groups: "sg-0ca5b90ade2d2fe89"
-          spec:    
-            type: "{{ service_type }}"    
-
-    - name: Wait for 5 seconds
-      pause:
-        seconds: 5
-
-    - name: Retrieve the ALB CNAME from the service status
-      shell: kubectl get svc argocd-server -n {{ argocd_k8s_namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-      register: alb_cname
-
-    - name: Create a CNAME record in Route 53
-      amazon.aws.route53:
-        state: present
-        zone: "{{ domain }}"
-        record: "{{ domain }}"
-        type: CNAME
-        value: "{{ alb_cname.stdout }}"
-        ttl: 300     
-
-#Install the Master Application
-# - name: ARGOCD INSTALL | Manage applications
-#   shell: argocd app create master --repo {{ item.repo }} --path {{ item.path }} --dest-server {{ item.dest_server }} --dest-namespace {{ item.dest_namespace }}
-#   with_items: "{{ argocd_applications }}"
-#   run_once: yes
-
-# - name: ARGOCD APPLICATIONS| Sync defined applications
-#   shell: argocd app sync {{ item.path }}
-#   with_items: "{{ argocd_applications }}"
-#   run_once: yes
-
+#Install Master App
+- name: Install Master App
+    include_tasks: applications.yml
 
 #Uninstall ArgoCD
 - name: ARGOCD UNINSTALL | Delete Kubernetes objects

@@ -4,7 +4,5 @@
   hosts: localhost
   gather_facts: false
   connection: local
-  vars_files:
-    - vars/vars.yml
   roles:
     - argocd

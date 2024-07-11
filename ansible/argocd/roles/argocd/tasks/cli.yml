@@ -1,0 +1,46 @@
+---
+- name: Detect the operating system
+  set_fact:
+    is_windows: "{{ ansible_system == 'Windows' }}"
+    is_macos: "{{ ansible_system == 'Darwin' }}"
+    is_linux: "{{ ansible_system == 'Linux' }}"
+  run_once: yes
+
+- name: Check if ArgoCD CLI is installed on macOS
+  command: which argocd
+  register: argocd_check_macos
+  ignore_errors: yes
+  when: is_macos
+  run_once: yes
+
+- name: Check if ArgoCD CLI is installed on Linux
+  command: which argocd
+  register: argocd_check_linux
+  ignore_errors: yes
+  when: is_linux
+  run_once: yes
+
+- name: Check if ArgoCD CLI is installed on Windows
+  win_command: where argocd
+  register: argocd_check_windows
+  ignore_errors: yes
+  when: is_windows
+  run_once: yes
+
+- name: Fail if ArgoCD CLI is not installed on macOS
+  fail:
+    msg: "ArgoCD CLI is not installed on macOS."
+  when: is_macos and argocd_check_macos.rc != 0
+  run_once: yes
+
+- name: Fail if ArgoCD CLI is not installed on Linux
+  fail:
+    msg: "ArgoCD CLI is not installed on Linux."
+  when: is_linux and argocd_check_linux.rc != 0
+  run_once: yes
+
+- name: Fail if ArgoCD CLI is not installed on Windows
+  fail:
+    msg: "ArgoCD CLI is not installed on Windows."
+  when: is_windows and argocd_check_windows.rc != 0
+  run_once: yes
