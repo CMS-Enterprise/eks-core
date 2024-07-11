@@ -9,9 +9,10 @@ provider "aws" {
 
 module "main-eks" {
 
-  source = "git@github.com:CMS-Enterprise/Energon-Kube.git?ref=3.0.1"
+  source              = "git@github.com:CMS-Enterprise/Energon-Kube.git?ref=3.0.2"
   cluster_custom_name = "temp-test"
   env                 = "impl"
   gold_image_date     = "2024-05"
-  project             = "batcave"
+  ado                 = "batcave"
+  program_office      = "batman"
 }
