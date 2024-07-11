@@ -1,0 +1,58 @@
+{{ $clusterAddress := .Values.cluster }}
+{{ $clusterName := "batcave-dev" }}
+{{ $clusterRegion := "us-east-1" }}
+{{ $projectName := (printf "ops-%s" $clusterName) }}
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ $projectName }}
+  namespace: argocd
+spec:
+  description: {{ $projectName }}
+  destinations:
+    - namespace: argocd
+      server: {{ .Values.cluster }}
+    - namespace: kube-system
+      server: {{ $clusterAddress }}
+    - namespace: karpenter
+      server: {{ $clusterAddress }} 
+       
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  sourceRepos:
+    - {{ .Values.repoUrl }}
+    - https://argoproj.github.io/argo-helm
+    - https://aws.github.io/eks-charts
+    - https://github.com/kubernetes-sigs/aws-efs-csi-driver.git
+    - public.ecr.aws/karpenter
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $projectName }}
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: argocd
+    server: {{ .Values.cluster }}
+  project: {{ $projectName }}
+  source:
+    path: ops/cluster-ops
+    repoURL: {{ .Values.repoUrl }}
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-{{ $clusterName }}.yaml
+      values: |
+        cluster:
+          address: "{{ $clusterAddress }}"
+          name: {{ $clusterName }}
+          region: {{ $clusterRegion }}
+        project:
+          name: {{ $projectName }}
+  syncPolicy:
+    automated: {}

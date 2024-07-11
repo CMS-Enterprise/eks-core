@@ -1,0 +1,7 @@
+project:
+  name: ops-dev
+cluster:
+  address: https://kubernetes.default.svc  
+repo: https://github.com:CMS-Enterprise/Energon-Kube.git
+karpenter:
+  enabled: false

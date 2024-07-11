@@ -188,6 +188,57 @@
 - name: Install Master App
     include_tasks: applications.yml
 
+#Create IAM for karpenter
+- name: Create IAM Role for Karpenter
+  iam_role:
+    name: "KarpenterControllerRole"
+    state: present
+    assume_role_policy_document: "{{ lookup('file', 'files/karpenter-trust-policy.json') }}"
+    managed_policies:
+      - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+      - arn:aws:iam::aws:policy/AmazonEKSVPCResourceController
+  register: karpenter_role
+
+- name: Attach additional policy to IAM Role
+  iam_policy:
+    name: "KarpenterControllerPolicy"
+    state: present
+    policy_document: "{{ lookup('file', 'files/karpenter-controller-policy.json') }}"
+  register: karpenter_policy
+
+- name: Attach policy to IAM Role
+  iam_policy_attachment:
+    name: "AttachPolicy"
+    policy_arn: "{{ karpenter_policy.arn }}"
+    users: []
+    roles:
+      - "{{ karpenter_role.role.name }}"
+    state: present
+
+- name: Create ArgoCD application for Karpenter
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: karpenter
+        namespace: argocd
+      spec:
+        project: default
+        source:
+          repoURL: "https://github.com/CMS-Enterprise/Energon-Kube"
+          targetRevision: HEAD
+          path: karpenter
+        destination:
+          server: https://kubernetes.default.svc
+          namespace: karpenter
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+
+
 #Uninstall ArgoCD
 - name: ARGOCD UNINSTALL | Delete Kubernetes objects
   kubernetes.core.k8s:

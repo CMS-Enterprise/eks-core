@@ -1,0 +1,6 @@
+# Karpenter helm chart
+apiVersion: v2
+name: karpenter
+description: A Helm chart for Karpenter
+version: 0.1.0
+appVersion: "0.6.1"

@@ -1,0 +1,9 @@
+# IAM for karpenter
+serviceAccount:
+  annotations:
+    # not sure how we are pulling the account id for this 
+    eks.amazonaws.com/role-arn: "arn:aws:iam::<>:role/KarpenterControllerRole"
+
+settings:
+  aws:
+    defaultInstanceProfile: "KarpenterNodeInstanceProfile"

@@ -6,3 +6,10 @@
   connection: local
   roles:
     - argocd
+---
+# Deploy Karpenter
+- name: Deploy Karpenter with ArgoCD on EKS
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - argocd
