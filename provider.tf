@@ -10,7 +10,7 @@ provider "kubernetes" {
 
 provider "kubectl" {
   host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(data.tfe_outputs.this.values.cluster_certificate_authority)
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
   load_config_file       = false
   token                  = data.aws_eks_cluster_auth.cluster_auth.token
 }
