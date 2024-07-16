@@ -12,6 +12,10 @@ resource "kubectl_manifest" "eni_config" {
       subnet         = each.value.id
     }
   })
+
+  lifecycle {
+    prevent_destroy = false
+  }
 }
 
 resource "kubectl_manifest" "efs_storage_class" {
@@ -28,6 +32,9 @@ resource "kubectl_manifest" "efs_storage_class" {
       directoryPerms   = var.efs_directory_permissions
     }
   })
+  lifecycle {
+    prevent_destroy = false
+  }
 }
 
 resource "kubectl_manifest" "gp3" {
@@ -47,4 +54,7 @@ resource "kubectl_manifest" "gp3" {
     reclaimPolicy     = var.eks_gp3_reclaim_policy
     volumeBindingMode = var.eks_gp3_volume_binding_mode
   })
+  lifecycle {
+    prevent_destroy = false
+  }
 }
