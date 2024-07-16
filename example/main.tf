@@ -16,3 +16,5 @@ module "main-eks" {
   ado                 = "batcave"
   program_office      = "batman"
 }
+
+output "eks" { value = module.main-eks }
