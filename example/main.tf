@@ -18,3 +18,4 @@ module "main-eks" {
 }
 
 output "eks" { value = module.main-eks }
+
