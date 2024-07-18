@@ -145,7 +145,7 @@ variable "eks_security_group_additional_rules" {
 variable "eks_version" {
   description = "The version of the EKS cluster"
   type        = string
-  default     = "1.29"
+  default     = "1.30"
 }
 
 variable "node_bootstrap_extra_args" {
@@ -255,81 +255,6 @@ variable "pod_identity_tags" {
   description = "The tags to apply to the Pod Identities"
   type        = map(string)
   default     = {}
-}
-
-################################# Fluent-bit #################################
-variable "fb_chart_version" {
-  description = "Fluent-bit helm chart version"
-  type        = string
-  default     = "0.1.33"
-}
-
-variable "fb_log_encryption" {
-  description = "Enable Fluent-bit log encryption"
-  type        = bool
-  default     = true
-}
-
-variable "fb_log_systemd" {
-  description = "Enable Fluent-bit cloudwatch logging for systemd"
-  type        = bool
-  default     = true
-}
-
-variable "fb_tags" {
-  description = "The tags to apply to the fluent-bit deployment"
-  type        = map(string)
-  default     = {}
-}
-
-variable "fb_log_retention" {
-  description = "Days to retain Fluent-bit logs"
-  type        = number
-  default     = 7
-}
-
-variable "fb_system_log_retention" {
-  description = "Days to retain Fluent-bit systemd logs"
-  type        = number
-  default     = 7
-}
-
-variable "fb_drop_namespaces" {
-  type = list(string)
-  default = [
-    "kube-system",
-    "cert-manager"
-  ]
-  description = "Fluent-bit doesn't send logs for these namespaces"
-}
-
-variable "fb_kube_namespaces" {
-  type = list(string)
-  default = [
-    "kube.*",
-    "cert-manager.*"
-  ]
-  description = "Kubernetes namespaces"
-}
-
-variable "fb_log_filters" {
-  type = list(string)
-  default = [
-    "kube-probe",
-    "health",
-    "prometheus",
-    "liveness"
-  ]
-  description = "Fluent-bit doesn't send logs if message consists of these values"
-}
-
-variable "fb_additional_log_filters" {
-  type = list(string)
-  default = [
-    "ELB-HealthChecker",
-    "Amazon-Route53-Health-Check-Service",
-  ]
-  description = "Fluent-bit doesn't send logs if message consists of these values"
 }
 
 ################################# Karpenter Variables #################################

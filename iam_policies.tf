@@ -2,6 +2,8 @@ resource "aws_iam_policy" "vpc" {
   name   = "${local.cluster_name}-vpc-flow-logs"
   path   = local.iam_path
   policy = data.aws_iam_policy_document.vpc.json
+
+  tags = local.tags_for_all_resources
 }
 
 data "aws_iam_policy_document" "vpc" {

@@ -55,9 +55,9 @@ module "cloudtrail_kms" {
     }
   ]
 
-  tags = {
+  tags = merge(local.tags_for_all_resources, {
     Name = "CloudTrail"
-  }
+  })
 }
 
 module "cloudwatch_kms" {
@@ -98,9 +98,9 @@ module "cloudwatch_kms" {
     }
   ]
 
-  tags = {
+  tags = merge(local.tags_for_all_resources, {
     Name = "CloudWatch"
-  }
+  })
 }
 
 module "ebs_kms" {
@@ -121,9 +121,9 @@ module "ebs_kms" {
   key_users                          = ["*"]
   rotation_period_in_days            = 90
 
-  tags = {
+  tags = merge(local.tags_for_all_resources, {
     Name = "EBS"
-  }
+  })
 }
 
 module "efs_kms" {
@@ -144,9 +144,9 @@ module "efs_kms" {
   key_users                          = ["*"]
   rotation_period_in_days            = 90
 
-  tags = {
+  tags = merge(local.tags_for_all_resources, {
     Name = "EFS"
-  }
+  })
 }
 
 module "s3_kms" {
@@ -168,9 +168,9 @@ module "s3_kms" {
   key_users                          = ["*"]
   rotation_period_in_days            = 90
 
-  tags = {
+  tags = merge(local.tags_for_all_resources, {
     Name = "S3"
-  }
+  })
 }
 
 module "ssm_kms" {
@@ -192,7 +192,7 @@ module "ssm_kms" {
   key_users                          = ["*"]
   rotation_period_in_days            = 90
 
-  tags = {
+  tags = merge(local.tags_for_all_resources, {
     Name = "SSM"
-  }
+  })
 }

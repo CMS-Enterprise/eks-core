@@ -40,7 +40,7 @@ module "eks" {
   node_security_group_name                     = "eks-${local.cluster_name}-node-sg"
   node_security_group_use_name_prefix          = false
   subnet_ids                                   = local.all_private_subnet_ids
-  tags                                         = merge(var.eks_cluster_tags, { Name = local.cluster_name })
+  tags                                         = merge(var.eks_cluster_tags, local.tags_for_all_resources, { Name = local.cluster_name })
   vpc_id                                       = data.aws_vpc.vpc.id
 
   cluster_enabled_log_types = [
@@ -67,7 +67,6 @@ module "main_nodes" {
 
   create_iam_role               = true
   enable_bootstrap_user_data    = var.gold_image_date != "" ? true : false
-  iam_role_additional_policies  = { ssm = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore" }
   iam_role_description          = "IAM role for EKS nodes for cluster ${local.cluster_name}"
   iam_role_name                 = "eks-nodes-${local.cluster_name}"
   iam_role_path                 = local.iam_path
@@ -91,7 +90,12 @@ module "main_nodes" {
   pre_bootstrap_user_data = local.pre_bootstrap_user_data
   taints                  = var.node_taints
 
-  tags = merge(var.eks_node_tags, {
+  iam_role_additional_policies = {
+    ssm        = "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
+    cloudwatch = "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchAgentServerPolicy"
+  }
+
+  tags = merge(var.eks_node_tags, local.tags_for_all_resources, {
     Name = "eks-main-${var.cluster_custom_name}"
   })
 }
@@ -122,16 +126,6 @@ module "eks_addons" {
   eks_oidc_provider                = module.eks.oidc_provider
   eks_oidc_provider_arn            = module.eks.oidc_provider_arn
   enable_bootstrap_user_data       = local.enable_bootstrap_user_data
-  fluentbit_additional_log_filters = var.fb_additional_log_filters
-  fluentbit_chart_version          = var.fb_chart_version
-  fluentbit_drop_namespaces        = var.fb_drop_namespaces
-  fluentbit_kube_namespaces        = var.fb_kube_namespaces
-  fluentbit_log_encryption         = var.fb_log_encryption
-  fluentbit_log_filters            = var.fb_log_filters
-  fluentbit_log_retention          = var.fb_log_retention
-  fluentbit_log_systemd            = var.fb_log_systemd
-  fluentbit_system_log_retention   = var.fb_system_log_retention
-  fluentbit_tags                   = var.fb_tags
   gold_image_ami_id                = var.gold_image_date != "" ? data.aws_ami.gold_image[0].id : ""
   iam_path                         = local.iam_path
   iam_permissions_boundary_arn     = local.permissions_boundary_arn
@@ -169,14 +163,14 @@ module "eks_base" {
   secrets_store_csi_driver_provider_aws = {
     atomic = true
 
-    tags = {
+    tags = merge(local.tags_for_all_resources, {
       Name = "secrets-store-csi-driver-${module.eks.cluster_name}"
-    }
+    })
   }
 
-  tags = {
+  tags = merge(local.tags_for_all_resources, {
     service = "eks"
-  }
+  })
 
   depends_on = [
     module.main_nodes,
@@ -261,7 +255,7 @@ resource "aws_eks_addon" "aws_cloudwatch_observability" {
       }
     }
     containerLogs = {
-      enabled = false
+      enabled = true
     }
   })
 
@@ -284,7 +278,7 @@ module "aws_ebs_csi_pod_identity" {
   permissions_boundary_arn  = local.permissions_boundary_arn
   policy_name_prefix        = "${module.eks.cluster_name}-"
 
-  tags = merge(var.pod_identity_tags, { Cluster = local.cluster_name })
+  tags = merge(var.pod_identity_tags, local.tags_for_all_resources, { Cluster = local.cluster_name })
 
   depends_on = [aws_eks_addon.eks-pod-identity-agent]
 }
@@ -303,7 +297,7 @@ module "aws_efs_csi_pod_identity" {
   permissions_boundary_arn  = local.permissions_boundary_arn
   policy_name_prefix        = "${module.eks.cluster_name}-"
 
-  tags = merge(var.pod_identity_tags, { Cluster = local.cluster_name })
+  tags = merge(var.pod_identity_tags, local.tags_for_all_resources, { Cluster = local.cluster_name })
 
   depends_on = [aws_eks_addon.eks-pod-identity-agent]
 }
@@ -322,7 +316,7 @@ module "aws_lb_controller_pod_identity" {
   permissions_boundary_arn        = local.permissions_boundary_arn
   policy_name_prefix              = "${module.eks.cluster_name}-"
 
-  tags = merge(var.pod_identity_tags, { Cluster = local.cluster_name })
+  tags = merge(var.pod_identity_tags, local.tags_for_all_resources, { Cluster = local.cluster_name })
 
   # Pod Identity Associations
   association_defaults = {
@@ -351,7 +345,7 @@ module "aws_cloudwatch_observability_pod_identity" {
   permissions_boundary_arn                   = local.permissions_boundary_arn
   policy_name_prefix                         = "${module.eks.cluster_name}-"
 
-  tags = merge(var.pod_identity_tags, { Cluster = local.cluster_name })
+  tags = merge(var.pod_identity_tags, local.tags_for_all_resources, { Cluster = local.cluster_name })
 
   associations = {
     "amazon-cloudwatch-observability-controller-manager" = {
