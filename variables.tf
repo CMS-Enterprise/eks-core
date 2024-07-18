@@ -59,16 +59,17 @@ variable "gold_image_date" {
 
 variable "eks_access_entries" {
   description = "The access entries to apply to the EKS cluster"
-  type = map(object({
-    principal_arn = string
-    type          = string
-    policy_associations = map(object({
-      policy_arn = string
-      access_scope = map(object({
-        type = string
-      }))
-    }))
-  }))
+  # type = map(object({
+  #   principal_arn = string
+  #   type          = string
+  #   policy_associations = map(object({
+  #     policy_arn = string
+  #     access_scope = map(object({
+  #       type = string
+  #     }))
+  #   }))
+  # }))
+  type        = any
   default = {}
 
   validation {
