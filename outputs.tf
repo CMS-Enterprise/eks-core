@@ -487,162 +487,162 @@ output "ssm_kms_key_policy" {
 
 output "cloudwatch_observability_pod_identity_associations" {
   description = "CloudWatch observability pod identity associations"
-  value       = module.aws_cloudwatch_observability_pod_identity.associations
+  value       = var.enable_eks_pod_identities ? module.aws_cloudwatch_observability_pod_identity[0].associations : {}
 }
 
 output "cloudwatch_observability_pod_identity_iam_policy_arn" {
   description = "CloudWatch observability pod identity IAM policy ARN"
-  value       = module.aws_cloudwatch_observability_pod_identity.iam_policy_arn
+  value       = var.enable_eks_pod_identities ? module.aws_cloudwatch_observability_pod_identity[0].iam_policy_arn : ""
 }
 
 output "cloudwatch_observability_pod_identity_iam_policy_id" {
   description = "CloudWatch observability pod identity IAM policy ID"
-  value       = module.aws_cloudwatch_observability_pod_identity.iam_policy_id
+  value       = var.enable_eks_pod_identities ? module.aws_cloudwatch_observability_pod_identity[0].iam_policy_id : ""
 }
 
 output "cloudwatch_observability_pod_identity_iam_policy_name" {
   description = "CloudWatch observability pod identity IAM policy name"
-  value       = module.aws_cloudwatch_observability_pod_identity.iam_policy_name
+  value       = var.enable_eks_pod_identities ? module.aws_cloudwatch_observability_pod_identity[0].iam_policy_name : ""
 }
 
 output "cloudwatch_observability_pod_identity_iam_role_arn" {
   description = "CloudWatch observability pod identity IAM role ARN"
-  value       = module.aws_cloudwatch_observability_pod_identity.iam_role_arn
+  value       = var.enable_eks_pod_identities ? module.aws_cloudwatch_observability_pod_identity[0].iam_role_arn : ""
 }
 
 output "cloudwatch_observability_pod_identity_iam_role_name" {
   description = "CloudWatch observability pod identity IAM role name"
-  value       = module.aws_cloudwatch_observability_pod_identity.iam_role_name
+  value       = var.enable_eks_pod_identities ? module.aws_cloudwatch_observability_pod_identity[0].iam_role_name : ""
 }
 
 output "cloudwatch_observability_pod_identity_iam_role_path" {
   description = "CloudWatch observability pod identity IAM role path"
-  value       = module.aws_cloudwatch_observability_pod_identity.iam_role_path
+  value       = var.enable_eks_pod_identities ? module.aws_cloudwatch_observability_pod_identity[0].iam_role_path : ""
 }
 
 output "cloudwatch_observability_pod_identity_iam_role_unique_id" {
   description = "CloudWatch observability pod identity IAM role unique ID"
-  value       = module.aws_cloudwatch_observability_pod_identity.iam_role_unique_id
+  value       = var.enable_eks_pod_identities ? module.aws_cloudwatch_observability_pod_identity[0].iam_role_unique_id : ""
 }
 
 output "ebs_csi_pod_identity_associations" {
   description = "EBS CSI pod identity associations"
-  value       = module.aws_ebs_csi_pod_identity.associations
+  value       = var.enable_eks_pod_identities ? module.aws_ebs_csi_pod_identity[0].associations : {}
 }
 
 output "ebs_csi_pod_identity_iam_policy_arn" {
   description = "EBS CSI pod identity IAM policy ARN"
-  value       = module.aws_ebs_csi_pod_identity.iam_policy_arn
+  value       = var.enable_eks_pod_identities ? module.aws_ebs_csi_pod_identity[0].iam_policy_arn : ""
 }
 
 output "ebs_csi_pod_identity_iam_policy_id" {
   description = "EBS CSI pod identity IAM policy ID"
-  value       = module.aws_ebs_csi_pod_identity.iam_policy_id
+  value       = var.enable_eks_pod_identities ? module.aws_ebs_csi_pod_identity[0].iam_policy_id : ""
 }
 
 output "ebs_csi_pod_identity_iam_policy_name" {
   description = "EBS CSI pod identity IAM policy name"
-  value       = module.aws_ebs_csi_pod_identity.iam_policy_name
+  value       = var.enable_eks_pod_identities ? module.aws_ebs_csi_pod_identity[0].iam_policy_name : ""
 }
 
 output "ebs_csi_pod_identity_iam_role_arn" {
   description = "EBS CSI pod identity IAM role ARN"
-  value       = module.aws_ebs_csi_pod_identity.iam_role_arn
+  value       = var.enable_eks_pod_identities ? module.aws_ebs_csi_pod_identity[0].iam_role_arn : ""
 }
 
 output "ebs_csi_pod_identity_iam_role_name" {
   description = "EBS CSI pod identity IAM role name"
-  value       = module.aws_ebs_csi_pod_identity.iam_role_name
+  value       = var.enable_eks_pod_identities ? module.aws_ebs_csi_pod_identity[0].iam_role_name : ""
 }
 
 output "ebs_csi_pod_identity_iam_role_path" {
   description = "EBS CSI pod identity IAM role path"
-  value       = module.aws_ebs_csi_pod_identity.iam_role_path
+  value       = var.enable_eks_pod_identities ? module.aws_ebs_csi_pod_identity[0].iam_role_path : ""
 }
 
 output "ebs_csi_pod_identity_iam_role_unique_id" {
   description = "EBS CSI pod identity IAM role unique ID"
-  value       = module.aws_ebs_csi_pod_identity.iam_role_unique_id
+  value       = var.enable_eks_pod_identities ? module.aws_ebs_csi_pod_identity[0].iam_role_unique_id : ""
 }
 
 output "efs_csi_pod_identity_associations" {
   description = "EFS CSI pod identity associations"
-  value       = module.aws_efs_csi_pod_identity.associations
+  value       = var.enable_eks_pod_identities ? module.aws_efs_csi_pod_identity[0].associations : {}
 }
 
 output "efs_csi_pod_identity_iam_policy_arn" {
   description = "EFS CSI pod identity IAM policy ARN"
-  value       = module.aws_efs_csi_pod_identity.iam_policy_arn
+  value       = var.enable_eks_pod_identities ? module.aws_efs_csi_pod_identity[0].iam_policy_arn : ""
 }
 
 output "efs_csi_pod_identity_iam_policy_id" {
   description = "EFS CSI pod identity IAM policy ID"
-  value       = module.aws_efs_csi_pod_identity.iam_policy_id
+  value       = var.enable_eks_pod_identities ? module.aws_efs_csi_pod_identity[0].iam_policy_id : ""
 }
 
 output "efs_csi_pod_identity_iam_policy_name" {
   description = "EFS CSI pod identity IAM policy name"
-  value       = module.aws_efs_csi_pod_identity.iam_policy_name
+  value       = var.enable_eks_pod_identities ? module.aws_efs_csi_pod_identity[0].iam_policy_name : ""
 }
 
 output "efs_csi_pod_identity_iam_role_arn" {
   description = "EFS CSI pod identity IAM role ARN"
-  value       = module.aws_efs_csi_pod_identity.iam_role_arn
+  value       = var.enable_eks_pod_identities ? module.aws_efs_csi_pod_identity[0].iam_role_arn : ""
 }
 
 output "efs_csi_pod_identity_iam_role_name" {
   description = "EFS CSI pod identity IAM role name"
-  value       = module.aws_efs_csi_pod_identity.iam_role_name
+  value       = var.enable_eks_pod_identities ? module.aws_efs_csi_pod_identity[0].iam_role_name : ""
 }
 
 output "efs_csi_pod_identity_iam_role_path" {
   description = "EFS CSI pod identity IAM role path"
-  value       = module.aws_efs_csi_pod_identity.iam_role_path
+  value       = var.enable_eks_pod_identities ? module.aws_efs_csi_pod_identity[0].iam_role_path : ""
 }
 
 output "efs_csi_pod_identity_iam_role_unique_id" {
   description = "EFS CSI pod identity IAM role unique ID"
-  value       = module.aws_efs_csi_pod_identity.iam_role_unique_id
+  value       = var.enable_eks_pod_identities ? module.aws_efs_csi_pod_identity[0].iam_role_unique_id : ""
 }
 
 output "lb_controller_pod_identity_associations" {
   description = "LB controller pod identity associations"
-  value       = module.aws_lb_controller_pod_identity.associations
+  value       = var.enable_eks_pod_identities ? module.aws_lb_controller_pod_identity[0].associations : {}
 }
 
 output "lb_controller_pod_identity_iam_policy_arn" {
   description = "LB controller pod identity IAM policy ARN"
-  value       = module.aws_lb_controller_pod_identity.iam_policy_arn
+  value       = var.enable_eks_pod_identities ? module.aws_lb_controller_pod_identity[0].iam_policy_arn : ""
 }
 
 output "lb_controller_pod_identity_iam_policy_id" {
   description = "LB controller pod identity IAM policy ID"
-  value       = module.aws_lb_controller_pod_identity.iam_policy_id
+  value       = var.enable_eks_pod_identities ? module.aws_lb_controller_pod_identity[0].iam_policy_id : ""
 }
 
 output "lb_controller_pod_identity_iam_policy_name" {
   description = "LB controller pod identity IAM policy name"
-  value       = module.aws_lb_controller_pod_identity.iam_policy_name
+  value       = var.enable_eks_pod_identities ? module.aws_lb_controller_pod_identity[0].iam_policy_name : ""
 }
 
 output "lb_controller_pod_identity_iam_role_arn" {
   description = "LB controller pod identity IAM role ARN"
-  value       = module.aws_lb_controller_pod_identity.iam_role_arn
+  value       = var.enable_eks_pod_identities ? module.aws_lb_controller_pod_identity[0].iam_role_arn : ""
 }
 
 output "lb_controller_pod_identity_iam_role_name" {
   description = "LB controller pod identity IAM role name"
-  value       = module.aws_lb_controller_pod_identity.iam_role_name
+  value       = var.enable_eks_pod_identities ? module.aws_lb_controller_pod_identity[0].iam_role_name : ""
 }
 
 output "lb_controller_pod_identity_iam_role_path" {
   description = "LB controller pod identity IAM role path"
-  value       = module.aws_lb_controller_pod_identity.iam_role_path
+  value       = var.enable_eks_pod_identities ? module.aws_lb_controller_pod_identity[0].iam_role_path : ""
 }
 
 output "lb_controller_pod_identity_iam_role_unique_id" {
   description = "LB controller pod identity IAM role unique ID"
-  value       = module.aws_lb_controller_pod_identity.iam_role_unique_id
+  value       = var.enable_eks_pod_identities ? module.aws_lb_controller_pod_identity[0].iam_role_unique_id : ""
 }
 
 #################################################################################
@@ -723,42 +723,42 @@ output "efs_file_system_tags_all" {
   value       = aws_efs_file_system.main.tags_all
 }
 
-output "efs_mount_target_availability_zone_id" {
-  description = "EFS mount target availability zone ID"
-  value       = aws_efs_mount_target.main.availability_zone_id
+output "efs_mount_target_availability_zone_ids" {
+  description = "EFS mount target availability zone IDs"
+  value       = [ for resource in aws_efs_mount_target.main : resource.availability_zone_id ]
 }
 
-output "efs_mount_target_availability_zone_name" {
-  description = "EFS mount target availability zone name"
-  value       = aws_efs_mount_target.main.availability_zone_name
+output "efs_mount_target_availability_zone_names" {
+  description = "EFS mount target availability zone names"
+  value       = [ for resource in aws_efs_mount_target.main : resource.availability_zone_name ]
 }
 
-output "efs_mount_target_dns_name" {
-  description = "EFS mount target DNS name"
-  value       = aws_efs_mount_target.main.dns_name
+output "efs_mount_target_dns_names" {
+  description = "EFS mount target DNS names"
+  value       = [ for resource in aws_efs_mount_target.main : resource.dns_name ]
 }
 
-output "efs_mount_target_file_system_id" {
-  description = "EFS mount target file system ID"
-  value       = aws_efs_mount_target.main.file_system_id
+output "efs_mount_target_file_system_ids" {
+  description = "EFS mount target file system IDs"
+  value       = [ for resource in aws_efs_mount_target.main : resource.file_system_id ]
 }
 
-output "efs_mount_target_id" {
-  description = "EFS mount target ID"
-  value       = aws_efs_mount_target.main.id
+output "efs_mount_target_ids" {
+  description = "EFS mount target IDs"
+  value       = [ for resource in aws_efs_mount_target.main : resource.id ]
 }
 
-output "efs_mount_target_file_system_arn" {
-  description = "EFS mount target file system ARN"
-  value       = aws_efs_mount_target.main.file_system_arn
+output "efs_mount_target_file_system_arns" {
+  description = "EFS mount target file system ARNs"
+  value       = [ for resource in aws_efs_mount_target.main : resource.file_system_arn ]
 }
 
-output "efs_mount_target_network_interface_id" {
-  description = "EFS mount target network interface ID"
-  value       = aws_efs_mount_target.main.network_interface_id
+output "efs_mount_target_network_interface_ids" {
+  description = "EFS mount target network interface IDs"
+  value       = [ for resource in aws_efs_mount_target.main : resource.network_interface_id ]
 }
 
-output "efs_mount_target_owner_id" {
-  description = "EFS mount target owner ID"
-  value       = aws_efs_mount_target.main.owner_id
+output "efs_mount_target_owner_ids" {
+  description = "EFS mount target owner IDs"
+  value       = [ for resource in aws_efs_mount_target.main : resource.owner_id ]
 }
