@@ -145,7 +145,7 @@ variable "eks_security_group_additional_rules" {
 variable "eks_version" {
   description = "The version of the EKS cluster"
   type        = string
-  default     = "1.29"
+  default     = "1.30"
 }
 
 variable "node_bootstrap_extra_args" {
