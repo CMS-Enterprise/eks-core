@@ -7,7 +7,7 @@ Upgrading an Amazon EKS (Elastic Kubernetes Service) cluster is a critical task 
 
 Before planning an EKS version upgrade, it is essential to review the EKS version deprecation schedule. AWS typically supports three Kubernetes versions at any given time, and older versions are deprecated and eventually removed. The deprecation schedule outlines the timeline for when a version will no longer be supported, providing a clear deadline for upgrades. 
 
-To review the EKS version deprecation schedule, visit the AWS EKS Kubernetes Versions page. This page details the currently supported versions, upcoming deprecation dates, and any special considerations for transitioning to newer versions. Regularly reviewing this schedule helps you plan upgrades in a timely manner and ensures that your cluster remains compliant with AWS support policies. It also provides valuable insights into the features and improvements available in newer versions, aiding in strategic planning for your Kubernetes environment. 
+To review the EKS version deprecation schedule, visit the AWS EKS Kubernetes Versions page (https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html). This page details the currently supported versions, upcoming deprecation dates, and any special considerations for transitioning to newer versions. Regularly reviewing this schedule helps you plan upgrades in a timely manner and ensures that your cluster remains compliant with AWS support policies. It also provides valuable insights into the features and improvements available in newer versions, aiding in strategic planning for your Kubernetes environment. 
 
 ## Identifying API Version Compatibility Checks 
 
@@ -15,7 +15,7 @@ When upgrading your EKS cluster, ensuring API version compatibility is crucial t
 
 To identify API version compatibility: 
 
-1. Review API Deprecation Notices: Check the Kubernetes API Changes and Deprecations page for the version you are upgrading to. This guide lists deprecated API versions, recommended replacements, and the timeline for removal. 
+1. Review API Deprecation Notices: Check the Kubernetes API Changes and Deprecations page for the version you are upgrading to (https://kubernetes.io/docs/reference/using-api/deprecation-guide/). This guide lists deprecated API versions, recommended replacements, and the timeline for removal. 
 
 2. Audit Your Cluster Resources: Use kubectl to audit resources for deprecated APIs. Run the command kubectl get --all-namespaces -o yaml | grep -E 'apiVersion: [^/]+/v[0-9]+' to list API versions in use. Identify any resources using deprecated versions and update them to supported versions. 
 
@@ -23,13 +23,25 @@ To identify API version compatibility:
 
 4. Consult Third-Party Documentation: Review the documentation for third-party tools and add-ons in your cluster to ensure they are compatible with the new Kubernetes version. Vendors often provide specific guidance for upgrades and compatibility checks. 
 
+Examples of Third-Party Tools with Kubernetes API Compatibility Documentation:
+
+* Helm - Helm is a package manager for Kubernetes. When upgrading Kubernetes, it is essential to ensure that Helm charts are compatible with the new version. Check the [Helm documentation](https://helm.sh/docs/topics/kubernetes_apis/) for guidance on API version compatibility and upgrading Helm charts.
+
+* Prometheus - Prometheus is a monitoring and alerting toolkit. The Prometheus Operator manages Prometheus clusters atop Kubernetes. Ensure that your Prometheus configuration and CRDs (Custom Resource Definitions) are compatible with the new Kubernetes version. Refer to the [Prometheus Operator documentation](https://prometheus-operator.dev/docs/getting-started/compatibility/) for details.
+
+* Istio - Istio is a service mesh that provides a way to control how microservices share data. Check the [Istio documentation](https://istio.io/latest/docs/releases/supported-releases/) for API compatibility and upgrade instructions.
+
+* Fluent Bit - Fluent Bit is a logging and data collection tool. Ensure that your Fluent Bit configuration is compatible with the new Kubernetes version by reviewing the [Fluent Bit documentation](https://docs.fluentbit.io/manual/v/1.1/installation/kubernetes).
+
+* Argo CD - Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes. The [Argo CD documentation](https://argo-cd.readthedocs.io/en/stable/operator-manual/tested-kubernetes-versions/) provides guidance on API version compatibility and upgrading Argo CD.
+
 By proactively checking and updating API versions, you ensure that your applications and infrastructure remain stable and compatible with the new Kubernetes version, preventing unexpected failures and downtime. 
 
 ## Documenting Breaking Changes for the EKS Version Upgrade 
 
 Understanding and documenting breaking changes is a critical step in the EKS upgrade process. Breaking changes can significantly impact your applications and infrastructure, and failing to address them can lead to service disruptions. 
 
-## Identifying Breaking Changes 
+### Identifying Breaking Changes 
 
 1. Review Kubernetes Release Notes: Each Kubernetes version upgrade comes with a set of changes, including potential breaking changes. Review the Kubernetes release notes for the version you are upgrading to, paying particular attention to sections on deprecated features, removed APIs, and changes in behavior. 
 
@@ -39,7 +51,7 @@ Understanding and documenting breaking changes is a critical step in the EKS upg
 
 4. Consult AWS and Community Documentation: AWS provides specific guidance on EKS upgrades. Review the AWS EKS Release Notes for details on how changes affect EKS clusters. Also, refer to community forums and documentation for additional insights and experiences from other users. 
 
-## Documenting Breaking Changes 
+### Documenting Breaking Changes 
 
 1. Create a Detailed Change Log: Document each breaking change identified, including a description of the change, affected components, and the potential impact. Include references to official documentation and release notes. 
 
@@ -68,6 +80,49 @@ The actual upgrade process begins with upgrading the EKS control plane. First, i
 Following the control plane upgrade, it is necessary to upgrade the managed node groups. This involves listing the node groups with aws eks list-nodegroups --cluster-name <cluster-name> --region <region> and initiating the upgrade using aws eks update-nodegroup-version --cluster-name <cluster-name> --nodegroup-name <nodegroup-name> --kubernetes-version <version> --region <region>. For self-managed nodes, updating the AMI and rolling out new instances is crucial. This can be achieved by updating the launch template and initiating an instance refresh for the auto-scaling group. 
 
 Upgrading add-ons and third-party tools is another critical step. For example, you can upgrade CoreDNS by applying the necessary configuration file with kubectl apply -f <url> and update kube-proxy using eksctl utils update-kube-proxy --cluster <cluster-name> --region <region>. Ensuring that third-party tools like Prometheus and Grafana are compatible with the new version is also important, and following vendor documentation for upgrades is recommended. 
+
+## Rollback Plan
+
+Upgrading an Amazon EKS (Elastic Kubernetes Service) cluster involves careful planning and execution. Despite thorough preparation, issues may arise that necessitate a rollback to a previous, stable version. This document outlines the steps to create and execute a rollback plan for an EKS version upgrade.
+
+### Preparation Steps
+1. Backup and Snapshot
+Before starting the upgrade, create backups and snapshots of your critical data and configurations:
+
+* Etcd Data Backup: Ensure that the etcd data (Kubernetes cluster state) is backed up.
+* EBS Snapshots: Take snapshots of EBS volumes attached to the nodes.
+* Database Backups: Backup any databases running on your cluster.
+* Resource Manifests: Export all current resource manifests to YAML files.
+2. Review Application State
+* Document the state of all running applications, including their deployment configurations, services, and persistent volumes.
+* Ensure that all applications are running in a healthy state before proceeding with the upgrade.
+
+### Upgrade Procedures
+1. Notify Stakeholders
+Inform all stakeholders about the planned upgrade, the expected downtime, and the rollback plan.
+
+2. Execute the Upgrade
+Follow the EKS upgrade steps as per the official AWS documentation.
+
+### Validation Steps
+1. Post-Upgrade Testing
+* Validate the state of applications.
+* Verify that all services are functioning as expected.
+* Check the cluster for any deprecated or incompatible API versions.
+
+### Rollback Plan
+1. Evaluate the Need for Rollback
+
+   Determine if the upgrade issues warrant a rollback:
+
+* Severe application downtime.
+* Incompatibility issues that cannot be quickly resolved.
+* Critical errors in the cluster state.
+2. Execute the Rollback
+Step-by-Step Rollback Process
+* Restore EBS Snapshots:
+
+   The rollback process involves several critical steps to ensure that the EKS cluster is restored to its pre-upgrade state. Start by restoring the EBS volumes from the snapshots taken before the upgrade. This can be done by using the AWS CLI to describe the snapshots and create volumes from these snapshots. Once the EBS volumes are restored, revert the resource manifests by applying the backup resource manifests to ensure that all configurations are back to their original state. If necessary, recreate the EKS cluster using the saved configuration and backup data to ensure all settings are correctly restored. This step might involve using tools like eksctl to re-establish the cluster according to the pre-upgrade specifications. Next, restore your databases from the backups. This could involve using database-specific tools or commands to import the backup files into the databases. Finally, re-deploy the applications using the pre-upgrade deployment configurations. This ensures that all applications are restored to their previous state and are running correctly. By meticulously following these steps, you can effectively rollback the EKS cluster to a stable state, minimizing downtime and maintaining operational integrity.
 
 ## Validating Core Resources 
 
