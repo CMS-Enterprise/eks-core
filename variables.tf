@@ -110,7 +110,7 @@ variable "eks_main_node_instance_types" {
 variable "eks_main_nodes_max_size" {
   description = "The max size of the main EKS node group"
   type        = number
-  default     = 6
+  default     = 3
 }
 
 variable "eks_main_nodes_min_size" {
@@ -145,7 +145,7 @@ variable "eks_security_group_additional_rules" {
 variable "eks_version" {
   description = "The version of the EKS cluster"
   type        = string
-  default     = "1.29"
+  default     = "1.30"
 }
 
 variable "node_bootstrap_extra_args" {

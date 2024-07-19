@@ -340,6 +340,7 @@ module "aws_lb_controller_pod_identity" {
 }
 
 module "aws_cloudwatch_observability_pod_identity" {
+  count  = var.enable_eks_pod_identities ? 1 : 0
   source = "terraform-aws-modules/eks-pod-identity/aws"
 
   name            = "aws-cloudwatch-observability-${module.eks.cluster_name}"
