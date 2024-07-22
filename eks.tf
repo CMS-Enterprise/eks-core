@@ -102,7 +102,7 @@ module "main_nodes" {
 
 module "eks_addons" {
   source     = "./addons"
-  depends_on = [module.main_nodes]
+  depends_on = [module.main_nodes, null_resource.sleep]
 
   available_availability_zones     = local.available_availability_zone_names
   aws_partition                    = data.aws_partition.current.partition
@@ -411,6 +411,14 @@ resource "aws_security_group_rule" "https-vpc-ingress" {
   protocol          = "tcp"
   security_group_id = module.eks.cluster_primary_security_group_id
   cidr_blocks       = data.aws_vpc.vpc.cidr_block_associations.*.cidr_block
+}
+
+resource "null_resource" "sleep" {
+  provisioner "local-exec" {
+    command = "sleep 15"
+  }
+
+ depends_on = [module.eks_base]
 }
 
 resource "null_resource" "terminate_nodes" {
