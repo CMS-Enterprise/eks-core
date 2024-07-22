@@ -129,6 +129,23 @@ env = "dev"
 project = "batcave"
 ```
 
+3. I am seeing the following error, what does it mean?
+
+```bash
+[error] [aws_client] connection initialization error
+[error] [output:cloudwatch_logs:cloudwatch_logs.1] Failed to create log stream
+[error] [output:cloudwatch_logs:cloudwatch_logs.1] Failed to send events
+```
+
+You will see this error on initial stand up of the fluentbit pod(s).
+This error should eventually resolve itself as the fluentbit pod(s) come up and start sending logs to CloudWatch.
+Look for the following cloudwatch log groups to validate that logs are being sent to cloudwatch as expected:
+
+- `/aws/containerinsights/<cluster_name>/application`
+- `/aws/containerinsights/<cluster_name>/dataplane`
+- `/aws/containerinsights/<cluster_name>/performance`
+- `/aws/containerinsights/<cluster_name>/host`
+
 ### Explanation:
 
 1. **Terraform Configuration**:
