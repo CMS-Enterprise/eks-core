@@ -9,3 +9,21 @@ k8s/.terraform
 .*.sw?
 *.backup
 .envrc
+
+# IDE
+*.icloud
+*.idea/*
+
+# Python temp
+**/__pycache__
+.venv*/
+**/*.whl
+*.pkl.xz
+
+
+
+
+# QA Testing
+qa_testing/.3rd_party_tools/*/
+qa_testing/robot/*.html
+qa_testing/robot/*.xml
