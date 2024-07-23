@@ -19,20 +19,21 @@ server:
       alb.ingress.kubernetes.io/certificate-arn: ${argocd_cert_arn}
       alb.ingress.kubernetes.io/security-groups: ${alb_security_group_id}
       alb.ingress.kubernetes.io/backend-protocol: HTTP
+      alb.ingress.kubernetes.io/backend-protocol-version: HTTP2
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
       alb.ingress.kubernetes.io/ssl-redirect: 443
       alb.ingress.kubernetes.io/ip-address-type: ipv4
       alb.ingress.kubernetes.io/target-type: instance
       alb.ingress.kubernetes.io/group.name: core
       alb.ingress.kubernetes.io/success-codes: 200-399
-      alb.ingress.kubernetes.io/conditions.argogrpc: >-
+      alb.ingress.kubernetes.io/conditions.argocd-server-grpc: >-
         [{"field":"http-header","httpHeaderConfig":{"httpHeaderName": "Content-Type", "values":["application/grpc"]}}]
     aws:
       serviceType: NodePort
       backendProtocolVersion: HTTP2
     service:
       servicePortHttpName: http
-      servicePortHttp: 80
+      servicePortHttp: 8080
 redis-ha:
   enabled: true
 controller:
