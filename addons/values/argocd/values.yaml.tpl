@@ -21,7 +21,6 @@ server:
       alb.ingress.kubernetes.io/certificate-arn: ${argocd_cert_arn}
       alb.ingress.kubernetes.io/security-groups: ${alb_security_group_id}
       alb.ingress.kubernetes.io/backend-protocol: HTTP
-      alb.ingress.kubernetes.io/backend-protocol-version: HTTP2
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
       alb.ingress.kubernetes.io/ssl-redirect: 443
       alb.ingress.kubernetes.io/ip-address-type: ipv4
