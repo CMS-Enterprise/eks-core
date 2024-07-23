@@ -21,7 +21,7 @@ resource "aws_efs_file_system" "main" {
     replication_overwrite = var.efs_protection_replication_overwrite
   }
 
-  tags = merge(var.efs_tags, { "Name" = "efs-${module.eks.cluster_name}" })
+  tags = merge(var.efs_tags, local.tags_for_all_resources, { "Name" = "efs-${module.eks.cluster_name}" })
 }
 
 resource "aws_efs_mount_target" "main" {

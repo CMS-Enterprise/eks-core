@@ -16,6 +16,8 @@ resource "aws_iam_role" "vpc" {
       }
     ]
   })
+
+  tags = local.tags_for_all_resources
 }
 
 resource "aws_iam_role_policy_attachment" "vpc" {

@@ -1,4 +1,10 @@
 locals {
+  tags_for_all_resources = {
+    programOffice = var.program_office
+    ado           = var.ado
+    env           = var.env
+  }
+
   ################################## EKS Settings ##################################
   block_device_mappings = [
     {
@@ -16,7 +22,7 @@ locals {
   post_bootstrap_user_data   = var.node_post_bootstrap_script
   pre_bootstrap_user_data    = var.gold_image_date != "" ? local.gold_image_pre_bootstrap_script : var.node_pre_bootstrap_script
 
-  cluster_name = "${var.program_office}-${var.ado}-${var.env}-${var.cluster_custom_name}"
+  cluster_name = var.cluster_custom_name
   cluster_security_groups = {
     node            = module.eks.node_security_group_id
     cluster         = module.eks.cluster_security_group_id
@@ -30,7 +36,7 @@ locals {
     data.aws_ec2_managed_prefix_list.zscaler_pl.id
   ]
   cluster_version                 = var.eks_version
-  gold_image_pre_bootstrap_script = "sysctl -w net.ipv4.ip_forward=1\n"
+  gold_image_pre_bootstrap_script = "mkdir -p /var/log/journal && sysctl -w net.ipv4.ip_forward=1\n"
 
   ################################## VPC Settings ##################################
   all_private_subnet_ids   = flatten([for subnet in data.aws_subnets.private.ids : subnet])

@@ -109,56 +109,6 @@ variable "enable_bootstrap_user_data" {
   type        = bool
 }
 
-variable "fluentbit_additional_log_filters" {
-  description = "Additional log filters to use for Fluentbit"
-  type        = list(string)
-}
-
-variable "fluentbit_chart_version" {
-  description = "The version of the Fluentbit chart to use"
-  type        = string
-}
-
-variable "fluentbit_drop_namespaces" {
-  description = "Namespaces to drop from Fluentbit logs"
-  type        = list(string)
-}
-
-variable "fluentbit_kube_namespaces" {
-  description = "Kubernetes namespaces to use for Fluentbit"
-  type        = list(string)
-}
-
-variable "fluentbit_log_encryption" {
-  description = "Whether to encrypt Fluentbit logs"
-  type        = bool
-}
-
-variable "fluentbit_log_filters" {
-  description = "Log filters to use for Fluentbit"
-  type        = list(string)
-}
-
-variable "fluentbit_log_retention" {
-  description = "The number of days to retain Fluentbit logs"
-  type        = number
-}
-
-variable "fluentbit_log_systemd" {
-  description = "Whether to log systemd messages with Fluentbit"
-  type        = bool
-}
-
-variable "fluentbit_system_log_retention" {
-  description = "The number of days to retain Fluentbit systemd logs"
-  type        = number
-}
-
-variable "fluentbit_tags" {
-  description = "The tags to use for Fluentbit"
-  type        = map(string)
-}
-
 variable "gold_image_ami_id" {
   description = "The AMI ID to use for the gold image"
   type        = string

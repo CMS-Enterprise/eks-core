@@ -36,16 +36,6 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 |                       `node_taints`                        | `map(string)`  |                              `{}`                              |                                                                 The taints to apply to the EKS nodes.                                                                 |    No    |
 |                `enable_eks_pod_identities`                 |     `bool`     |                             `true`                             |                                                                      Enable EKS Pod Identities.                                                                       |    No    |
 |                    `pod_identity_tags`                     | `map(string)`  |                              `{}`                              |                                                               The tags to apply to the Pod Identities.                                                                |    No    |
-|                     `fb_chart_version`                     |    `string`    |                           `"0.1.33"`                           |                                                                    Fluent-bit helm chart version.                                                                     |    No    |
-|                    `fb_log_encryption`                     |     `bool`     |                             `true`                             |                                                                   Enable Fluent-bit log encryption.                                                                   |    No    |
-|                      `fb_log_systemd`                      |     `bool`     |                             `true`                             |                                                           Enable Fluent-bit cloudwatch logging for systemd.                                                           |    No    |
-|                         `fb_tags`                          | `map(string)`  |                              `{}`                              |                                                            The tags to apply to the fluent-bit deployment.                                                            |    No    |
-|                     `fb_log_retention`                     |    `number`    |                              `7`                               |                                                                    Days to retain Fluent-bit logs.                                                                    |    No    |
-|                 `fb_system_log_retention`                  |    `number`    |                              `7`                               |                                                                Days to retain Fluent-bit systemd logs.                                                                |    No    |
-|                    `fb_drop_namespaces`                    | `list(string)` |               `["kube-system", "cert-manager"]`                |                                                          Fluent-bit doesn't send logs for these namespaces.                                                           |    No    |
-|                    `fb_kube_namespaces`                    | `list(string)` |                 `["kube.*", "cert-manager.*"]`                 |                                                                        Kubernetes namespaces.                                                                         |    No    |
-|                      `fb_log_filters`                      | `list(string)` |      `["kube-probe", "health", "prometheus", "liveness"]`      |                                                   Fluent-bit doesn't send logs if message consists of these values.                                                   |    No    |
-|                `fb_additional_log_filters`                 | `list(string)` | `["ELB-HealthChecker", "Amazon-Route53-Health-Check-Service"]` |                                                   Fluent-bit doesn't send logs if message consists of these values.                                                   |    No    |
 |                     `kp_chart_version`                     |    `string`    |                           `"0.37.0"`                           |                                                                     Karpenter helm chart version.                                                                     |    No    |
 |                      `karpenter_tags`                      | `map(string)`  |                              `{}`                              |                                                            The tags to apply to the Karpenter deployment.                                                             |    No    |
 |                     `main_bucket_tags`                     | `map(string)`  |                              `{}`                              |                                                                 The tags to apply to the main bucket.                                                                 |    No    |
@@ -138,6 +128,23 @@ This means that you probably have an incorrect value being passed in your module
 env = "dev"
 project = "batcave"
 ```
+
+3. I am seeing the following error, what does it mean?
+
+```bash
+[error] [aws_client] connection initialization error
+[error] [output:cloudwatch_logs:cloudwatch_logs.1] Failed to create log stream
+[error] [output:cloudwatch_logs:cloudwatch_logs.1] Failed to send events
+```
+
+You will see this error on initial stand up of the fluentbit pod(s).
+This error should eventually resolve itself as the fluentbit pod(s) come up and start sending logs to CloudWatch.
+Look for the following cloudwatch log groups to validate that logs are being sent to cloudwatch as expected:
+
+- `/aws/containerinsights/<cluster_name>/application`
+- `/aws/containerinsights/<cluster_name>/dataplane`
+- `/aws/containerinsights/<cluster_name>/performance`
+- `/aws/containerinsights/<cluster_name>/host`
 
 ### Explanation:
 

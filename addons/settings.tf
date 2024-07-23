@@ -1,23 +1,4 @@
 locals {
-  ################################## Fluentbit Settings ##################################
-  fluentbit_log_name             = "${var.eks_cluster_name}-fluent-bit"
-  fluentbit_namespace            = "fluentbit"
-  fluentbit_service_account_name = "fluent-bit"
-  fluentbit_system_log_name      = "${var.eks_cluster_name}-fluent-bit-systemd"
-
-  config_settings = {
-    log_group_name         = local.fluentbit_log_name
-    system_log_group_name  = local.fluentbit_system_log_name
-    region                 = var.aws_region
-    log_retention_days     = var.fluentbit_log_retention
-    drop_namespaces        = "(${join("|", var.fluentbit_drop_namespaces)})"
-    log_filters            = "(${join("|", var.fluentbit_log_filters)})"
-    additional_log_filters = "(${join("|", var.fluentbit_additional_log_filters)})"
-    kube_namespaces        = var.fluentbit_kube_namespaces
-  }
-
-  values = templatefile("${path.module}/values/fluentbit/values.yaml.tpl", local.config_settings)
-
   ################################## Karpenter Settings ##################################
   karpenter_namespace            = "karpenter"
   karpenter_service_account_name = "karpenter"
