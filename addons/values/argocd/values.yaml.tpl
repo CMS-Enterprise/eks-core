@@ -7,6 +7,8 @@ server:
   autoscaling:
     enabled: true
     minReplicas: 2
+  service:
+    type: NodePort
   ingress:
     enabled: true
     controller: aws
@@ -14,7 +16,7 @@ server:
     annotations:
       alb.ingress.kubernetes.io/actions.ssl-redirect: >-
         {"Type": "redirect", "RedirectConfig": {"Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}
-      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/scheme: internal
       alb.ingress.kubernetes.io/load-balancer-name: ${k8s_alb_name}
       alb.ingress.kubernetes.io/certificate-arn: ${argocd_cert_arn}
       alb.ingress.kubernetes.io/security-groups: ${alb_security_group_id}
