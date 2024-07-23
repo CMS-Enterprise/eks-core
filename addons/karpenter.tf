@@ -1,6 +1,6 @@
 #Karpenter Terraform
 module "karpenter" {
-  source     = "terraform-aws-modules/eks/aws//modules/karpenter"
+  source = "terraform-aws-modules/eks/aws//modules/karpenter"
 
   cluster_name                      = var.eks_cluster_name
   create_access_entry               = false
@@ -29,6 +29,7 @@ resource "helm_release" "karpenter-crd" {
   version          = var.karpenter_chart_version
   create_namespace = true
   namespace        = local.karpenter_namespace
+  wait             = true
 
   values = [
     local.kp_values
@@ -49,7 +50,7 @@ resource "helm_release" "karpenter-crd" {
 resource "kubectl_manifest" "karpenter_nodepool" {
   yaml_body = yamlencode({
     apiVersion = "karpenter.sh/v1beta1"
-    kind = "NodePool"
+    kind       = "NodePool"
     metadata = {
       name = var.karpenter_nodepool_name == "" ? "default" : var.karpenter_nodepool_name
     }
@@ -58,45 +59,45 @@ resource "kubectl_manifest" "karpenter_nodepool" {
         spec = {
           nodeClassRef = {
             apiVersion = "karpenter.k8s.aws/v1beta1"
-            kind = "EC2NodeClass"
-            name = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
+            kind       = "EC2NodeClass"
+            name       = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
           }
-          taints = [ for key, value in var.karpenter_nodepool_taints : {
+          taints = [for key, value in var.karpenter_nodepool_taints : {
             key    = key
             effect = value
           }]
           requirements = [
             {
-              key = "karpenter.k8s.aws/instance-category"
+              key      = "karpenter.k8s.aws/instance-category"
               operator = "In"
-              values = ["c"]
+              values   = ["c"]
             },
             {
-              key = "karpenter.k8s.aws/instance-family"
+              key      = "karpenter.k8s.aws/instance-family"
               operator = "In"
-              values = ["c5"]
+              values   = ["c5"]
             },
             {
-              key = "karpenter.k8s.aws/instance-cpu"
+              key      = "karpenter.k8s.aws/instance-cpu"
               operator = "In"
-              values = ["4", "8"]
+              values   = ["4", "8"]
             },
             {
-              key = "topology.kubernetes.io/zone"
+              key      = "topology.kubernetes.io/zone"
               operator = "In"
-              values = var.available_availability_zones
+              values   = var.available_availability_zones
             },
             {
-              key = "karpenter.sh/capacity-type"
+              key      = "karpenter.sh/capacity-type"
               operator = "In"
-              values = ["on-demand"]
+              values   = ["on-demand"]
             }
           ]
         }
       }
       disruption = {
         consolidationPolicy = "WhenUnderutilized"
-        expireAfter = "160h"
+        expireAfter         = "160h"
       }
     }
   })
@@ -107,7 +108,7 @@ resource "kubectl_manifest" "karpenter_nodepool" {
 resource "kubectl_manifest" "karpenter_ec2nodeclass" {
   yaml_body = yamlencode({
     apiVersion = "karpenter.k8s.aws/v1beta1"
-    kind = "EC2NodeClass"
+    kind       = "EC2NodeClass"
     metadata = {
       name = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
     }
@@ -116,7 +117,7 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
       subnetSelectorTerms = [
         {
           tags = {
-            Name = "${var.deploy_project}-*-${var.deploy_env}-private-*"
+            Name = "${var.ado}-*-${var.env}-private-*"
           }
         }
       ]
@@ -132,16 +133,16 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
         }
       ]
       userData = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
-      tags = merge(var.karpenter_base_tags, {Name = "eks-karpenter-${var.eks_cluster_name}"})
+      tags     = merge(var.karpenter_base_tags, { Name = "eks-karpenter-${var.eks_cluster_name}" })
       blockDeviceMappings = [
         {
           deviceName = "/dev/xvda"
           ebs = {
-            volumeSize = "300G"
-            volumeType = "gp3"
+            volumeSize          = "300G"
+            volumeType          = "gp3"
             deleteOnTermination = true
-            encrypted = true
-            kmsKeyId = var.ebs_kms_key_id
+            encrypted           = true
+            kmsKeyId            = var.ebs_kms_key_id
           }
         }
       ]

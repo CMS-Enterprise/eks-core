@@ -1,4 +1,13 @@
 locals {
+  ################################## ArgoCD Settings ##################################
+  argocd_values = templatefile("${path.module}/values/argocd/values.yaml.tpl", {
+    ado                   = var.ado
+    alb_security_group_id = var.alb_security_group_id
+    argocd_cert_arn       = data.aws_acm_certificate.argocd.arn
+    env                   = var.env
+    k8s_alb_name          = var.k8s_alb_name
+  })
+
   ################################## Karpenter Settings ##################################
   karpenter_namespace            = "karpenter"
   karpenter_service_account_name = "karpenter"
@@ -19,10 +28,15 @@ locals {
     cluster_name = var.eks_cluster_name
   }
 
-  kp_values  = templatefile("${path.module}/values/karpenter/values.yaml.tpl", local.kp_config_settings)
+  kp_values                 = templatefile("${path.module}/values/karpenter/values.yaml.tpl", local.kp_config_settings)
   iam_instance_profile_name = tolist(data.aws_iam_instance_profiles.nodes.names)
 }
 
 data "aws_iam_instance_profiles" "nodes" {
   role_name = var.eks_node_iam_role_name
+}
+
+data "aws_acm_certificate" "argocd" {
+  domain   = "${var.ado}-${var.env}.internal.cms.gov"
+  statuses = ["ISSUED"]
 }

@@ -257,6 +257,13 @@ variable "pod_identity_tags" {
   default     = {}
 }
 
+################################# ArgoCD Variables #################################
+variable "argocd_chart_version" {
+  description = "ArgoCD helm chart version"
+  type        = string
+  default     = "7.3.6"
+}
+
 ################################# Karpenter Variables #################################
 variable "kp_chart_version" {
   description = "Karpenter helm chart version"

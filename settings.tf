@@ -37,6 +37,32 @@ locals {
   ]
   cluster_version                 = var.eks_version
   gold_image_pre_bootstrap_script = "mkdir -p /var/log/journal && sysctl -w net.ipv4.ip_forward=1\n"
+  k8s_alb_name                    = "alb-${local.cluster_name}"
+
+  ################################### ALB ###################################
+  alb_security_group_rules = {
+    ingress_80 = {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    ingress_443 = {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress_all = {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      type        = "egress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
 
   ################################## VPC Settings ##################################
   all_private_subnet_ids   = flatten([for subnet in data.aws_subnets.private.ids : subnet])
