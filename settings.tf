@@ -1,4 +1,6 @@
 locals {
+  domain_name = "${var.ado}-${var.env}.internal.cms.gov"
+
   tags_for_all_resources = {
     programOffice = var.program_office
     ado           = var.ado
@@ -37,6 +39,32 @@ locals {
   ]
   cluster_version                 = var.eks_version
   gold_image_pre_bootstrap_script = "mkdir -p /var/log/journal && sysctl -w net.ipv4.ip_forward=1\n"
+  k8s_alb_name                    = "alb-${local.cluster_name}"
+
+  ################################### ALB ###################################
+  alb_security_group_rules = {
+    ingress_80 = {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    ingress_443 = {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress_all = {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      type        = "egress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
 
   ################################## VPC Settings ##################################
   all_private_subnet_ids   = flatten([for subnet in data.aws_subnets.private.ids : subnet])
@@ -72,6 +100,16 @@ data "aws_availability_zones" "available" {}
 
 data "aws_eks_cluster_auth" "main" {
   name = module.eks.cluster_name
+}
+
+data "aws_lb" "k8s_alb" {
+  name       = local.k8s_alb_name
+  depends_on = [time_sleep.alb_propagation]
+}
+
+data "aws_route53_zone" "main" {
+  name         = local.domain_name
+  private_zone = true
 }
 
 data "aws_ami" "gold_image" {

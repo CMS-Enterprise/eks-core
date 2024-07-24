@@ -34,7 +34,6 @@ module "eks" {
   kms_key_aliases                              = ["eks-${local.cluster_name}"]
   kms_key_deletion_window_in_days              = 7
   kms_key_description                          = "KMS key for EKS ${local.cluster_name} cluster"
-  node_security_group_additional_rules         = var.eks_security_group_additional_rules
   node_security_group_description              = "Security group for EKS nodes"
   node_security_group_enable_recommended_rules = true
   node_security_group_name                     = "eks-${local.cluster_name}-node-sg"
@@ -50,6 +49,17 @@ module "eks" {
     "controllerManager",
     "scheduler"
   ]
+
+  node_security_group_additional_rules = merge(var.eks_security_group_additional_rules, {
+    ingress_alb = {
+      description              = "Allow traffic from ALB"
+      protocol                 = "TCP"
+      from_port                = 0
+      to_port                  = 65535
+      type                     = "ingress"
+      source_security_group_id = aws_security_group.alb.id
+    }
+  })
 }
 
 module "main_nodes" {
@@ -101,39 +111,51 @@ module "main_nodes" {
 }
 
 module "eks_addons" {
-  source     = "./addons"
-  depends_on = [module.main_nodes, null_resource.sleep]
+  source = "./addons"
 
-  available_availability_zones     = local.available_availability_zone_names
-  aws_partition                    = data.aws_partition.current.partition
-  aws_region                       = data.aws_region.current.name
-  bootstrap_extra_args             = var.node_bootstrap_extra_args
-  cloudwatch_kms_key_arn           = module.cloudwatch_kms.key_arn
-  cluster_ca_data                  = module.eks.cluster_certificate_authority_data
-  cluster_endpoint                 = module.eks.cluster_endpoint
-  custom_ami                       = var.custom_ami_id
-  deploy_env                       = var.env
-  deploy_project                   = var.ado
-  ebs_kms_key_id                   = module.ebs_kms.key_id
-  eks_cluster_cidr                 = module.eks.cluster_service_cidr
-  eks_cluster_ip_family            = module.eks.cluster_ip_family
-  eks_cluster_name                 = module.eks.cluster_name
-  eks_cluster_security_group_id    = module.eks.cluster_security_group_id
-  eks_launch_template_name         = module.main_nodes.launch_template_name
-  eks_node_iam_role_arn            = module.main_nodes.iam_role_arn
-  eks_node_iam_role_name           = module.main_nodes.iam_role_name
-  eks_node_security_group_id       = module.eks.node_security_group_id
-  eks_oidc_provider                = module.eks.oidc_provider
-  eks_oidc_provider_arn            = module.eks.oidc_provider_arn
-  enable_bootstrap_user_data       = local.enable_bootstrap_user_data
-  gold_image_ami_id                = var.gold_image_date != "" ? data.aws_ami.gold_image[0].id : ""
-  iam_path                         = local.iam_path
-  iam_permissions_boundary_arn     = local.permissions_boundary_arn
-  karpenter_base_tags              = merge(var.karpenter_tags, { Cluster = local.cluster_name })
-  karpenter_chart_version          = var.kp_chart_version
-  main_nodes_iam_role_arn          = module.main_nodes.iam_role_arn
-  post_bootstrap_user_data         = local.post_bootstrap_user_data
-  pre_bootstrap_user_data          = local.pre_bootstrap_user_data
+  ado                           = var.ado
+  alb_security_group_id         = aws_security_group.alb.id
+  argocd_chart_version          = var.argocd_chart_version
+  available_availability_zones  = local.available_availability_zone_names
+  aws_partition                 = data.aws_partition.current.partition
+  aws_region                    = data.aws_region.current.name
+  bootstrap_extra_args          = var.node_bootstrap_extra_args
+  cloudwatch_kms_key_arn        = module.cloudwatch_kms.key_arn
+  cluster_ca_data               = module.eks.cluster_certificate_authority_data
+  cluster_endpoint              = module.eks.cluster_endpoint
+  custom_ami                    = var.custom_ami_id
+  domain_name                   = local.domain_name
+  ebs_kms_key_id                = module.ebs_kms.key_id
+  eks_cluster_cidr              = module.eks.cluster_service_cidr
+  eks_cluster_ip_family         = module.eks.cluster_ip_family
+  eks_cluster_name              = module.eks.cluster_name
+  eks_cluster_security_group_id = module.eks.cluster_security_group_id
+  eks_launch_template_name      = module.main_nodes.launch_template_name
+  eks_node_iam_role_arn         = module.main_nodes.iam_role_arn
+  eks_node_iam_role_name        = module.main_nodes.iam_role_name
+  eks_node_security_group_id    = module.eks.node_security_group_id
+  eks_oidc_provider             = module.eks.oidc_provider
+  eks_oidc_provider_arn         = module.eks.oidc_provider_arn
+  enable_bootstrap_user_data    = local.enable_bootstrap_user_data
+  env                           = var.env
+  gold_image_ami_id             = var.gold_image_date != "" ? data.aws_ami.gold_image[0].id : ""
+  iam_path                      = local.iam_path
+  iam_permissions_boundary_arn  = local.permissions_boundary_arn
+  is_prod_cluster               = var.is_prod_cluster
+  karpenter_base_tags           = merge(var.karpenter_tags, { Cluster = local.cluster_name })
+  karpenter_chart_version       = var.kp_chart_version
+  k8s_alb_name                  = local.k8s_alb_name
+  main_nodes_iam_role_arn       = module.main_nodes.iam_role_arn
+  post_bootstrap_user_data      = local.post_bootstrap_user_data
+  pre_bootstrap_user_data       = local.pre_bootstrap_user_data
+
+  depends_on = [
+    module.eks_base,
+    aws_eks_addon.vpc_cni,
+    aws_eks_addon.coredns,
+    aws_eks_addon.kube-proxy,
+    aws_eks_addon.eks-pod-identity-agent
+  ]
 }
 
 module "eks_base" {
@@ -145,6 +167,15 @@ module "eks_base" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 
+  enable_aws_load_balancer_controller          = true
+  enable_secrets_store_csi_driver              = true
+  enable_secrets_store_csi_driver_provider_aws = true
+
+  aws_load_balancer_controller = {
+    atomic      = true
+    create_role = false
+    wait        = true
+  }
   secrets_store_csi_driver = {
     values = [
       <<-EOT
@@ -153,16 +184,8 @@ module "eks_base" {
       EOT
     ]
   }
-  enable_secrets_store_csi_driver              = true
-  enable_secrets_store_csi_driver_provider_aws = true
-
-  enable_aws_load_balancer_controller = true
-  aws_load_balancer_controller = {
-    create_role = false
-  }
   secrets_store_csi_driver_provider_aws = {
     atomic = true
-
     tags = merge(local.tags_for_all_resources, {
       Name = "secrets-store-csi-driver-${module.eks.cluster_name}"
     })
@@ -174,6 +197,7 @@ module "eks_base" {
 
   depends_on = [
     module.main_nodes,
+    module.aws_lb_controller_pod_identity,
     aws_security_group_rule.allow_ingress_additional_prefix_lists
   ]
 }
@@ -413,18 +437,10 @@ resource "aws_security_group_rule" "https-vpc-ingress" {
   cidr_blocks       = data.aws_vpc.vpc.cidr_block_associations.*.cidr_block
 }
 
-resource "null_resource" "sleep" {
-  provisioner "local-exec" {
-    command = "sleep 15"
-  }
-
- depends_on = [module.eks_base]
-}
-
-resource "null_resource" "terminate_nodes" {
+resource "null_resource" "rotate_nodes" {
   provisioner "local-exec" {
     command = <<EOT
-      aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filters "Name=tag:eks:nodegroup-name,Values=${split(":", module.main_nodes.node_group_id)[1]}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+      aws autoscaling start-instance-refresh --auto-scaling-group-name ${module.main_nodes.node_group_autoscaling_group_names[0]} --preferences '{"MinHealthyPercentage": 33}'
     EOT
   }
 

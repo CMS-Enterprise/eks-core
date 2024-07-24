@@ -27,6 +27,22 @@ variable "program_office" {
 
 ################################# VPC Variables #################################
 
+variable "dns_domain_override" {
+  description = "Override the DNS domain"
+  type        = string
+  default     = ""
+}
+
+variable "gold_image_date" {
+  description = "Gold Image Date in YYYY-MM format"
+  type        = string
+  default     = ""
+  validation {
+    condition     = can(regex("^\\d{4}-(0[1-9]|1[0-2])$", var.gold_image_date)) || var.gold_image_date == ""
+    error_message = "gold_image_date must be in the YYYY-MM format."
+  }
+}
+
 variable "subnet_lookup_overrides" {
   description = "Some Subnets don't follow standard naming conventions.  Use this map to override the query used for looking up Subnets.  Ex: { private = \"foo-west-nonpublic-*\" }"
   default     = {}
@@ -44,15 +60,6 @@ variable "vpc_lookup_override" {
   default     = ""
   type        = string
 
-}
-variable "gold_image_date" {
-  description = "Gold Image Date in YYYY-MM format"
-  type        = string
-  default     = ""
-  validation {
-    condition     = can(regex("^\\d{4}-(0[1-9]|1[0-2])$", var.gold_image_date)) || var.gold_image_date == ""
-    error_message = "gold_image_date must be in the YYYY-MM format."
-  }
 }
 
 ################################# EKS Variables #################################
@@ -146,6 +153,12 @@ variable "eks_version" {
   description = "The version of the EKS cluster"
   type        = string
   default     = "1.30"
+}
+
+variable "is_prod_cluster" {
+  description = "Whether the EKS cluster is a production cluster"
+  type        = bool
+  default     = false
 }
 
 variable "node_bootstrap_extra_args" {
@@ -255,6 +268,13 @@ variable "pod_identity_tags" {
   description = "The tags to apply to the Pod Identities"
   type        = map(string)
   default     = {}
+}
+
+################################# ArgoCD Variables #################################
+variable "argocd_chart_version" {
+  description = "ArgoCD helm chart version"
+  type        = string
+  default     = "7.3.6"
 }
 
 ################################# Karpenter Variables #################################

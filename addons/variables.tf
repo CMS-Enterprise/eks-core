@@ -1,3 +1,18 @@
+variable "ado" {
+  description = "The ADO to deploy into"
+  type        = string
+}
+
+variable "alb_security_group_id" {
+  description = "The ID of the security group to use for the ALB"
+  type        = string
+}
+
+variable "argocd_chart_version" {
+  description = "The version of the ArgoCD chart to use"
+  type        = string
+}
+
 variable "available_availability_zones" {
   description = "The available availability zones"
   type        = list(string)
@@ -39,13 +54,8 @@ variable "custom_ami" {
   default     = ""
 }
 
-variable "deploy_env" {
-  description = "The environment to deploy into"
-  type        = string
-}
-
-variable "deploy_project" {
-  description = "The project to deploy"
+variable "domain_name" {
+  description = "The domain name to use for DNS"
   type        = string
 }
 
@@ -109,6 +119,11 @@ variable "enable_bootstrap_user_data" {
   type        = bool
 }
 
+variable "env" {
+  description = "The environment to deploy into"
+  type        = string
+}
+
 variable "gold_image_ami_id" {
   description = "The AMI ID to use for the gold image"
   type        = string
@@ -123,6 +138,11 @@ variable "iam_path" {
 variable "iam_permissions_boundary_arn" {
   description = "The ARN of the permissions boundary to use for IAM roles"
   type        = string
+}
+
+variable "is_prod_cluster" {
+  description = "Whether the cluster is a production cluster"
+  type        = bool
 }
 
 variable "karpenter_base_tags" {
@@ -151,6 +171,11 @@ variable "karpenter_nodepool_taints" {
   description = "The taints to use for the Karpenter node pool"
   type        = map(string)
   default     = {}
+}
+
+variable "k8s_alb_name" {
+  description = "The name of the ALB for the Kubernetes cluster"
+  type        = string
 }
 
 variable "main_nodes_iam_role_arn" {
