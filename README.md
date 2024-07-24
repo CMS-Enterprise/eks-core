@@ -158,7 +158,7 @@ or the correct zone is not being provided to the block. Try passing the `dns_dom
 6. Why is the EKS Node Security Group not properly being destroyed?
 
 We have seen this issue arise when the autoscaling group nodes are rotated and then a `terraform destroy` is run very shortly afterwards.
-Give the nodes a few minutes to cycle before running the destroy command.
+Give the nodes at least 10 minutes after the rotation to ensure that they are properly terminated before running a `terraform destroy`.
 
 ### Explanation:
 
