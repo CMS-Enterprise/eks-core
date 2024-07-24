@@ -111,7 +111,7 @@ module "main_nodes" {
 }
 
 module "eks_addons" {
-  source     = "./addons"
+  source = "./addons"
 
   ado                           = var.ado
   alb_security_group_id         = aws_security_group.alb.id
@@ -124,6 +124,7 @@ module "eks_addons" {
   cluster_ca_data               = module.eks.cluster_certificate_authority_data
   cluster_endpoint              = module.eks.cluster_endpoint
   custom_ami                    = var.custom_ami_id
+  domain_name                   = local.domain_name
   ebs_kms_key_id                = module.ebs_kms.key_id
   eks_cluster_cidr              = module.eks.cluster_service_cidr
   eks_cluster_ip_family         = module.eks.cluster_ip_family
@@ -140,6 +141,7 @@ module "eks_addons" {
   gold_image_ami_id             = var.gold_image_date != "" ? data.aws_ami.gold_image[0].id : ""
   iam_path                      = local.iam_path
   iam_permissions_boundary_arn  = local.permissions_boundary_arn
+  is_prod_cluster               = var.is_prod_cluster
   karpenter_base_tags           = merge(var.karpenter_tags, { Cluster = local.cluster_name })
   karpenter_chart_version       = var.kp_chart_version
   k8s_alb_name                  = local.k8s_alb_name
@@ -151,7 +153,8 @@ module "eks_addons" {
     module.eks_base,
     aws_eks_addon.vpc_cni,
     aws_eks_addon.coredns,
-    aws_eks_addon.kube-proxy
+    aws_eks_addon.kube-proxy,
+    aws_eks_addon.eks-pod-identity-agent
   ]
 }
 
@@ -194,6 +197,7 @@ module "eks_base" {
 
   depends_on = [
     module.main_nodes,
+    module.aws_lb_controller_pod_identity,
     aws_security_group_rule.allow_ingress_additional_prefix_lists
   ]
 }
@@ -433,10 +437,10 @@ resource "aws_security_group_rule" "https-vpc-ingress" {
   cidr_blocks       = data.aws_vpc.vpc.cidr_block_associations.*.cidr_block
 }
 
-resource "null_resource" "terminate_nodes" {
+resource "null_resource" "rotate_nodes" {
   provisioner "local-exec" {
     command = <<EOT
-      aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filters "Name=tag:eks:nodegroup-name,Values=${split(":", module.main_nodes.node_group_id)[1]}" --query "Reservations[*].Instances[*].InstanceId" --output text)
+      aws autoscaling start-instance-refresh --auto-scaling-group-name ${module.main_nodes.node_group_autoscaling_group_names[0]} --preferences '{"MinHealthyPercentage": 33}'
     EOT
   }
 

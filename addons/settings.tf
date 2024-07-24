@@ -1,10 +1,12 @@
 locals {
   ################################## ArgoCD Settings ##################################
+  argocd_sub_domain = var.is_prod_cluster ? "argocd" : "argocd-${var.eks_cluster_name}"
+
   argocd_values = templatefile("${path.module}/values/argocd/values.yaml.tpl", {
-    ado                   = var.ado
     alb_security_group_id = var.alb_security_group_id
     argocd_cert_arn       = data.aws_acm_certificate.argocd.arn
-    env                   = var.env
+    argocd_sub_domain     = local.argocd_sub_domain
+    domain_name           = var.domain_name
     k8s_alb_name          = var.k8s_alb_name
   })
 

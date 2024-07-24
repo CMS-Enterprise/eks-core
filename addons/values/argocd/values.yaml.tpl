@@ -1,5 +1,5 @@
 global:
-  domain: "argocd.${ado}-${env}.internal.cms.gov"
+  domain: "${argocd_sub_domain}.${domain_name}"
 configs:
   params:
     server.insecure: true

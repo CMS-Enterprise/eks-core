@@ -54,6 +54,11 @@ variable "custom_ami" {
   default     = ""
 }
 
+variable "domain_name" {
+  description = "The domain name to use for DNS"
+  type        = string
+}
+
 variable "ebs_kms_key_id" {
   description = "The ID of the KMS key to use for EBS volumes"
   type        = string
@@ -133,6 +138,11 @@ variable "iam_path" {
 variable "iam_permissions_boundary_arn" {
   description = "The ARN of the permissions boundary to use for IAM roles"
   type        = string
+}
+
+variable "is_prod_cluster" {
+  description = "Whether the cluster is a production cluster"
+  type        = bool
 }
 
 variable "karpenter_base_tags" {

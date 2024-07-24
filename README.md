@@ -5,53 +5,59 @@
 This module provides a way to deploy an Amazon EKS (Elastic Kubernetes Service) cluster using Terraform.
 The module includes configurations for IAM roles, KMS keys, VPC settings, and various EKS add-ons.
 
-## Variables
+## Required Variables
 
-|                       Variable Name                        |      Type      |     Default Value      |                                                                              Description                                                                              | Required |
-|:----------------------------------------------------------:|:--------------:|:----------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|
-|                   `argocd_chart_version`                   |    `string`    |        `7.3.6`         |                                                                 The version of the ArgoCD helm chart.                                                                 |    No    |
-|                   `cluster_custom_name`                    |    `string`    |          N/A           |                                                                     The name of the EKS cluster.                                                                      |   Yes    |
-|                      `custom_ami_id`                       |    `string`    |          `""`          |                                                              The custom AMI ID to use for the EKS nodes.                                                              |    No    |
-|                           `env`                            |    `string`    |          N/A           |                                                                         The environment name.                                                                         |   Yes    |
-|                           `ado`                            |    `string`    |          N/A           |                                                                             The ado name.                                                                             |   Yes    |
-|                      `program_office`                      |    `string`    |          N/A           |                                                                       The program office name.                                                                        |   Yes    |
-|                 `subnet_lookup_overrides`                  | `map(string)`  |          `{}`          |    Some Subnets don't follow standard naming conventions. Use this map to override the query used for looking up Subnets. Ex: { private = "foo-west-nonpublic-*" }    |    No    |
-|              `vpc_endpoint_lookup_overrides`               |    `string`    |          `""`          | Some VPC endpoints don't follow standard naming conventions. Use this map to override the query used for looking up Subnets. Ex: { private = "foo-west-nonpublic-*" } |    No    |
-|                   `vpc_lookup_override`                    |    `string`    |          `""`          |             Some VPCs don't follow standard naming conventions. Use this to override the query used to lookup VPC names. Accepts wildcard in form of '*'              |    No    |
-|                     `gold_image_date`                      |    `string`    |          `""`          |                                                   Gold Image Date in YYYY-MM format. Must be in the YYYY-MM format.                                                   |    No    |
-|                    `eks_access_entries`                    | `map(object)`  |          `{}`          |                                                            The access entries to apply to the EKS cluster.                                                            |    No    |
-|                     `eks_cluster_tags`                     | `map(string)`  |          `{}`          |                                                                 The tags to apply to the EKS cluster.                                                                 |    No    |
-|                  `eks_gp3_reclaim_policy`                  |    `string`    |        `Retain`        |                                                              The reclaim policy for the EKS gp3 volumes.                                                              |    No    |
-|               `eks_gp3_volume_binding_mode`                |    `string`    | `WaitForFirstConsumer` |                                                           The volume binding mode for the EKS gp3 volumes.                                                            |    No    |
-|               `eks_main_nodes_desired_size`                |    `number`    |          `3`           |                                                             The desired size of the main EKS node group.                                                              |    No    |
-|               `eks_main_node_instance_types`               | `list(string)` |    `["c5.2xlarge"]`    |                                                            The instance types for the main EKS node group.                                                            |    No    |
-|                 `eks_main_nodes_max_size`                  |    `number`    |          `6`           |                                                               The max size of the main EKS node group.                                                                |    No    |
-|                 `eks_main_nodes_min_size`                  |    `number`    |          `3`           |                                                               The min size of the main EKS node group.                                                                |    No    |
-|                      `eks_node_tags`                       | `map(string)`  |          `{}`          |                                                                  The tags to apply to the EKS nodes.                                                                  |    No    |
-|           `eks_security_group_additional_rules`            | `map(object)`  |          `{}`          |                                                        Additional rules to add to the EKS node security group.                                                        |    No    |
-|                       `eks_version`                        |    `string`    |        `"1.29"`        |                                                                    The version of the EKS cluster.                                                                    |    No    |
-|                `node_bootstrap_extra_args`                 |    `string`    |          `""`          |                                                Any extra arguments to pass to the bootstrap script for the EKS nodes.                                                 |    No    |
-|                `node_pre_bootstrap_script`                 |    `string`    |          `""`          |                                                           The pre-bootstrap script to run on the EKS nodes.                                                           |    No    |
-|                `node_post_bootstrap_script`                |    `string`    |          `""`          |                                                          The post-bootstrap script to run on the EKS nodes.                                                           |    No    |
-|                       `node_labels`                        | `map(string)`  |          `{}`          |                                                                 The labels to apply to the EKS nodes.                                                                 |    No    |
-|                       `node_taints`                        | `map(string)`  |          `{}`          |                                                                 The taints to apply to the EKS nodes.                                                                 |    No    |
-|                `enable_eks_pod_identities`                 |     `bool`     |         `true`         |                                                                      Enable EKS Pod Identities.                                                                       |    No    |
-|                    `pod_identity_tags`                     | `map(string)`  |          `{}`          |                                                               The tags to apply to the Pod Identities.                                                                |    No    |
-|                     `kp_chart_version`                     |    `string`    |       `"0.37.0"`       |                                                                     Karpenter helm chart version.                                                                     |    No    |
-|                      `karpenter_tags`                      | `map(string)`  |          `{}`          |                                                            The tags to apply to the Karpenter deployment.                                                             |    No    |
-|                     `main_bucket_tags`                     | `map(string)`  |          `{}`          |                                                                 The tags to apply to the main bucket.                                                                 |    No    |
-|                   `logging_bucket_tags`                    | `map(string)`  |          `{}`          |                                                               The tags to apply to the logging bucket.                                                                |    No    |
-|                `efs_availability_zone_name`                |    `string`    |          `""`          |                                                                  The availability zone for the EFS.                                                                   |    No    |
-|                `efs_directory_permissions`                 |    `string`    |         `0700`         |                                                                The directory permissions for the EFS.                                                                 |    No    |
-|                  `efs_encryption_enabled`                  |     `bool`     |         `true`         |                                                                    Enable encryption for the EFS.                                                                     |    No    |
-|        `efs_lifecycle_policy_transition_to_archive`        |    `string`    |    `AFTER_180_DAYS`    |                                                             The transition to archive policy for the EFS.                                                             |    No    |
-|          `efs_lifecycle_policy_transition_to_ia`           |    `string`    |    `AFTER_90_DAYS`     |                                                               The transition to IA policy for the EFS.                                                                |    No    |
-| `efs_lifecycle_policy_transition_to_primary_storage_class` |    `string`    |    `AFTER_1_ACCESS`    |                                                      The transition to primary storage class policy for the EFS.                                                      |    No    |
-|           `efs_provisioned_throughput_in_mibps`            |    `number`    |          `0`           |                                                                The provisioned throughput for the EFS.                                                                |    No    |
-|                   `efs_performance_mode`                   |    `string`    |    `generalPurpose`    |                                                                   The performance mode for the EFS.                                                                   |    No    |
-|           `efs_protection_replication_overwrite`           |    `string`    |       `DISABLED`       |                                                           The replication overwrite protection for the EFS.                                                           |    No    |
-|                         `efs_tags`                         | `map(string)`  |          `{}`          |                                                                     The tags to apply to the EFS.                                                                     |    No    |
-|                   `efs_throughput_mode`                    |    `string`    |       `bursting`       |                                                                   The throughput mode for the EFS.                                                                    |    No    |
+|      Variable Name      |   Type    | Default Value  |          Description           |
+|:-----------------------:|:---------:|:--------------:|:------------------------------:|
+|          `ado`          | `string`  |      N/A       |         The ado name.          |
+|  `cluster_custom_name`  | `string`  |      N/A       |  The name of the EKS cluster.  |
+|          `env`          | `string`  |      N/A       |     The environment name.      |
+|    `program_office`     | `string`  |      N/A       |    The program office name.    |
+
+## Optional Variables
+
+|                       Variable Name                        |      Type      |     Default Value      |                                                                              Description                                                                              |
+|:----------------------------------------------------------:|:--------------:|:----------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|                   `argocd_chart_version`                   |    `string`    |        `7.3.6`         |                                                                 The version of the ArgoCD helm chart.                                                                 |
+|                      `custom_ami_id`                       |    `string`    |          `""`          |                                                              The custom AMI ID to use for the EKS nodes.                                                              |
+|                `efs_availability_zone_name`                |    `string`    |          `""`          |                                                                  The availability zone for the EFS.                                                                   |
+|                `efs_directory_permissions`                 |    `string`    |         `0700`         |                                                                The directory permissions for the EFS.                                                                 |
+|                  `efs_encryption_enabled`                  |     `bool`     |         `true`         |                                                                    Enable encryption for the EFS.                                                                     |
+|        `efs_lifecycle_policy_transition_to_archive`        |    `string`    |    `AFTER_180_DAYS`    |                                                             The transition to archive policy for the EFS.                                                             |
+|          `efs_lifecycle_policy_transition_to_ia`           |    `string`    |    `AFTER_90_DAYS`     |                                                               The transition to IA policy for the EFS.                                                                |
+| `efs_lifecycle_policy_transition_to_primary_storage_class` |    `string`    |    `AFTER_1_ACCESS`    |                                                      The transition to primary storage class policy for the EFS.                                                      |
+|                   `efs_performance_mode`                   |    `string`    |    `generalPurpose`    |                                                                   The performance mode for the EFS.                                                                   |
+|           `efs_protection_replication_overwrite`           |    `string`    |       `DISABLED`       |                                                           The replication overwrite protection for the EFS.                                                           |
+|           `efs_provisioned_throughput_in_mibps`            |    `number`    |          `0`           |                                                                The provisioned throughput for the EFS.                                                                |
+|                         `efs_tags`                         | `map(string)`  |          `{}`          |                                                                     The tags to apply to the EFS.                                                                     |
+|                   `efs_throughput_mode`                    |    `string`    |       `bursting`       |                                                                   The throughput mode for the EFS.                                                                    |
+|                    `eks_access_entries`                    | `map(object)`  |          `{}`          |                                                            The access entries to apply to the EKS cluster.                                                            |
+|                     `eks_cluster_tags`                     | `map(string)`  |          `{}`          |                                                                 The tags to apply to the EKS cluster.                                                                 |
+|                  `eks_gp3_reclaim_policy`                  |    `string`    |        `Retain`        |                                                              The reclaim policy for the EKS gp3 volumes.                                                              |
+|               `eks_gp3_volume_binding_mode`                |    `string`    | `WaitForFirstConsumer` |                                                           The volume binding mode for the EKS gp3 volumes.                                                            |
+|               `eks_main_node_instance_types`               | `list(string)` |    `["c5.2xlarge"]`    |                                                            The instance types for the main EKS node group.                                                            |
+|               `eks_main_nodes_desired_size`                |    `number`    |          `3`           |                                                             The desired size of the main EKS node group.                                                              |
+|                 `eks_main_nodes_max_size`                  |    `number`    |          `6`           |                                                               The max size of the main EKS node group.                                                                |
+|                 `eks_main_nodes_min_size`                  |    `number`    |          `3`           |                                                               The min size of the main EKS node group.                                                                |
+|                      `eks_node_tags`                       | `map(string)`  |          `{}`          |                                                                  The tags to apply to the EKS nodes.                                                                  |
+|           `eks_security_group_additional_rules`            | `map(object)`  |          `{}`          |                                                        Additional rules to add to the EKS node security group.                                                        |
+|                       `eks_version`                        |    `string`    |        `"1.29"`        |                                                                    The version of the EKS cluster.                                                                    |
+|                `enable_eks_pod_identities`                 |     `bool`     |         `true`         |                                                                      Enable EKS Pod Identities.                                                                       |
+|                     `gold_image_date`                      |    `string`    |          `""`          |                                                   Gold Image Date in YYYY-MM format. Must be in the YYYY-MM format.                                                   |
+|                     `is_prod_cluster`                      |     `bool`     |        `false`         |                                  Whether the cluster is a production cluster. You can only have one production cluster per account.                                   |
+|                      `karpenter_tags`                      | `map(string)`  |          `{}`          |                                                            The tags to apply to the Karpenter deployment.                                                             |
+|                     `kp_chart_version`                     |    `string`    |       `"0.37.0"`       |                                                                     Karpenter helm chart version.                                                                     |
+|                   `logging_bucket_tags`                    | `map(string)`  |          `{}`          |                                                               The tags to apply to the logging bucket.                                                                |
+|                     `main_bucket_tags`                     | `map(string)`  |          `{}`          |                                                                 The tags to apply to the main bucket.                                                                 |
+|                `node_bootstrap_extra_args`                 |    `string`    |          `""`          |                                                Any extra arguments to pass to the bootstrap script for the EKS nodes.                                                 |
+|                       `node_labels`                        | `map(string)`  |          `{}`          |                                                                 The labels to apply to the EKS nodes.                                                                 |
+|                `node_post_bootstrap_script`                |    `string`    |          `""`          |                                                          The post-bootstrap script to run on the EKS nodes.                                                           |
+|                `node_pre_bootstrap_script`                 |    `string`    |          `""`          |                                                           The pre-bootstrap script to run on the EKS nodes.                                                           |
+|                       `node_taints`                        | `map(string)`  |          `{}`          |                                                                 The taints to apply to the EKS nodes.                                                                 |
+|                    `pod_identity_tags`                     | `map(string)`  |          `{}`          |                                                               The tags to apply to the Pod Identities.                                                                |
+|                 `subnet_lookup_overrides`                  | `map(string)`  |          `{}`          |    Some Subnets don't follow standard naming conventions. Use this map to override the query used for looking up Subnets. Ex: { private = "foo-west-nonpublic-*" }    |
+|              `vpc_endpoint_lookup_overrides`               |    `string`    |          `""`          | Some VPC endpoints don't follow standard naming conventions. Use this map to override the query used for looking up Subnets. Ex: { private = "foo-west-nonpublic-*" } |
+|                   `vpc_lookup_override`                    |    `string`    |          `""`          |             Some VPCs don't follow standard naming conventions. Use this to override the query used to lookup VPC names. Accepts wildcard in form of '*'              |
 
 ## Usage
 
@@ -65,14 +71,7 @@ module "eks" {
 }
 ```
 
-### AMI Selection Logic
-
-You must specify one of the following variables to declare what image to use for the EKS nodes:
-
-- `gold_image_date`
-- `custom_ami_id`
-
-If more than one variable is set, they take precedence in the following order:
+### AMI Variable Precedence
 
 1. `gold_image_date`
 2. `custom_ami_id`
@@ -150,6 +149,16 @@ Look for the following cloudwatch log groups to validate that logs are being sen
 4. Where is the admin password for ArgoCD?
 
 The admin password for ArgoCD is stored in the `argocd-initial-admin-secret` secret in the `argocd` namespace.
+
+5. I am seeing errors for route53, what does this mean?
+
+If you are seeing errors related to the data block of the route53 zone, this means that your zone either does not exist,
+or the correct zone is not being provided to the block. Try passing the `dns_domain_override` variable to the module.
+
+6. Why is the EKS Node Security Group not properly being destroyed?
+
+We have seen this issue arise when the autoscaling group nodes are rotated and then a `terraform destroy` is run very shortly afterwards.
+Give the nodes a few minutes to cycle before running the destroy command.
 
 ### Explanation:
 

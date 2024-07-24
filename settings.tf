@@ -1,4 +1,6 @@
 locals {
+  domain_name = "${var.ado}-${var.env}.internal.cms.gov"
+
   tags_for_all_resources = {
     programOffice = var.program_office
     ado           = var.ado
@@ -98,6 +100,16 @@ data "aws_availability_zones" "available" {}
 
 data "aws_eks_cluster_auth" "main" {
   name = module.eks.cluster_name
+}
+
+data "aws_lb" "k8s_alb" {
+  name       = local.k8s_alb_name
+  depends_on = [time_sleep.alb_propagation]
+}
+
+data "aws_route53_zone" "main" {
+  name         = local.domain_name
+  private_zone = true
 }
 
 data "aws_ami" "gold_image" {
