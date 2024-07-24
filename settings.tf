@@ -1,5 +1,5 @@
 locals {
-  domain_name = "${var.ado}-${var.env}.internal.cms.gov"
+  domain_name = "${var.env}.${var.ado}.internal.cms.gov"
 
   tags_for_all_resources = {
     programOffice = var.program_office
