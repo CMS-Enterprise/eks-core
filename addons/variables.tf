@@ -192,3 +192,29 @@ variable "pre_bootstrap_user_data" {
   description = "User data to run before the bootstrap script"
   type        = string
 }
+
+variable "argocd_use_sso" {
+  description = "Enable SSO for ArgoCD"
+  type        = bool
+  default     = false
+}
+
+variable "okta_client_id" {
+  description = "Okta Client ID for Setting up SSO for ArgoCD"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "okta_client_secret" {
+  description = "Okta Client Secret for Setting up SSO for ArgoCD"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "okta_issuer" {
+  description = "Okta OIDC Issuer for Setting up SSO for ArgoCD"
+  type        = string
+  default     = ""
+}

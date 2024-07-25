@@ -148,6 +148,10 @@ module "eks_addons" {
   main_nodes_iam_role_arn       = module.main_nodes.iam_role_arn
   post_bootstrap_user_data      = local.post_bootstrap_user_data
   pre_bootstrap_user_data       = local.pre_bootstrap_user_data
+  argocd_use_sso                = var.argocd_use_sso
+  okta_issuer                   = var.okta_issuer
+  okta_client_id                = var.okta_client_id
+  okta_client_secret            = var.okta_client_secret
 
   depends_on = [
     module.eks_base,
