@@ -10,6 +10,10 @@ locals {
     domain_name           = var.domain_name
     k8s_alb_name          = var.k8s_alb_name
     s3_logging_bucket     = data.aws_s3_bucket.logging.bucket
+    argocd_use_sso        = var.argocd_use_sso
+    okta_client_id        = var.okta_client_id
+    okta_client_secret    = var.okta_client_secret
+    okta_issuer           = var.okta_issuer
   })
 
   ################################## Karpenter Settings ##################################

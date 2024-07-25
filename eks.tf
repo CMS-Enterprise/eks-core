@@ -150,6 +150,10 @@ module "eks_addons" {
   post_bootstrap_user_data      = local.post_bootstrap_user_data
   pre_bootstrap_user_data       = local.pre_bootstrap_user_data
   region_name                   = data.aws_region.current.name
+  argocd_use_sso                = var.argocd_use_sso
+  okta_issuer                   = var.okta_issuer
+  okta_client_id                = var.okta_client_id
+  okta_client_secret            = var.okta_client_secret
 
   depends_on = [
     module.eks_base,
