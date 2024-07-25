@@ -26,4 +26,3 @@ resource "aws_security_group_rule" "alb" {
 #   triggers = {
 #     argocd_sub_domain = module.eks_addons.argocd_sub_domain
 #   }
-}
