@@ -37,7 +37,7 @@ locals {
     #     data.aws_ec2_managed_prefix_list.cmscloud_public_pl.id,
     data.aws_ec2_managed_prefix_list.zscaler_pl.id
   ]
-  cluster_version                 = var.eks_version
+  cluster_version                = var.eks_version
   gold_image_pre_bootstrap_script = "mkdir -p /var/log/journal && sysctl -w net.ipv4.ip_forward=1\n"
   k8s_alb_name                    = "alb-${local.cluster_name}"
 
@@ -102,10 +102,10 @@ data "aws_eks_cluster_auth" "main" {
   name = module.eks.cluster_name
 }
 
-data "aws_lb" "k8s_alb" {
-  name       = local.k8s_alb_name
-  depends_on = [time_sleep.alb_propagation]
-}
+# data "aws_lb" "k8s_alb" {
+#   name       = local.k8s_alb_name
+#   depends_on = [time_sleep.alb_propagation]
+# }
 
 data "aws_route53_zone" "main" {
   name         = local.domain_name
