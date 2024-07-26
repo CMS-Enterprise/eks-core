@@ -27,12 +27,6 @@ variable "program_office" {
 
 ################################# VPC Variables #################################
 
-variable "dns_domain_override" {
-  description = "Override the DNS domain"
-  type        = string
-  default     = ""
-}
-
 variable "domain_name" {
   description = "The domain name to use for DNS"
   type        = string

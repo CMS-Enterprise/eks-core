@@ -7,12 +7,13 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 
 ## Required Variables
 
-|      Variable Name      |   Type    | Default Value  |          Description           |
-|:-----------------------:|:---------:|:--------------:|:------------------------------:|
-|          `ado`          | `string`  |      N/A       |         The ado name.          |
-|  `cluster_custom_name`  | `string`  |      N/A       |  The name of the EKS cluster.  |
-|          `env`          | `string`  |      N/A       |     The environment name.      |
-|    `program_office`     | `string`  |      N/A       |    The program office name.    |
+|      Variable Name      |   Type    | Default Value  |          Description                 |
+|:-----------------------:|:---------:|:--------------:|:------------------------------:      |
+|          `ado`          | `string`  |      N/A       |         The ado name.                |
+|  `cluster_custom_name`  | `string`  |      N/A       |  The name of the EKS cluster.        |
+|          `env`          | `string`  |      N/A       |     The environment name.            |
+|    `program_office`     | `string`  |      N/A       |    The program office name.          |
+|    `domain_name`        | `string`  |      N/A       |    The domain name to use for DNS    |
 
 ## Optional Variables
 
@@ -157,8 +158,7 @@ The admin password for ArgoCD is stored in the `argocd-initial-admin-secret` sec
 
 5. I am seeing errors for route53, what does this mean?
 
-If you are seeing errors related to the data block of the route53 zone, this means that your zone either does not exist,
-or the correct zone is not being provided to the block. Try passing the `dns_domain_override` variable to the module.
+If you are seeing errors related to the data block of the route53 zone, this means that you have not specified the `domain_name` variable.
 
 6. Why is the EKS Node Security Group not properly being destroyed?
 

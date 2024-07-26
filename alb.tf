@@ -18,11 +18,3 @@ resource "aws_security_group_rule" "alb" {
   type              = each.value.type
   cidr_blocks       = each.value.cidr_blocks
 }
-
-# resource "time_sleep" "alb_propagation" {
-#   # This is to allow time for the alb to be created by the lb controller in EKS for ArgoCD
-#   create_duration = "1m"
-
-#   triggers = {
-#     argocd_sub_domain = module.eks_addons.argocd_sub_domain
-#
