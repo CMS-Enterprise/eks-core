@@ -104,7 +104,7 @@ data "aws_eks_cluster_auth" "main" {
 
 data "aws_lb" "k8s_alb" {
   name       = local.k8s_alb_name
-  depends_on = [time_sleep.alb_propagation]
+  depends_on = [module.eks_addons.argocd_helm_status]
 }
 
 data "aws_route53_zone" "main" {
