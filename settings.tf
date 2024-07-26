@@ -37,7 +37,7 @@ locals {
     #     data.aws_ec2_managed_prefix_list.cmscloud_public_pl.id,
     data.aws_ec2_managed_prefix_list.zscaler_pl.id
   ]
-  cluster_version                = var.eks_version
+  cluster_version                 = var.eks_version
   gold_image_pre_bootstrap_script = "mkdir -p /var/log/journal && sysctl -w net.ipv4.ip_forward=1\n"
   k8s_alb_name                    = "alb-${local.cluster_name}"
 

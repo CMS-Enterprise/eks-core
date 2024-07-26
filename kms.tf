@@ -20,7 +20,7 @@ module "cloudtrail_kms" {
       actions = ["kms:GenerateDataKey*", "kms:DescribeKey"]
       principals = [
         {
-          type = "Service"
+          type        = "Service"
           identifiers = ["cloudtrail.amazonaws.com"]
         }
       ]

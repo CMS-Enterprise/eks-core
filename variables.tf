@@ -65,7 +65,7 @@ variable "vpc_lookup_override" {
 
 variable "eks_access_entries" {
   description = "The access entries to apply to the EKS cluster"
-  type = any
+  type        = any
 
   default = {}
 
