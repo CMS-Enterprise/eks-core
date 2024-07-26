@@ -1,5 +1,5 @@
 locals {
-  domain_name = "${var.env}.${var.ado}.internal.cms.gov"
+  domain_name = var.domain_name
 
   tags_for_all_resources = {
     programOffice = var.program_office
@@ -108,7 +108,7 @@ data "aws_eks_cluster_auth" "main" {
 # }
 
 data "aws_route53_zone" "main" {
-  name         = local.domain_name
+  name         = var.domain_name
   private_zone = true
 }
 
