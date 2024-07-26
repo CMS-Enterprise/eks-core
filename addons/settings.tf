@@ -2,13 +2,14 @@ locals {
   ################################## ArgoCD Settings ##################################
   argocd_sub_domain = var.is_prod_cluster ? "argocd" : "argocd-${var.eks_cluster_name}"
   argo_values_file  = "${path.module}/values/argocd/values.yaml.tpl"
+  domain_name       = var.domain_name
 
 
   argocd_values = templatefile(local.argo_values_file, {
     alb_security_group_id = var.alb_security_group_id
     argocd_cert_arn       = data.aws_acm_certificate.argocd.arn
     argocd_sub_domain     = local.argocd_sub_domain
-    domain_name           = var.domain_name
+    domain_name           = local.domain_name
     k8s_alb_name          = var.k8s_alb_name
     argocd_use_sso        = var.argocd_use_sso
     okta_client_id        = var.okta_client_id
@@ -45,6 +46,6 @@ data "aws_iam_instance_profiles" "nodes" {
 }
 
 data "aws_acm_certificate" "argocd" {
-  domain   = "${var.env}.${var.ado}.internal.cms.gov"
+  domain   = local.domain_name
   statuses = ["ISSUED"]
 }

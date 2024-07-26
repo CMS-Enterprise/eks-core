@@ -108,7 +108,7 @@ data "aws_eks_cluster_auth" "main" {
 # }
 
 data "aws_route53_zone" "main" {
-  name         = var.domain_name
+  name         = local.domain_name
   private_zone = true
 }
 
