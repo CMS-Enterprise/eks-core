@@ -1,4 +1,5 @@
 resource "helm_release" "argocd" {
+  depends_on       = [helm_release.karpenter-crd, kubectl_manifest.karpenter_nodepool, kubectl_manifest.karpenter_ec2nodeclass]
   atomic           = true
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"

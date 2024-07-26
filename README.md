@@ -19,7 +19,12 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 |                       Variable Name                        |      Type      |     Default Value      |                                                                              Description                                                                              |
 |:----------------------------------------------------------:|:--------------:|:----------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |                   `argocd_chart_version`                   |    `string`    |        `7.3.6`         |                                                                 The version of the ArgoCD helm chart.                                                                 |
-|                      `custom_ami_id`                       |    `string`    |          `""`          |                                                              The custom AMI ID to use for the EKS nodes.                                                              |
+|                      `custom_ami_id`                       |    `string`    |          `""`          |                                                              The custom AMI ID to use for the EKS
+|                      `argocd_use_sso`                       |    `boolean`    |          `false`          |                                                              Enable SSO for ArgoCD using Okta.  
+|                      `okta_client_id`                       |    `string`    |          `""`          |                                                              Okta Client ID for setting up SSO for ArgoCD.  
+|                      `okta_client_secret`                       |    `string`    |          `""`          |                                                              Okta Client Secret for setting up SSO for ArgoCD.  
+|                      `okta_issuer`                       |    `string`    |          `""`          |                                                              Okta OIDC Issuer for setting up SSO for ArgoCD.  
+nodes.                                                              |
 |                `efs_availability_zone_name`                |    `string`    |          `""`          |                                                                  The availability zone for the EFS.                                                                   |
 |                `efs_directory_permissions`                 |    `string`    |         `0700`         |                                                                The directory permissions for the EFS.                                                                 |
 |                  `efs_encryption_enabled`                  |     `bool`     |         `true`         |                                                                    Enable encryption for the EFS.                                                                     |
@@ -122,7 +127,7 @@ If you encounter any issues or have further questions, consult the Terraform and
 Error: no matching EC2 VPC found
 ```
 
-This means that you probably have an incorrect value being passed in your module call. You need to set both the `env` and `project` variables to the correct values. For example:
+This means that you probably have an incorrect value being passed in your module call. You need to set both the `env` and `ado` variables to the correct values. For example:
 
 ```hcl
 env = "dev"
@@ -179,3 +184,22 @@ Give the nodes at least 10 minutes after the rotation to ensure that they are pr
 3. **Execution**:
 
    - You will see that after the cluster and nodes have come up, and all addons are deployed, the nodes will destroy. This is intended behavior as the nodes are cycled to assure they are utilizing the latest VPC CNI configuration.
+
+7. How do I configure SSO for ArgoCd?
+
+To set up SSO for ArgoCD using Okta, you need to add specific variables when calling the main EKS module. You need to ensure that the Okta variables are provided when SSO is enabled. For example:
+```hcl
+module "main-eks" {
+  source = "git::https://github.com/CMS-Enterprise/Energon-Kube.git?ref=<release-version>"
+
+  cluster_custom_name = "temp-test"
+  env                 = "impl"
+  gold_image_date     = "2024-06"
+  ado                 = "batcave"
+  program_office      = "batman"
+  argocd_use_sso      = true
+  okta_issuer         = "OKTA Issuer URL"
+  okta_client_id      = "OKTA client ID"
+  okta_client_secret  = "OKTA client secret"
+}
+```
