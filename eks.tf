@@ -353,7 +353,7 @@ module "aws_lb_controller_pod_identity" {
   }
 
   associations = {
-    ex-one = {
+    default = {
       cluster_name = module.eks.cluster_name
     }
   }
