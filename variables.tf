@@ -269,6 +269,32 @@ variable "argocd_chart_version" {
   default     = "7.3.6"
 }
 
+variable "argocd_use_sso" {
+  description = "Enable SSO for ArgoCD"
+  type        = bool
+  default     = false
+}
+
+variable "okta_client_id" {
+  description = "Okta Client ID for Setting up SSO for ArgoCD"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "okta_client_secret" {
+  description = "Okta Client Secret for Setting up SSO for ArgoCD"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "okta_issuer" {
+  description = "Okta OIDC Issuer for Setting up SSO for ArgoCD"
+  type        = string
+  default     = ""
+}
+
 ################################# Karpenter Variables #################################
 variable "kp_chart_version" {
   description = "Karpenter helm chart version"
