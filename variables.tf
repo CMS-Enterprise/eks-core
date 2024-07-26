@@ -33,6 +33,11 @@ variable "dns_domain_override" {
   default     = ""
 }
 
+variable "domain_name" {
+  description = "The domain name to use for DNS"
+  type        = string
+}
+
 variable "gold_image_date" {
   description = "Gold Image Date in YYYY-MM format"
   type        = string
