@@ -1,6 +1,6 @@
 resource "aws_route53_record" "argocd" {
   zone_id = data.aws_route53_zone.main.zone_id
-  name    = "${time_sleep.alb_propagation.triggers["argocd_sub_domain"]}.${data.aws_route53_zone.main.name}"
+  name    = "${module.eks_addons.argocd_sub_domain}.${data.aws_route53_zone.main.name}"
   type    = "A"
 
   alias {
