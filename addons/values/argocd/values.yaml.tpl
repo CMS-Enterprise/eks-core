@@ -3,6 +3,22 @@ global:
 configs:
   params:
     server.insecure: true
+  %{ if argocd_use_sso }  
+  cm:
+    create: ${argocd_use_sso}
+    oidc.config: |
+      name: Okta
+      issuer: ${okta_issuer}
+      clientID: ${okta_client_id}
+      clientSecret: ${okta_client_secret}
+      requestedScopes: ["openid", "profile", "email"]
+  rbac:
+    create: ${argocd_use_sso}
+    policy.matchMode: "glob"
+    scopes: "[groups, batcave-groups]"
+    policy.default: 'role:helloargouser'
+    policy.csv: 'g, Impact Level 2 Authorized, role:admin'
+  %{ endif }          
 server:
   autoscaling:
     enabled: true

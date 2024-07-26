@@ -1,7 +1,8 @@
 locals {
   ################################## ArgoCD Settings ##################################
   argocd_sub_domain = var.is_prod_cluster ? "argocd" : "argocd-${var.eks_cluster_name}"
-  argo_values_file = var.argocd_use_sso ? "${path.module}/values/argocd/sso_values.yaml.tpl" : "${path.module}/values/argocd/values.yaml.tpl"
+  argo_values_file  = "${path.module}/values/argocd/values.yaml.tpl"
+
 
   argocd_values = templatefile(local.argo_values_file, {
     alb_security_group_id = var.alb_security_group_id
