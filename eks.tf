@@ -113,6 +113,7 @@ module "main_nodes" {
 module "eks_addons" {
   source = "./addons"
 
+  account_num                   = data.aws_caller_identity.current.account_id
   ado                           = var.ado
   alb_security_group_id         = aws_security_group.alb.id
   argocd_chart_version          = var.argocd_chart_version
@@ -148,6 +149,7 @@ module "eks_addons" {
   main_nodes_iam_role_arn       = module.main_nodes.iam_role_arn
   post_bootstrap_user_data      = local.post_bootstrap_user_data
   pre_bootstrap_user_data       = local.pre_bootstrap_user_data
+  region_name                   = data.aws_region.current.name
 
   depends_on = [
     module.eks_base,

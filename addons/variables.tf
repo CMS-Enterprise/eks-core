@@ -1,3 +1,8 @@
+variable "account_num" {
+  description = "The account number to use for the resources"
+  type        = string
+}
+
 variable "ado" {
   description = "The ADO to deploy into"
   type        = string
@@ -190,5 +195,10 @@ variable "post_bootstrap_user_data" {
 
 variable "pre_bootstrap_user_data" {
   description = "User data to run before the bootstrap script"
+  type        = string
+}
+
+variable "region_name" {
+  description = "The name of the region to deploy into"
   type        = string
 }
