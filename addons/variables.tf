@@ -224,7 +224,6 @@ variable "pre_bootstrap_user_data" {
   type        = string
 }
 
-
 variable "region_name" {
   description = "The name of the region to deploy into"
   type        = string
