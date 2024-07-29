@@ -18,6 +18,12 @@ variable "argocd_chart_version" {
   type        = string
 }
 
+variable "argocd_use_sso" {
+  description = "Enable SSO for ArgoCD"
+  type        = bool
+  default     = false
+}
+
 variable "available_availability_zones" {
   description = "The available availability zones"
   type        = list(string)
@@ -188,22 +194,6 @@ variable "main_nodes_iam_role_arn" {
   type        = string
 }
 
-variable "post_bootstrap_user_data" {
-  description = "User data to run after the bootstrap script"
-  type        = string
-}
-
-variable "pre_bootstrap_user_data" {
-  description = "User data to run before the bootstrap script"
-  type        = string
-}
-
-variable "argocd_use_sso" {
-  description = "Enable SSO for ArgoCD"
-  type        = bool
-  default     = false
-}
-
 variable "okta_client_id" {
   description = "Okta Client ID for Setting up SSO for ArgoCD"
   type        = string
@@ -222,6 +212,16 @@ variable "okta_issuer" {
   description = "Okta OIDC Issuer for Setting up SSO for ArgoCD"
   type        = string
   default     = ""
+}
+
+variable "post_bootstrap_user_data" {
+  description = "User data to run after the bootstrap script"
+  type        = string
+}
+
+variable "pre_bootstrap_user_data" {
+  description = "User data to run before the bootstrap script"
+  type        = string
 }
 
 
