@@ -102,6 +102,11 @@ data "aws_eks_cluster_auth" "main" {
   name = module.eks.cluster_name
 }
 
+data "aws_lb" "k8s_alb" {
+  name       = local.k8s_alb_name
+  depends_on = [module.eks_addons.argocd_helm_status]
+}
+
 data "aws_route53_zone" "main" {
   name         = local.domain_name
   private_zone = true
