@@ -1,3 +1,8 @@
+variable "account_num" {
+  description = "The account number to use for the resources"
+  type        = string
+}
+
 variable "ado" {
   description = "The ADO to deploy into"
   type        = string
@@ -11,6 +16,12 @@ variable "alb_security_group_id" {
 variable "argocd_chart_version" {
   description = "The version of the ArgoCD chart to use"
   type        = string
+}
+
+variable "argocd_use_sso" {
+  description = "Enable SSO for ArgoCD"
+  type        = bool
+  default     = false
 }
 
 variable "available_availability_zones" {
@@ -183,22 +194,6 @@ variable "main_nodes_iam_role_arn" {
   type        = string
 }
 
-variable "post_bootstrap_user_data" {
-  description = "User data to run after the bootstrap script"
-  type        = string
-}
-
-variable "pre_bootstrap_user_data" {
-  description = "User data to run before the bootstrap script"
-  type        = string
-}
-
-variable "argocd_use_sso" {
-  description = "Enable SSO for ArgoCD"
-  type        = bool
-  default     = false
-}
-
 variable "okta_client_id" {
   description = "Okta Client ID for Setting up SSO for ArgoCD"
   type        = string
@@ -217,4 +212,19 @@ variable "okta_issuer" {
   description = "Okta OIDC Issuer for Setting up SSO for ArgoCD"
   type        = string
   default     = ""
+}
+
+variable "post_bootstrap_user_data" {
+  description = "User data to run after the bootstrap script"
+  type        = string
+}
+
+variable "pre_bootstrap_user_data" {
+  description = "User data to run before the bootstrap script"
+  type        = string
+}
+
+variable "region_name" {
+  description = "The name of the region to deploy into"
+  type        = string
 }
