@@ -8,8 +8,10 @@ locals {
     alb_security_group_id = var.alb_security_group_id
     argocd_cert_arn       = data.aws_acm_certificate.argocd.arn
     argocd_sub_domain     = local.argocd_sub_domain
+    cluster_name          = var.eks_cluster_name
     domain_name           = var.domain_name
     k8s_alb_name          = var.k8s_alb_name
+    s3_logging_bucket     = data.aws_s3_bucket.logging.bucket
     argocd_use_sso        = var.argocd_use_sso
     okta_client_id        = var.okta_client_id
     okta_client_secret    = var.okta_client_secret
@@ -47,4 +49,8 @@ data "aws_iam_instance_profiles" "nodes" {
 data "aws_acm_certificate" "argocd" {
   domain   = "${var.ado}-${var.env}.internal.cms.gov"
   statuses = ["ISSUED"]
+}
+
+data "aws_s3_bucket" "logging" {
+  bucket = "cms-cloud-${var.account_num}-${var.region_name}"
 }

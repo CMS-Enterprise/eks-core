@@ -113,9 +113,11 @@ module "main_nodes" {
 module "eks_addons" {
   source = "./addons"
 
+  account_num                   = data.aws_caller_identity.current.account_id
   ado                           = var.ado
   alb_security_group_id         = aws_security_group.alb.id
   argocd_chart_version          = var.argocd_chart_version
+  argocd_use_sso                = var.argocd_use_sso
   available_availability_zones  = local.available_availability_zone_names
   aws_partition                 = data.aws_partition.current.partition
   aws_region                    = data.aws_region.current.name
@@ -146,12 +148,12 @@ module "eks_addons" {
   karpenter_chart_version       = var.kp_chart_version
   k8s_alb_name                  = local.k8s_alb_name
   main_nodes_iam_role_arn       = module.main_nodes.iam_role_arn
-  post_bootstrap_user_data      = local.post_bootstrap_user_data
-  pre_bootstrap_user_data       = local.pre_bootstrap_user_data
-  argocd_use_sso                = var.argocd_use_sso
   okta_issuer                   = var.okta_issuer
   okta_client_id                = var.okta_client_id
   okta_client_secret            = var.okta_client_secret
+  post_bootstrap_user_data      = local.post_bootstrap_user_data
+  pre_bootstrap_user_data       = local.pre_bootstrap_user_data
+  region_name                   = data.aws_region.current.name
 
   depends_on = [
     module.eks_base,
