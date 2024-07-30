@@ -13,7 +13,7 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 |  `cluster_custom_name`  | `string`  |      N/A       |  The name of the EKS cluster.        |
 |          `env`          | `string`  |      N/A       |     The environment name.            |
 |    `program_office`     | `string`  |      N/A       |    The program office name.          |
-|    `domain_name`        | `string`  |      N/A       |    The domain name to use for DNS    |
+|      `domain_name`      | `string`  |      N/A       |    The domain name to use for DNS    |
 
 ## Optional Variables
 
@@ -21,10 +21,10 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 |:----------------------------------------------------------:|:--------------:|:----------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |                   `argocd_chart_version`                   |    `string`    |        `7.3.6`         |                                                                 The version of the ArgoCD helm chart.                                                                 |
 |                      `custom_ami_id`                       |    `string`    |          `""`          |                                                              The custom AMI ID to use for the EKS
-|                      `argocd_use_sso`                       |    `boolean`    |          `false`          |                                                              Enable SSO for ArgoCD using Okta.  
-|                      `okta_client_id`                       |    `string`    |          `""`          |                                                              Okta Client ID for setting up SSO for ArgoCD.  
-|                      `okta_client_secret`                       |    `string`    |          `""`          |                                                              Okta Client Secret for setting up SSO for ArgoCD.  
-|                      `okta_issuer`                       |    `string`    |          `""`          |                                                              Okta OIDC Issuer for setting up SSO for ArgoCD.  
+|                      `argocd_use_sso`                      |    `boolean`   |          `false`       |                                                              Enable SSO for ArgoCD using Okta.  
+|                      `okta_client_id`                      |    `string`    |          `""`          |                                                              Okta Client ID for setting up SSO for ArgoCD.  
+|                      `okta_client_secret`                  |    `string`    |          `""`          |                                                              Okta Client Secret for setting up SSO for ArgoCD.  
+|                      `okta_issuer`                         |    `string`    |          `""`          |                                                              Okta OIDC Issuer for setting up SSO for ArgoCD.  
 nodes.                                                              |
 |                `efs_availability_zone_name`                |    `string`    |          `""`          |                                                                  The availability zone for the EFS.                                                                   |
 |                `efs_directory_permissions`                 |    `string`    |         `0700`         |                                                                The directory permissions for the EFS.                                                                 |
