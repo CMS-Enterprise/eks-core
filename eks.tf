@@ -126,7 +126,7 @@ module "eks_addons" {
   cluster_ca_data               = module.eks.cluster_certificate_authority_data
   cluster_endpoint              = module.eks.cluster_endpoint
   custom_ami                    = var.custom_ami_id
-  domain_name                   = local.domain_name
+  domain_name                   = var.domain_name
   ebs_kms_key_id                = module.ebs_kms.key_id
   eks_cluster_cidr              = module.eks.cluster_service_cidr
   eks_cluster_ip_family         = module.eks.cluster_ip_family

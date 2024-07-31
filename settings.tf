@@ -1,5 +1,4 @@
 locals {
-  domain_name = var.domain_name
 
   tags_for_all_resources = {
     programOffice = var.program_office
@@ -108,7 +107,7 @@ data "aws_lb" "k8s_alb" {
 }
 
 data "aws_route53_zone" "main" {
-  name         = local.domain_name
+  name         = var.domain_name
   private_zone = true
 }
 
