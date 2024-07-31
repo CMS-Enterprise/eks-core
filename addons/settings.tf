@@ -2,7 +2,6 @@ locals {
   ################################## ArgoCD Settings ##################################
   argocd_sub_domain = var.is_prod_cluster ? "argocd" : "argocd-${var.eks_cluster_name}"
   argo_values_file  = "${path.module}/values/argocd/values.yaml.tpl"
-  domain_name       = var.domain_name
 
 
   argocd_values = templatefile(local.argo_values_file, {
@@ -48,7 +47,7 @@ data "aws_iam_instance_profiles" "nodes" {
 }
 
 data "aws_acm_certificate" "argocd" {
-  domain   = local.domain_name
+  domain   = var.domain_name
   statuses = ["ISSUED"]
 }
 
