@@ -14,6 +14,9 @@ pip-tools
 progress>=1.6
 requests
 
+# git
+gitpython
+
 # RobotFramework Tools
 robotframework
 robotframework-kubelibrary
