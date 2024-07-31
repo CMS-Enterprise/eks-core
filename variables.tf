@@ -27,10 +27,9 @@ variable "program_office" {
 
 ################################# VPC Variables #################################
 
-variable "dns_domain_override" {
-  description = "Override the DNS domain"
+variable "domain_name" {
+  description = "The domain name to use for DNS"
   type        = string
-  default     = ""
 }
 
 variable "gold_image_date" {
@@ -66,16 +65,8 @@ variable "vpc_lookup_override" {
 
 variable "eks_access_entries" {
   description = "The access entries to apply to the EKS cluster"
-  type = map(object({
-    principal_arn = string
-    type          = string
-    policy_associations = map(object({
-      policy_arn = string
-      access_scope = map(object({
-        type = string
-      }))
-    }))
-  }))
+  type        = any
+
   default = {}
 
   validation {

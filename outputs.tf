@@ -725,40 +725,40 @@ output "efs_file_system_tags_all" {
 
 output "efs_mount_target_availability_zone_ids" {
   description = "EFS mount target availability zone IDs"
-  value       = [ for resource in aws_efs_mount_target.main : resource.availability_zone_id ]
+  value       = [for resource in aws_efs_mount_target.main : resource.availability_zone_id]
 }
 
 output "efs_mount_target_availability_zone_names" {
   description = "EFS mount target availability zone names"
-  value       = [ for resource in aws_efs_mount_target.main : resource.availability_zone_name ]
+  value       = [for resource in aws_efs_mount_target.main : resource.availability_zone_name]
 }
 
 output "efs_mount_target_dns_names" {
   description = "EFS mount target DNS names"
-  value       = [ for resource in aws_efs_mount_target.main : resource.dns_name ]
+  value       = [for resource in aws_efs_mount_target.main : resource.dns_name]
 }
 
 output "efs_mount_target_file_system_ids" {
   description = "EFS mount target file system IDs"
-  value       = [ for resource in aws_efs_mount_target.main : resource.file_system_id ]
+  value       = [for resource in aws_efs_mount_target.main : resource.file_system_id]
 }
 
 output "efs_mount_target_ids" {
   description = "EFS mount target IDs"
-  value       = [ for resource in aws_efs_mount_target.main : resource.id ]
+  value       = [for resource in aws_efs_mount_target.main : resource.id]
 }
 
 output "efs_mount_target_file_system_arns" {
   description = "EFS mount target file system ARNs"
-  value       = [ for resource in aws_efs_mount_target.main : resource.file_system_arn ]
+  value       = [for resource in aws_efs_mount_target.main : resource.file_system_arn]
 }
 
 output "efs_mount_target_network_interface_ids" {
   description = "EFS mount target network interface IDs"
-  value       = [ for resource in aws_efs_mount_target.main : resource.network_interface_id ]
+  value       = [for resource in aws_efs_mount_target.main : resource.network_interface_id]
 }
 
 output "efs_mount_target_owner_ids" {
   description = "EFS mount target owner IDs"
-  value       = [ for resource in aws_efs_mount_target.main : resource.owner_id ]
+  value       = [for resource in aws_efs_mount_target.main : resource.owner_id]
 }

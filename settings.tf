@@ -1,5 +1,4 @@
 locals {
-  domain_name = "${var.ado}-${var.env}.internal.cms.gov"
 
   tags_for_all_resources = {
     programOffice = var.program_office
@@ -108,7 +107,7 @@ data "aws_lb" "k8s_alb" {
 }
 
 data "aws_route53_zone" "main" {
-  name         = local.domain_name
+  name         = var.domain_name
   private_zone = true
 }
 
@@ -116,7 +115,7 @@ data "aws_ami" "gold_image" {
   count = var.gold_image_date != "" ? 1 : 0
 
   most_recent = true
-  name_regex  = "^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}"
+  name_regex  = "^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}*"
   owners      = ["743302140042"]
 }
 

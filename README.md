@@ -7,24 +7,21 @@ The module includes configurations for IAM roles, KMS keys, VPC settings, and va
 
 ## Required Variables
 
-|      Variable Name      |   Type    | Default Value  |          Description           |
-|:-----------------------:|:---------:|:--------------:|:------------------------------:|
-|          `ado`          | `string`  |      N/A       |         The ado name.          |
-|  `cluster_custom_name`  | `string`  |      N/A       |  The name of the EKS cluster.  |
-|          `env`          | `string`  |      N/A       |     The environment name.      |
-|    `program_office`     | `string`  |      N/A       |    The program office name.    |
+|     Variable Name     |   Type   | Default Value |          Description           |
+|:---------------------:|:--------:|:-------------:|:------------------------------:|
+|         `ado`         | `string` |      N/A      |         The ado name.          |
+| `cluster_custom_name` | `string` |      N/A      |  The name of the EKS cluster.  |
+|         `env`         | `string` |      N/A      |     The environment name.      |
+|   `program_office`    | `string` |      N/A      |    The program office name.    |
+|     `domain_name`     | `string` |      N/A      | The domain name to use for DNS |
 
 ## Optional Variables
 
 |                       Variable Name                        |      Type      |     Default Value      |                                                                              Description                                                                              |
 |:----------------------------------------------------------:|:--------------:|:----------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |                   `argocd_chart_version`                   |    `string`    |        `7.3.6`         |                                                                 The version of the ArgoCD helm chart.                                                                 |
-|                      `custom_ami_id`                       |    `string`    |          `""`          |                                                              The custom AMI ID to use for the EKS
-|                      `argocd_use_sso`                       |    `boolean`    |          `false`          |                                                              Enable SSO for ArgoCD using Okta.  
-|                      `okta_client_id`                       |    `string`    |          `""`          |                                                              Okta Client ID for setting up SSO for ArgoCD.  
-|                      `okta_client_secret`                       |    `string`    |          `""`          |                                                              Okta Client Secret for setting up SSO for ArgoCD.  
-|                      `okta_issuer`                       |    `string`    |          `""`          |                                                              Okta OIDC Issuer for setting up SSO for ArgoCD.  
-nodes.                                                              |
+|                      `argocd_use_sso`                      |   `boolean`    |        `false`         |                                                                   Enable SSO for ArgoCD using Okta.                                                                   |
+|                      `custom_ami_id`                       |    `string`    |          `""`          |                                                                 The custom AMI ID to use for the EKS                                                                  |
 |                `efs_availability_zone_name`                |    `string`    |          `""`          |                                                                  The availability zone for the EFS.                                                                   |
 |                `efs_directory_permissions`                 |    `string`    |         `0700`         |                                                                The directory permissions for the EFS.                                                                 |
 |                  `efs_encryption_enabled`                  |     `bool`     |         `true`         |                                                                    Enable encryption for the EFS.                                                                     |
@@ -54,6 +51,9 @@ nodes.                                                              |
 |                     `kp_chart_version`                     |    `string`    |       `"0.37.0"`       |                                                                     Karpenter helm chart version.                                                                     |
 |                   `logging_bucket_tags`                    | `map(string)`  |          `{}`          |                                                               The tags to apply to the logging bucket.                                                                |
 |                     `main_bucket_tags`                     | `map(string)`  |          `{}`          |                                                                 The tags to apply to the main bucket.                                                                 |
+|                      `okta_client_id`                      |    `string`    |          `""`          |                                                             Okta Client ID for setting up SSO for ArgoCD.                                                             |
+|                    `okta_client_secret`                    |    `string`    |          `""`          |                                                           Okta Client Secret for setting up SSO for ArgoCD.                                                           |
+|                       `okta_issuer`                        |    `string`    |          `""`          |                                                            Okta OIDC Issuer for setting up SSO for ArgoCD.                                                            |
 |                `node_bootstrap_extra_args`                 |    `string`    |          `""`          |                                                Any extra arguments to pass to the bootstrap script for the EKS nodes.                                                 |
 |                       `node_labels`                        | `map(string)`  |          `{}`          |                                                                 The labels to apply to the EKS nodes.                                                                 |
 |                `node_post_bootstrap_script`                |    `string`    |          `""`          |                                                          The post-bootstrap script to run on the EKS nodes.                                                           |
@@ -157,8 +157,7 @@ The admin password for ArgoCD is stored in the `argocd-initial-admin-secret` sec
 
 5. I am seeing errors for route53, what does this mean?
 
-If you are seeing errors related to the data block of the route53 zone, this means that your zone either does not exist,
-or the correct zone is not being provided to the block. Try passing the `dns_domain_override` variable to the module.
+If you are seeing errors related to the data block of the route53 zone, this means that you have not specified the `domain_name` variable.
 
 6. Why is the EKS Node Security Group not properly being destroyed?
 

@@ -47,7 +47,7 @@ data "aws_iam_instance_profiles" "nodes" {
 }
 
 data "aws_acm_certificate" "argocd" {
-  domain   = "${var.ado}-${var.env}.internal.cms.gov"
+  domain   = var.domain_name
   statuses = ["ISSUED"]
 }
 
