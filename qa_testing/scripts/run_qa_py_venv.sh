@@ -31,7 +31,7 @@ load_run_qa_py_venv() {
       printf "  -l, --list    Display a list of Python scripts that can be called\n"
       printf "  -h, --help    Display this help message and exit\n\n"
       printf "Example:\n"
-      printf "  %s check_aws_env.py -p batcave -e dev\n\n" "$(get_this_python_script_name)"
+      printf "  %s run_qa_py_venv bringup_cluster.py -t temp-test\n\n" "$(get_this_python_script_name)"
       exit 0
   }
 

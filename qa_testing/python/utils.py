@@ -236,7 +236,7 @@ def quit_now(message: str = '', start_time: datetime.datetime = None):
     if message:
         status_message(message, 'error', start_time)
     status_message('Cannot continue, exiting!', 'error')
-    sys.exit(0)
+    sys.exit(1)
 
 
 def print_dict(data, indent=0):
