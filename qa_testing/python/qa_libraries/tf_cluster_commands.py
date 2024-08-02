@@ -15,7 +15,6 @@
 #
 # 4: confirm you are still in /example dir, run below.
 # $terraform init
-# $terraform plan
 # $terraform apply
 #
 # Note: type 'yes' for the below
@@ -65,31 +64,41 @@ def set_target_cluster(target_cluster_name: str) -> str:
     # Change directory to "Energon-Kube/example"
     os.chdir(example_dir)
 
-    # Read and edit the "main.tf" file
-    with open(main_tf_file, 'r') as file:
-        data = file.read()
+    # Attempt to read and write the "main.tf" file
+    try:
+        with open(main_tf_file, 'r+') as file:
+            data = file.read()
 
-    # Extract the current cluster name from the file
-    start_marker = '  cluster_custom_name = "'
-    end_marker = '"'
-    start_index = data.find(start_marker) + len(start_marker)
-    end_index = data.find(end_marker, start_index)
-    initial_main_tf_cluster_setting = data[start_index:end_index]
+            # Extract the current cluster name from the file
+            start_marker = '  cluster_custom_name = "'
+            end_marker = '"'
+            start_index = data.find(start_marker) + len(start_marker)
+            end_index = data.find(end_marker, start_index)
+            initial_main_tf_cluster_setting = data[start_index:end_index]
 
-    # Prompt user if there is a mismatch
-    if initial_main_tf_cluster_setting != target_cluster_name:
-        response = input(f"Cluster mismatch: main.tf has '{initial_main_tf_cluster_setting}', but target is '{target_cluster_name}'. Do you want to change the main.tf to the target cluster '{target_cluster_name}'? (yes/no): ")
-        if response.lower() != 'yes':
-            print("Operation aborted by the user.")
-            sys.exit(0)  # Exit the program gracefully
+            # Prompt user if there is a mismatch
+            if initial_main_tf_cluster_setting != target_cluster_name:
+                response = input(f"Cluster mismatch: main.tf has '{initial_main_tf_cluster_setting}', but target is '{target_cluster_name}'. Do you want to change the main.tf to the target cluster '{target_cluster_name}'? (yes/no): ")
+                if response.lower() != 'yes':
+                    print("Operation aborted by the user.")
+                    sys.exit(0)  # Exit the program gracefully
 
-        # Replace the line with the new cluster name
-        data = data.replace(f'{start_marker}{initial_main_tf_cluster_setting}{end_marker}', f'{start_marker}{target_cluster_name}{end_marker}')
+                # Replace the line with the new cluster name
+                data = data.replace(f'{start_marker}{initial_main_tf_cluster_setting}{end_marker}', f'{start_marker}{target_cluster_name}{end_marker}')
 
-        with open(main_tf_file, 'w') as file:
-            file.write(data)
+                # Write updated data back to the file
+                file.seek(0)
+                file.write(data)
+                file.truncate()
 
-    return initial_main_tf_cluster_setting
+        return initial_main_tf_cluster_setting
+
+    except FileNotFoundError:
+        print(f"File '{main_tf_file}' not found.")
+        sys.exit(1)
+    except PermissionError as e:
+        print(f"Permission error: {e}")
+        sys.exit(1)
 
 
 def revert_target_cluster(initial_main_tf_cluster_setting: str) -> None:
@@ -98,23 +107,24 @@ def revert_target_cluster(initial_main_tf_cluster_setting: str) -> None:
     :param initial_main_tf_cluster_setting: The original cluster name to revert to.
     :return: None
     """
-    example_dir = os.getcwd()
-    main_tf_file = os.path.join(example_dir, "main.tf")
 
-    with open(main_tf_file, 'r') as file:
-        data = file.read()
+    def revert_file(file_path: str):
+        """
+        Revert a specific file in the repository to its last committed state.
+        :param file_path: The relative path to the file to revert.
+        """
+        try:
+            # Locate the repository root
+            repo = Repo(os.getcwd(), search_parent_directories=True)
 
-    start_marker = '  cluster_custom_name = "'
-    end_marker = '"'
-    start_index = data.find(start_marker) + len(start_marker)
-    end_index = data.find(end_marker, start_index)
-    current_cluster_name = data[start_index:end_index]
+            # Revert the file to its last committed state
+            repo.git.checkout('--', file_path)
+            print(f"Reverted file: {file_path}")
 
-    # Use the same logic as in set_target_cluster to replace the cluster name
-    data = data.replace(f'{start_marker}{current_cluster_name}{end_marker}', f'{start_marker}{initial_main_tf_cluster_setting}{end_marker}')
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
-    with open(main_tf_file, 'w') as file:
-        file.write(data)
+    revert_file('example/main.tf')
 
     print(f"Cluster setting reverted to '{initial_main_tf_cluster_setting}' in the main.tf")
 
@@ -145,7 +155,7 @@ def run_command(command: str) -> str:
         print(line)
         stdout_stderr_cache += line + "\n"
 
-    return stdout_stderr_cache
+    return stdout_stderr_cache, process.returncode
 
 
 def bringup_cluster(target_cluster_name: str):
@@ -160,14 +170,16 @@ def bringup_cluster(target_cluster_name: str):
         commands = [
             f"aws eks update-kubeconfig --name {target_cluster_name} --region us-east-1",
             "terraform init",
-            "terraform plan",
             "terraform apply -auto-approve",
             "aws eks list-clusters --query clusters"
         ]
 
         stdout_stderr_cache = ""
         for command in commands:
-            stdout_stderr_cache += run_command(command)
+            stdout_stderr_out, return_code = run_command(command)
+            stdout_stderr_cache += stdout_stderr_out
+            if return_code != 0:
+                raise subprocess.CalledProcessError(return_code, command)
 
     except subprocess.CalledProcessError as e:
         print(f"Command '{e.cmd}' failed with return code {e.returncode}")
@@ -196,7 +208,10 @@ def bringdown_cluster(target_cluster_name: str):
 
         stdout_stderr_cache = ""
         for command in commands:
-            stdout_stderr_cache += run_command(command)
+            stdout_stderr_out, return_code = run_command(command)
+            stdout_stderr_cache += stdout_stderr_out
+            if return_code != 0:
+                raise subprocess.CalledProcessError(return_code, command)
 
     except subprocess.CalledProcessError as e:
         print(f"Command '{e.cmd}' failed with return code {e.returncode}")

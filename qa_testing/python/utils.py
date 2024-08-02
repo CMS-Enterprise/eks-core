@@ -1,56 +1,22 @@
+# Import standard Python libraries (No need to check for their presence as they are built-in)
+import datetime
+import os
+import platform
+import re
+import sys
+import time
+from typing import List
+
 # Check for missing required packages and attempt to import them
 missing_packages = []
 
-# Import standard Python libraries, noting any that are missing
-try:
-    import datetime
-except ModuleNotFoundError:
-    missing_packages.append("datetime")
-
-try:
-    import os
-except ModuleNotFoundError:
-    missing_packages.append("os")
-
-try:
-    import platform
-except ModuleNotFoundError:
-    missing_packages.append("platform")
-
+# Check for third-party packages
 try:
     import pkg_resources
     from pkg_resources import DistributionNotFound, VersionConflict
 except ModuleNotFoundError:
     missing_packages.append("pkg_resources")
 
-try:
-    import re
-except ModuleNotFoundError:
-    missing_packages.append("re")
-
-try:
-    import sys
-except ModuleNotFoundError:
-    missing_packages.append("sys")
-
-try:
-    import time
-except ModuleNotFoundError:
-    missing_packages.append("time")
-
-try:
-    from typing import List
-except ModuleNotFoundError:
-    missing_packages.append("typing")
-
-
-#####################################################################
-# Python Progress Bar Libraries
-#   https://builtin.com/software-engineering-perspectives/python-progress-bar
-#   https://pypi.org/project/progress/
-#
-#   pip install progress
-#
 try:
     from progress.bar import IncrementalBar
 except ModuleNotFoundError:
@@ -60,13 +26,13 @@ if missing_packages:
     print("Missing required Python packages:")
     for package in missing_packages:
         print(f"  - {package}")
-    print(f"[!] Please review 'Batcave Landing Zone Python Script Dependencies'"
-          f"    in the BLZ/docs/onboarding/Onboarding-and-Prerequisits.md")
+    print(f"[!] Please review 'Python Script Dependencies'"
+          f"    in the Energon-Kube/qa_testing/python/requirements.txt")
     sys.exit(1)
 
 
 def color_list(text_list: List[str], color_codes: List[str]) -> List[str]:
-    colored_list=[]
+    colored_list = []
     for text in text_list:
         colored_list.append(color_text(text, color_codes))
     return colored_list
@@ -239,26 +205,6 @@ def quit_now(message: str = '', start_time: datetime.datetime = None):
     sys.exit(1)
 
 
-def print_dict(data, indent=0):
-    """
-    Recursively print nested dictionaries.
-    """
-    # Iterate through dictionary items
-    for key, value in data.items():
-        if isinstance(value, dict):
-            print('  ' * indent + str(key) + ':')
-            print_dict(value, indent + 1)
-        elif isinstance(value, list):
-            print('  ' * indent + str(key) + ':')
-            for item in value:
-                if isinstance(item, dict):
-                    print_dict(item, indent + 1)
-                else:
-                    print('  ' * (indent + 1) + str(item))
-        else:
-            print('  ' * indent + str(key) + ': ' + str(value))
-
-
 def get_os_environment_variable(env_key_label: str, verbose: bool = False) -> str:
     try:
         env_value = os.environ[env_key_label]
@@ -276,7 +222,7 @@ def get_os_environment_variable(env_key_label: str, verbose: bool = False) -> st
 
 
 def verify_requirements(requirements_file: str = os.path.dirname(os.path.abspath(__file__)) +
-                        '/requirements.txt') -> bool:
+                                                 '/requirements.txt') -> bool:
     try:
         with open(requirements_file, 'r') as f:
             requirements = f.read().splitlines()

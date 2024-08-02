@@ -32,6 +32,10 @@ load_use_bash-my-aws() {
   if [ -d "${PACKAGE_NAME}" ]; then
       MSG_EXEC "Repository '$(txt_teal "${PACKAGE_NAME}")' already exists, updating from $(txt_yellow "${GIT_ORIGIN}")..."
       cd "${PACKAGE_NAME}" || { MSG_ERRR "Failed to change directory to '$(txt_d_yellow "${PACKAGE_NAME}")'"; exit 1; }
+      # Check if repo origin matches the expected origin, then pull
+      if [ "$(git remote -v | grep 'origin.*fetch' | awk '{print $2}')" != "${GIT_ORIGIN}" ]; then
+        MSG_WARN "Expected origin does not match specified $(txt_yellow "${GIT_ORIGIN}")..."
+      fi
       git pull origin master
   else
       MSG_EXEC "Cloning '$(txt_teal "${PACKAGE_NAME}")' from $(txt_yellow "${GIT_ORIGIN}")..."
@@ -40,7 +44,6 @@ load_use_bash-my-aws() {
   fi
 
   cd "${CURRENT_DIR}" || { MSG_ERRR "Failed to change directory back to '$(txt_d_yellow "${CURRENT_DIR}")'"; exit 1; }
-  MSG_SUCS "Repo cloned or updated complete..."
 
 }
 

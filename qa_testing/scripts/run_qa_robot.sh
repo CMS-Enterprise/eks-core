@@ -76,7 +76,7 @@ kubelibrary_prerelease_testcases() {
 
       # Run the Robot Framework tests from the robot directory
       MSG_EXEC "Running Robot Framework tests $(txt_hotpink "${test_file}")..."
-      (cd "${QA_ROBOT_DIR}" && robot "${test_file}")
+      (cd "${QA_ROBOT_DIR}" && robot -P "$QA_THIRD_PARTY_DIR" "${test_file}")
       status=$?
     fi
     deactivate

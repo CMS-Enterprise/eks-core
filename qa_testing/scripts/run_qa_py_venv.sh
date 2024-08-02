@@ -101,14 +101,14 @@ load_run_qa_py_venv() {
   run_python_script() {
     local python_script_name=$1
     shift
-    source "${VENV_PATH}/bin/activate"
-    is_activated_venv
+
     if [ ! -f "${QA_PYTHON_DIR}/${python_script_name}" ]; then
       MSG_ERRR "Script '$(txt_teal "${python_script_name}")' not found in $(txt_yellow "${QA_PYTHON_DIR}")."
-      deactivate
-      is_deactivated_venv
       exit 1
     fi
+
+    source "${VENV_PATH}/bin/activate"
+    is_activated_venv
 
     # Run the script from the current working directory
     (cd "$(pwd)" && python3 "${QA_PYTHON_DIR}/${python_script_name}" "$@")
