@@ -23,7 +23,7 @@ load_run_qa_robot() {
   # variables
   source "${SCRIPT_LOCATION}/gen_lib_funcs_vars.sh"
 
-  # Source the run_pyscript.sh script
+  # Source the run_qa_py_venv.sh script
   source "${QA_SCRIPTS_DIR}/run_qa_py_venv.sh"
 
   # Set the name of the virtual environment and its path

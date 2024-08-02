@@ -7,7 +7,7 @@
 # ShellCheck directive to suppress unused variable warnings
 # shellcheck disable=SC2034
 
-load_gen_lib_color_formats() {
+load_gen_libraries() {
 
   # Functions for determining script parameters, file name,
   # directory of script
@@ -63,7 +63,7 @@ load_gen_lib_color_formats() {
       read -p "$(MSG_QUES "Do you wish proceed? (y/n)  ")" yn
       case $yn in
         [Yy]* ) break;;
-        [Nn]* ) exit 1;;
+        [Nn]* ) exit 0;;
         * ) MSG_WARN "Please answer yes or no.";;
       esac
     done
@@ -89,4 +89,4 @@ load_gen_lib_color_formats() {
 
 ###########################################################
 # Load the general libraries for QA Testing
-load_gen_lib_color_formats
+load_gen_libraries

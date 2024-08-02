@@ -57,73 +57,75 @@ load_gen_lib_color_formats() {
   txt_bold() { printf "\033[1m%s\033[0m\n" "$*"; }                # Bold
   txt_underline() { printf "\033[4m%s\033[0m\n" "$*"; }           # Underline
   txt_italics() { printf "\033[3m%s\033[0m\n" "$*"; }             # Italics
-
-  # Check if the script is being sourced or executed directly
-  # If executed directly then run output example of all
-  # color functions
-  if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    (
-      printf "Script %s run directly, displaying all text colors...\n\n" "$(txt_d_yellow "$(basename -- "$0")")"
-
-      sample_text="This is a sample text."
-
-      printf "Testing color functions:\n"
-      txt_d_red "txt_d_red: $sample_text"
-      txt_red "txt_red: $sample_text"
-      txt_l_red "txt_l_red: $sample_text"
-
-      txt_peach "txt_peach: $sample_text"
-      txt_orange "txt_orange: $sample_text"
-      txt_d_orange "txt_d_orange: $sample_text"
-      txt_l_orange "txt_l_orange: $sample_text"
-
-      txt_brown "txt_brown: $sample_text"
-      txt_yellow "txt_yellow: $sample_text"
-      txt_l_yellow "txt_l_yellow: $sample_text"
-      txt_d_yellow "txt_d_yellow: $sample_text"
-      txt_gold "txt_gold: $sample_text"
-      txt_neon "txt_neon: $sample_text"
-
-      txt_l_green "txt_l_green: $sample_text"
-      txt_green "txt_green: $sample_text"
-      txt_b_green "txt_b_green: $sample_text"
-      txt_d_green "txt_d_green: $sample_text"
-      txt_forrest "txt_forrest: $sample_text"
-
-      txt_d_teal "txt_d_teal: $sample_text"
-      txt_teal "txt_teal: $sample_text"
-      txt_l_teal "txt_l_teal: $sample_text"
-      txt_aqua "txt_aqua: $sample_text"
-
-      txt_cyan "txt_cyan: $sample_text"
-      txt_b_blue "txt_b_blue: $sample_text"
-      txt_blue "txt_blue: $sample_text"
-      txt_d_blue "txt_d_blue: $sample_text"
-      txt_l_blue "txt_l_blue: $sample_text"
-
-      txt_l_purple "txt_l_purple: $sample_text"
-      txt_d_purple "txt_d_purple: $sample_text"
-      txt_purple "txt_purple: $sample_text"
-      txt_b_purple "txt_b_purple: $sample_text"
-      txt_lavender "txt_lavender: $sample_text"
-
-      txt_hotpink "txt_hotpink: $sample_text"
-      txt_pink "txt_pink: $sample_text"
-      txt_rose "txt_rose: $sample_text"
-
-      txt_d_grey "txt_d_grey: $sample_text"
-      txt_grey "txt_grey: $sample_text"
-      txt_l_grey "txt_l_grey: $sample_text"
-
-      txt_white "txt_white: $sample_text"
-
-      txt_bold "txt_bold: $sample_text"
-      txt_underline "txt_underline: $sample_text"
-      txt_italics "txt_italics: $sample_text"
-    )
-  fi
 }
+
 
 ############################################
 # Load the general library of color formats
 load_gen_lib_color_formats
+
+
+# Check if the script is being sourced or executed directly
+# If executed directly then run output example of all
+# color functions
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  (
+    printf "Script %s run directly, displaying all text colors...\n\n" "$(txt_d_yellow "$(basename -- "$0")")"
+
+    sample_text="This is a sample text."
+
+    printf "Testing color functions:\n"
+    txt_d_red "txt_d_red: $sample_text"
+    txt_red "txt_red: $sample_text"
+    txt_l_red "txt_l_red: $sample_text"
+
+    txt_peach "txt_peach: $sample_text"
+    txt_orange "txt_orange: $sample_text"
+    txt_d_orange "txt_d_orange: $sample_text"
+    txt_l_orange "txt_l_orange: $sample_text"
+
+    txt_brown "txt_brown: $sample_text"
+    txt_yellow "txt_yellow: $sample_text"
+    txt_l_yellow "txt_l_yellow: $sample_text"
+    txt_d_yellow "txt_d_yellow: $sample_text"
+    txt_gold "txt_gold: $sample_text"
+    txt_neon "txt_neon: $sample_text"
+
+    txt_l_green "txt_l_green: $sample_text"
+    txt_green "txt_green: $sample_text"
+    txt_b_green "txt_b_green: $sample_text"
+    txt_d_green "txt_d_green: $sample_text"
+    txt_forrest "txt_forrest: $sample_text"
+
+    txt_d_teal "txt_d_teal: $sample_text"
+    txt_teal "txt_teal: $sample_text"
+    txt_l_teal "txt_l_teal: $sample_text"
+    txt_aqua "txt_aqua: $sample_text"
+
+    txt_cyan "txt_cyan: $sample_text"
+    txt_b_blue "txt_b_blue: $sample_text"
+    txt_blue "txt_blue: $sample_text"
+    txt_d_blue "txt_d_blue: $sample_text"
+    txt_l_blue "txt_l_blue: $sample_text"
+
+    txt_l_purple "txt_l_purple: $sample_text"
+    txt_d_purple "txt_d_purple: $sample_text"
+    txt_purple "txt_purple: $sample_text"
+    txt_b_purple "txt_b_purple: $sample_text"
+    txt_lavender "txt_lavender: $sample_text"
+
+    txt_hotpink "txt_hotpink: $sample_text"
+    txt_pink "txt_pink: $sample_text"
+    txt_rose "txt_rose: $sample_text"
+
+    txt_d_grey "txt_d_grey: $sample_text"
+    txt_grey "txt_grey: $sample_text"
+    txt_l_grey "txt_l_grey: $sample_text"
+
+    txt_white "txt_white: $sample_text"
+
+    txt_bold "txt_bold: $sample_text"
+    txt_underline "txt_underline: $sample_text"
+    txt_italics "txt_italics: $sample_text"
+  )
+fi
