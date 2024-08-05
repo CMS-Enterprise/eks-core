@@ -1,0 +1,13 @@
+{{- range .Values.eniConfigs }}
+apiVersion: crd.k8s.amazonaws.com/v1alpha1
+kind: ENIConfig
+metadata:
+  name: {{ .availabilityZone | quote }}
+spec:
+  securityGroups:
+{{- range .securityGroups }}
+  - {{ . | quote }}
+{{- end }}
+  subnet: {{ .subnetId | quote }}
+---
+{{- end }}

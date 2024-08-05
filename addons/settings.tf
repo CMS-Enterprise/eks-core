@@ -40,6 +40,72 @@ locals {
 
   kp_values                 = templatefile("${path.module}/values/karpenter/values.yaml.tpl", local.kp_config_settings)
   iam_instance_profile_name = tolist(data.aws_iam_instance_profiles.nodes.names)
+
+  kpnp_config_settings = {
+    name                         = var.karpenter_nodepool_name == "" ? "default" : var.karpenter_nodepool_name
+    ec2nodeclass_name            = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
+    available_availability_zones = var.available_availability_zones
+    karpenter_nodepool_taints    = var.karpenter_nodepool_taints
+  }
+
+  karpenter_node_pool_values = templatefile("${path.module}/values/karpenter/karpenter-node-pool-values.yaml.tpl", local.kpnp_config_settings)
+
+  karpenter_nodeclass_tags = merge(var.karpenter_base_tags, { Name = "eks-karpenter-${var.eks_cluster_name}" })
+  kpnc_config_settings = {
+    name                = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
+    amiFamily           = var.gold_image_ami_id != "" ? "Custom" : "AL2"
+    deviceName          = "/dev/xvda"
+    volumeSize          = "300G"
+    volumeType          = "gp3"
+    deleteOnTermination = true
+    encrypted           = true
+    ebs_kms_key_id      = var.ebs_kms_key_id
+    instanceProfile     = local.iam_instance_profile_name[0]
+    amiSelectorId       = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
+    subnetTag           = "${var.ado}-*-${var.env}-private-*"
+    securityGroupID     = var.eks_node_security_group_id
+    userData            = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
+
+    tags = local.karpenter_nodeclass_tags
+
+  }
+
+  karpenter_node_class_values = templatefile("${path.module}/values/karpenter/karpenter-node-class-values.yaml.tpl", local.kpnc_config_settings)
+
+  ################################## Eni Config Settings ##################################
+  subnets_info = [
+    for subnet_id in data.aws_subnets.container.ids : {
+      id                = subnet_id
+      availability_zone = data.aws_subnet.container[subnet_id].availability_zone
+    }
+  ]
+
+  eni_configs_settings = {
+    subnets                           = local.subnets_info
+    cluster_primary_security_group_id = var.eks_cluster_security_group_id
+
+  }
+
+  eni_config_values = templatefile("${path.module}/values/eni-configs/eni-configs.yaml.tpl", local.eni_configs_settings)
+
+  ################################## EFS Storage Class Settings ##################################
+  efs_storage_class_settings = {
+    file_system_id        = var.efs_file_system_id
+    directory_permissions = var.efs_directory_permissions
+
+  }
+
+  efs_storage_class_values = templatefile("${path.module}/values/efs-storage-class/efs-storage-class.yaml.tpl", local.efs_storage_class_settings)
+
+  ################################## GP3 Storage Class Settings ##################################
+  gp3_settings = {
+    reclaim_policy      = var.eks_gp3_reclaim_policy
+    volume_binding_mode = var.eks_gp3_volume_binding_mode
+
+  }
+
+  gp3_values = templatefile("${path.module}/values/gp3/gp3.yaml.tpl", local.gp3_settings)
+
 }
 
 data "aws_iam_instance_profiles" "nodes" {

@@ -1,0 +1,15 @@
+eniConfigs:
+  - availabilityZone: us-east-1a
+    securityGroups:
+      - "sga-988776665174773"
+    subnetId: "sba-7737937939729"
+
+  - availabilityZone: us-east-1b
+    securityGroups:
+      - "sga-98877666517838833"
+    subnetId: "sba-78374873487839"
+
+  - availabilityZone: us-east-1c
+    securityGroups:
+      - "sga-793479347939302"
+    subnetId: "sba-029840840482"

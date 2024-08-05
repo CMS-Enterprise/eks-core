@@ -1,0 +1,17 @@
+nodeClass:
+  metadata:
+    name: "my-node-class"
+  spec:
+    amiFamily: "AL2" 
+    tags: []
+    deviceName: "/dev/xvda"
+    volumeSize: "300G"
+    volumeType: "gp3"
+    deleteOnTermination: true
+    encrypted: true
+    kmsKeyId: "kms-key-id"
+    instanceProfile: "my-instance-profile"
+    amiSelectorId: "ami-12345678"
+    subnetTag: "private"
+    securityGroupID: "sg-063d7acfb4b06c82c"
+    userData: "userData"

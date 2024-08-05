@@ -1,0 +1,4 @@
+apiVersion: v1
+name: karpenter-node-pool
+description: "Applies Karpenter Node Pool"
+version: 1.0.0
