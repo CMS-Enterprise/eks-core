@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+###########################################################
+# Enabled QA Testing environment parameters
+
+load_qa_bashrc() {
+  local SCRIPT_LOCATION
+
+  SCRIPT_LOCATION=$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]:-$0}")")" &> /dev/null && pwd)
+
+  # Source shared global generic library of functions and
+  # variables for QA Testing environment
+  source "${SCRIPT_LOCATION}/scripts/gen_lib_funcs_vars.sh"
+
+  PATH="${SCRIPT_LOCATION}/scripts:${PATH}"
+
+}
+
+# Load the QA Testing environment bash shell variables and
+# functions
+load_qa_bashrc
+
+###########################################################
+# Function to run the Python script using run_qa_py_venv.sh
+# which runs the venv for all QT Testing python scripts
+run_qa_py_venv() {
+  "${QA_SCRIPTS_DIR}/run_qa_py_venv.sh" "$@"
+}
+# Bash completion for run_qa_py_venv
+complete -W "$(run_qa_py_venv -l)" run_qa_py_venv
+
+###########################################################
+# Function to run robot script using run_qa_robot.sh
+run_qa_robot() {
+  "${QA_SCRIPTS_DIR}/run_qa_robot.sh" "$@"
+}
+# Bash completion for run_robot
+complete -W "$(ls "${QA_ROBOT_DIR}"/*.robot 2>/dev/null | xargs -n 1 basename)" run_qa_robot
