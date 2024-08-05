@@ -1,5 +1,5 @@
 resource "helm_release" "argocd" {
-  depends_on       = [helm_release.karpenter-crd, helm_release.karpenter_nodepool] #helm_release.karpenter_ec2nodeclass]
+  depends_on       = [helm_release.karpenter-crd, helm_release.karpenter_nodepool, helm_release.karpenter_ec2nodeclass]
   atomic           = true
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
