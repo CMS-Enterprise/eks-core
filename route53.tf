@@ -1,11 +1,11 @@
-# resource "aws_route53_record" "argocd" {
-#   zone_id = data.aws_route53_zone.main.zone_id
-#   name    = "${module.eks_addons.argocd_sub_domain}.${data.aws_route53_zone.main.name}"
-#   type    = "A"
+resource "aws_route53_record" "argocd" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "${module.eks_addons.argocd_sub_domain}.${data.aws_route53_zone.main.name}"
+  type    = "A"
 
-#   alias {
-#     name                   = data.aws_lb.k8s_alb.dns_name
-#     zone_id                = data.aws_lb.k8s_alb.zone_id
-#     evaluate_target_health = true
-#   }
-# }
+  alias {
+    name                   = data.aws_lb.k8s_alb.dns_name
+    zone_id                = data.aws_lb.k8s_alb.zone_id
+    evaluate_target_health = true
+  }
+}
