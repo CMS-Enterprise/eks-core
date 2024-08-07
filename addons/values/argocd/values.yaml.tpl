@@ -48,7 +48,7 @@ server:
         [{"field":"http-header","httpHeaderConfig":{"httpHeaderName": "Content-Type", "values":["application/grpc"]}}]
     aws:
       serviceType: NodePort
-      backendProtocolVersion: HTTP2
+      backendProtocolVersion: HTTP
     service:
       servicePortHttpName: http
       servicePortHttp: 8080
