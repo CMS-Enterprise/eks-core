@@ -4,6 +4,7 @@ import configparser
 from git import Repo, InvalidGitRepositoryError
 import sys
 from datetime import datetime
+import json
 
 
 def get_repo_root() -> str:
@@ -176,12 +177,46 @@ def bringup_cluster(target_cluster_name: str):
     finally:
         revert_target_cluster(initial_main_tf_cluster_setting, cluster_dir)
 
+
+def check_cluster_exists(cluster_name: str) -> bool:
+    """
+    Check if the target cluster exists.
+    :param cluster_name: The name of the cluster to check.
+    :return: True if the cluster exists, False otherwise.
+    """
+    stdout_stderr_cache, return_code = run_command("aws eks list-clusters --query clusters")
+    if return_code != 0:
+        print("Failed to retrieve the list of clusters.")
+        sys.exit(1)
+
+    # Extract the JSON part from the output
+    try:
+        json_lines = []
+        for line in stdout_stderr_cache.splitlines():
+            if "stdout:" in line:
+                json_part = line.split('stdout: ')[1].strip()
+                json_lines.append(json_part)
+
+        json_output = ''.join(json_lines)
+        clusters = json.loads(json_output)
+        print(f"DEBUG: Retrieved clusters: {clusters}")
+    except (json.JSONDecodeError, IndexError) as e:
+        print(f"Failed to parse clusters JSON: {e}")
+        sys.exit(1)
+
+    return cluster_name in clusters
+
+
 def bringdown_cluster(target_cluster_name: str):
     """
     Bring down the cluster with the specified name.
     :param target_cluster_name: The name of the cluster to bring down.
     :return: None
     """
+    if not check_cluster_exists(target_cluster_name):
+        print(f"Cluster: {target_cluster_name} not found, no cluster to bring down.")
+        return
+
     initial_main_tf_cluster_setting, cluster_dir = set_target_cluster(target_cluster_name)
 
     try:
