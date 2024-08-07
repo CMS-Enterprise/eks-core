@@ -40,7 +40,7 @@ def set_target_cluster(target_cluster_name: str) -> (str, str):
         raise ValueError("Cluster name must be provided.")
 
     repo_root = get_repo_root()
-    config_path = os.path.join(repo_root, "qa_testing", "python", "configs", "setup.cfg")
+    config_path = os.path.join(repo_root, "qa_testing", "configs", "setup.cfg")
     cluster_dir_name = read_config_value(config_path, "Target_Cluster_Dir")
     cluster_dir = os.path.join(repo_root, cluster_dir_name)
     main_tf_file = os.path.join(cluster_dir, "main.tf")
