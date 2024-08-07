@@ -21,9 +21,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Check for faild observability pods only
 FAILED_PODS=$(kubectl get pods -n $NAMESPACE -l app.kubernetes.io/name=amazon-cloudwatch-observability)
 if [ -z "$FAILED_PODS" ]; then
-  echo "FAIL : Observability addon has unhealthy pods."
+  echo "FAIL : Could not retrieve observability pods."
   exit 1
 fi
 

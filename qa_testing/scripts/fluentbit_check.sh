@@ -20,7 +20,7 @@ echo "TestCase name: Fluent-bit addon: Verification of health and functionality.
 # Check if FluentBit pods are running
 FLUENT_BIT_PODS=$(kubectl get pods -n $NAMESPACE | grep $FLUENT_BIT_LABEL)
 if [ -z "$FLUENT_BIT_PODS" ]; then
-  echo "Failed: FluentBit pods are not running."
+  echo "FAIL: FluentBit pods are not running."
   exit 1
 fi
 
@@ -31,7 +31,7 @@ aws logs describe-log-streams \
     --output text > /dev/null 2>&1
 
 if [ $? -ne 0 ]; then
-  echo "Failed: Log group $LOG_GROUP_NAME not found or unable to describe log streams."
+  echo "FAIL: Log group $LOG_GROUP_NAME not found or unable to describe log streams."
   exit 1
 fi
 
@@ -44,7 +44,7 @@ LOG_STREAMS=$(aws logs describe-log-streams \
     --output text)
 
 if [ -z "$LOG_STREAMS" ]; then
-  echo "Failed: No log streams found for cluster $CLUSTER_NAME in log group $LOG_GROUP_NAME."
+  echo "FAIL: No log streams found for cluster $CLUSTER_NAME in log group $LOG_GROUP_NAME."
   exit 1
 fi
 

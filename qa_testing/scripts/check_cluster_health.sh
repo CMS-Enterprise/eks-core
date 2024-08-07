@@ -12,7 +12,7 @@ check_resource() {
             all_pods=$(kubectl get pods -A --no-headers)
             if [[ -z "$all_pods" ]]; then
                 message="No pods resources found."
-                result="PASS"
+                result="FAIL"
             else
                 resource_status=$(echo "$all_pods" | awk '$4 != "Running"')
                 if [[ -n "$resource_status" ]]; then
