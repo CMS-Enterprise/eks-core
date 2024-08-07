@@ -8,10 +8,17 @@ check_resource() {
 
     case $resource_type in
         "pods")
-            resource_status=$(kubectl get pods -A --field-selector=status.phase!=Running --no-headers)
-            if [[ -n "$resource_status" ]]; then
-                message="FAIL: Some pod(s) are not running."
-                result="FAIL"
+            # Check if there are any pods first
+            all_pods=$(kubectl get pods -A --no-headers)
+            if [[ -z "$all_pods" ]]; then
+                message="No pods resources found."
+                result="PASS"
+            else
+                resource_status=$(echo "$all_pods" | awk '$4 != "Running"')
+                if [[ -n "$resource_status" ]]; then
+                    message="FAIL: Some pods are not running."
+                    result="FAIL"
+                fi
             fi
             ;;
         "deployments")
@@ -77,15 +84,10 @@ check_resource() {
 }
 
 # List of resource types to check
+echo "Testcase name: Verify if all resources are running healthy?"
 resources=("pods" "deployments" "statefulsets" "daemonsets" "jobs" "hpa" "nodes" "namespaces")
-
-# Test case name
-echo "**********************************************************"
-echo "Testcase name: Verify if all workloads are running healthy"
 
 # Check each resource type
 for resource in "${resources[@]}"; do
     check_resource "$resource"
 done
-
-echo -e "\nCluster health check completed."

@@ -199,7 +199,7 @@ def check_cluster_exists(cluster_name: str) -> bool:
 
         json_output = ''.join(json_lines)
         clusters = json.loads(json_output)
-        print(f"DEBUG: Retrieved clusters: {clusters}")
+        # print(f"DEBUG: Retrieved clusters: {clusters}")
     except (json.JSONDecodeError, IndexError) as e:
         print(f"Failed to parse clusters JSON: {e}")
         sys.exit(1)
