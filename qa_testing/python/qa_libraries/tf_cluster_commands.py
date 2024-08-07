@@ -31,9 +31,11 @@
 #
 import subprocess
 import os
+import configparser
 from git import Repo, InvalidGitRepositoryError
 import sys
 from datetime import datetime
+import json
 
 
 def get_repo_root() -> str:
@@ -48,21 +50,35 @@ def get_repo_root() -> str:
         raise Exception("Not a git repository.")
 
 
-def set_target_cluster(target_cluster_name: str) -> str:
+def read_config_value(config_path: str, key: str) -> str:
+    """
+    Read a value from the configuration file.
+    :param config_path: Path to the configuration file.
+    :param key: Key to retrieve the value for.
+    :return: The value for the specified key.
+    """
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    return config['DEFAULT'][key]
+
+
+def set_target_cluster(target_cluster_name: str) -> (str, str):
     """
     Set up the environment for the target cluster by changing directories and updating the main.tf file.
     :param target_cluster_name: The name of the cluster to set.
-    :return: The initial cluster name from main.tf.
+    :return: A tuple containing the initial cluster name from main.tf and the cluster directory path.
     """
     if not target_cluster_name:
         raise ValueError("Cluster name must be provided.")
 
     repo_root = get_repo_root()
-    example_dir = os.path.join(repo_root, "example")
-    main_tf_file = os.path.join(example_dir, "main.tf")
+    config_path = os.path.join(repo_root, "qa_testing", "configs", "setup.cfg")
+    cluster_dir_name = read_config_value(config_path, "Target_Cluster_Dir")
+    cluster_dir = os.path.join(repo_root, cluster_dir_name)
+    main_tf_file = os.path.join(cluster_dir, "main.tf")
 
-    # Change directory to "Energon-Kube/example"
-    os.chdir(example_dir)
+    # Change directory to "Energon-Kube/cluster_dir"
+    os.chdir(cluster_dir)
 
     # Attempt to read and write the "main.tf" file
     try:
@@ -91,7 +107,7 @@ def set_target_cluster(target_cluster_name: str) -> str:
                 file.write(data)
                 file.truncate()
 
-        return initial_main_tf_cluster_setting
+        return initial_main_tf_cluster_setting, cluster_dir
 
     except FileNotFoundError:
         print(f"File '{main_tf_file}' not found.")
@@ -99,15 +115,18 @@ def set_target_cluster(target_cluster_name: str) -> str:
     except PermissionError as e:
         print(f"Permission error: {e}")
         sys.exit(1)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        sys.exit(1)
 
 
-def revert_target_cluster(initial_main_tf_cluster_setting: str) -> None:
+def revert_target_cluster(initial_main_tf_cluster_setting: str, cluster_dir: str) -> None:
     """
     Revert the cluster name in main.tf to its original value.
     :param initial_main_tf_cluster_setting: The original cluster name to revert to.
+    :param cluster_dir: The directory containing the main.tf file.
     :return: None
     """
-
     def revert_file(file_path: str):
         """
         Revert a specific file in the repository to its last committed state.
@@ -124,8 +143,7 @@ def revert_target_cluster(initial_main_tf_cluster_setting: str) -> None:
         except Exception as e:
             print(f"An error occurred: {e}")
 
-    revert_file('example/main.tf')
-
+    revert_file(os.path.join(cluster_dir, 'main.tf'))
     print(f"Cluster setting reverted to '{initial_main_tf_cluster_setting}' in the main.tf")
 
 
@@ -164,13 +182,13 @@ def bringup_cluster(target_cluster_name: str):
     :param target_cluster_name: The name of the cluster to bring up.
     :return: None
     """
-    initial_main_tf_cluster_setting = set_target_cluster(target_cluster_name)
+    initial_main_tf_cluster_setting, cluster_dir = set_target_cluster(target_cluster_name)
 
     try:
         commands = [
-            f"aws eks update-kubeconfig --name {target_cluster_name} --region us-east-1",
             "terraform init",
             "terraform apply -auto-approve",
+            f"aws eks update-kubeconfig --name {target_cluster_name} --region us-east-1",
             "aws eks list-clusters --query clusters"
         ]
 
@@ -188,7 +206,36 @@ def bringup_cluster(target_cluster_name: str):
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
-        revert_target_cluster(initial_main_tf_cluster_setting)
+        revert_target_cluster(initial_main_tf_cluster_setting, cluster_dir)
+
+
+def check_cluster_exists(cluster_name: str) -> bool:
+    """
+    Check if the target cluster exists.
+    :param cluster_name: The name of the cluster to check.
+    :return: True if the cluster exists, False otherwise.
+    """
+    stdout_stderr_cache, return_code = run_command("aws eks list-clusters --query clusters")
+    if return_code != 0:
+        print("Failed to retrieve the list of clusters.")
+        sys.exit(1)
+
+    # Extract the JSON part from the output
+    try:
+        json_lines = []
+        for line in stdout_stderr_cache.splitlines():
+            if "stdout:" in line:
+                json_part = line.split('stdout: ')[1].strip()
+                json_lines.append(json_part)
+
+        json_output = ''.join(json_lines)
+        clusters = json.loads(json_output)
+        # print(f"DEBUG: Retrieved clusters: {clusters}")
+    except (json.JSONDecodeError, IndexError) as e:
+        print(f"Failed to parse clusters JSON: {e}")
+        sys.exit(1)
+
+    return cluster_name in clusters
 
 
 def bringdown_cluster(target_cluster_name: str):
@@ -197,7 +244,11 @@ def bringdown_cluster(target_cluster_name: str):
     :param target_cluster_name: The name of the cluster to bring down.
     :return: None
     """
-    initial_main_tf_cluster_setting = set_target_cluster(target_cluster_name)
+    if not check_cluster_exists(target_cluster_name):
+        print(f"Cluster: {target_cluster_name} not found, no cluster to bring down.")
+        return
+
+    initial_main_tf_cluster_setting, cluster_dir = set_target_cluster(target_cluster_name)
 
     try:
         commands = [
@@ -220,4 +271,4 @@ def bringdown_cluster(target_cluster_name: str):
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
-        revert_target_cluster(initial_main_tf_cluster_setting)
+        revert_target_cluster(initial_main_tf_cluster_setting, cluster_dir)
