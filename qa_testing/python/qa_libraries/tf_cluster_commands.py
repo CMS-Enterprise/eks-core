@@ -1,3 +1,34 @@
+###########################################################
+#
+# 1: git cloning
+# 2: main.tf changes
+#    - setup environment parameters
+# 3: remaining steps from the ticket
+# 4: finally, update-kubeconfig
+#
+#
+# 1: $git clone git@github.com:CMS-Enterprise/Energon-Kube.git
+# 2: cd /Energon-Kube/example
+# 3: execute the below env
+# export AWS_PROFILE="batcave-impl-breakglass"
+# export KUBECONFIG="${HOME}/.kube/config-batcave-impl"
+#
+# 4: confirm you are still in /example dir, run below.
+# $terraform init
+# $terraform apply
+#
+# Note: type 'yes' for the below
+# Do you want to perform these actions?
+#   Terraform will perform the actions described above.
+#   Only 'yes' will be accepted to approve.
+#
+# 5: On how to destroy && clean up cache.
+# terraform destroy && rm -rf .terraform
+#
+#
+#
+#
+#
 import subprocess
 import os
 import configparser
