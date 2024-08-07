@@ -10,7 +10,7 @@ provider "aws" {
 module "main-eks" {
   source = "../" #"git@github.com:CMS-Enterprise/Energon-Kube.git?ref=3.1.4"
 
-  cluster_custom_name = "temp-test"
+  cluster_custom_name = "captain-max"
   env                 = "impl"
   gold_image_date     = "2024-07"
   ado                 = "batcave"

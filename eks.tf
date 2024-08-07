@@ -128,14 +128,10 @@ module "eks_addons" {
   custom_ami                    = var.custom_ami_id
   domain_name                   = var.domain_name
   ebs_kms_key_id                = module.ebs_kms.key_id
-  efs_file_system_id            = aws_efs_file_system.main.id
-  efs_directory_permissions     = var.efs_directory_permissions
   eks_cluster_cidr              = module.eks.cluster_service_cidr
   eks_cluster_ip_family         = module.eks.cluster_ip_family
   eks_cluster_name              = module.eks.cluster_name
   eks_cluster_security_group_id = module.eks.cluster_security_group_id
-  eks_gp3_reclaim_policy        = var.eks_gp3_reclaim_policy
-  eks_gp3_volume_binding_mode   = var.eks_gp3_volume_binding_mode
   eks_launch_template_name      = module.main_nodes.launch_template_name
   eks_node_iam_role_arn         = module.main_nodes.iam_role_arn
   eks_node_iam_role_name        = module.main_nodes.iam_role_name

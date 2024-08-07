@@ -72,40 +72,6 @@ locals {
 
   karpenter_node_class_values = templatefile("${path.module}/values/karpenter/karpenter-node-class-values.yaml.tpl", local.kpnc_config_settings)
 
-  ################################## Eni Config Settings ##################################
-  subnets_info = [
-    for subnet_id in data.aws_subnets.container.ids : {
-      id                = subnet_id
-      availability_zone = data.aws_subnet.container[subnet_id].availability_zone
-    }
-  ]
-
-  eni_configs_settings = {
-    subnets                           = local.subnets_info
-    cluster_primary_security_group_id = var.eks_cluster_security_group_id
-
-  }
-
-  eni_config_values = templatefile("${path.module}/values/eni-configs/eni-configs.yaml.tpl", local.eni_configs_settings)
-
-  ################################## EFS Storage Class Settings ##################################
-  efs_storage_class_settings = {
-    file_system_id        = var.efs_file_system_id
-    directory_permissions = var.efs_directory_permissions
-
-  }
-
-  efs_storage_class_values = templatefile("${path.module}/values/efs-storage-class/efs-storage-class.yaml.tpl", local.efs_storage_class_settings)
-
-  ################################## GP3 Storage Class Settings ##################################
-  gp3_settings = {
-    reclaim_policy      = var.eks_gp3_reclaim_policy
-    volume_binding_mode = var.eks_gp3_volume_binding_mode
-
-  }
-
-  gp3_values = templatefile("${path.module}/values/gp3/gp3.yaml.tpl", local.gp3_settings)
-
 }
 
 data "aws_iam_instance_profiles" "nodes" {

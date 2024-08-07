@@ -70,25 +70,25 @@ variable "domain_name" {
   type        = string
 }
 
-variable "efs_file_system_id" {
-  description = "EFS file system ID"
-  type        = string
-}
+# variable "efs_file_system_id" {
+#   description = "EFS file system ID"
+#   type        = string
+# }
 
-variable "efs_directory_permissions" {
-  description = "EFS directory permissions"
-  type        = string
-}
+# variable "efs_directory_permissions" {
+#   description = "EFS directory permissions"
+#   type        = string
+# }
 
-variable "eks_gp3_reclaim_policy" {
-  description = "EKS gp3 reclaim policy"
-  type        = string
-}
+# variable "eks_gp3_reclaim_policy" {
+#   description = "EKS gp3 reclaim policy"
+#   type        = string
+# }
 
-variable "eks_gp3_volume_binding_mode" {
-  description = "EKS gp3 volume binding mode"
-  type        = string
-}
+# variable "eks_gp3_volume_binding_mode" {
+#   description = "EKS gp3 volume binding mode"
+#   type        = string
+# }
 
 variable "ebs_kms_key_id" {
   description = "The ID of the KMS key to use for EBS volumes"
@@ -248,10 +248,3 @@ variable "region_name" {
   description = "The name of the region to deploy into"
   type        = string
 }
-
-variable "subnet_lookup_overrides" {
-  description = "Some Subnets don't follow standard naming conventions.  Use this map to override the query used for looking up Subnets.  Ex: { private = \"foo-west-nonpublic-*\" }"
-  default     = {}
-  type        = map(string)
-}
-
