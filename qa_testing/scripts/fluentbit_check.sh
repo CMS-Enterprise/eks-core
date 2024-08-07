@@ -48,5 +48,5 @@ if [ -z "$LOG_STREAMS" ]; then
   exit 1
 fi
 
-echo "Passed: Fluent-bit is running healthy and logs are forwarding to CloudWatch."
+echo "PASS: Fluent-bit is running healthy and logs are forwarding to CloudWatch."
 exit 0
