@@ -30,6 +30,7 @@ server:
     controller: aws
     ingressClassName: alb
     annotations:
+      external-dns.alpha.kubernetes.io/hostname: argocd.${domain_name}
       alb.ingress.kubernetes.io/actions.ssl-redirect: >-
         {"Type": "redirect", "RedirectConfig": {"Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}
       alb.ingress.kubernetes.io/scheme: internal
