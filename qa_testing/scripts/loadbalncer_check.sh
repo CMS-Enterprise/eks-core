@@ -115,15 +115,14 @@ while [ $retry_count -lt $max_retries ]; do
   retry_count=$((retry_count + 1))
 done
 
-if [ $retry_count -eq $max_retries ]; then
-  echo "FAIL: To get 'Welcome to nginx' message after $max_retries attempts."
-  exit 1
-fi
-
 # Clean up YAML files
 kubectl delete -f app-deployment.yaml > /dev/null 2>&1
 kubectl delete -f app-service.yaml > /dev/null 2>&1
 kubectl delete -f app-ingress.yaml > /dev/null 2>&1
 rm app-deployment.yaml app-service.yaml app-ingress.yaml > /dev/null 2>&1
 
+if [ $retry_count -eq $max_retries ]; then
+  echo "FAIL: To get 'Welcome to nginx' message after $max_retries attempts."
+  exit 1
+fi
 echo "PASS: LoadBalancer test passed"
