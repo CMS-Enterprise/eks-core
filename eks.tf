@@ -53,9 +53,9 @@ module "eks" {
   node_security_group_additional_rules = merge(var.eks_security_group_additional_rules, {
     ingress_alb = {
       description              = "Allow traffic from ALB"
-      protocol                 = "TCP"
+      protocol                 = -1
       from_port                = 0
-      to_port                  = 65535
+      to_port                  = 0
       type                     = "ingress"
       source_security_group_id = aws_security_group.alb.id
     }

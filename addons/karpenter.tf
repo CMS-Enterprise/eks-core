@@ -80,7 +80,7 @@ resource "kubectl_manifest" "karpenter_nodepool" {
             {
               key      = "karpenter.k8s.aws/instance-cpu"
               operator = "In"
-              values   = ["4", "8"]
+              values   = ["4", "8", "16", "32"]
             },
             {
               key      = "topology.kubernetes.io/zone"
