@@ -1,6 +1,10 @@
 #!/bin/bash
+
 echo "**************************************************************************"
 echo "Testcase: Confirm, are there any pods which are actively triggering errors"
+
+# Define the temporary file for error logs
+error_file=$(mktemp)
 
 # Function to check if pods are actively triggering errors
 check_pod_errors() {
@@ -17,15 +21,16 @@ check_pod_errors() {
         local pod_logs
         pod_logs=$(kubectl logs -n "$namespace" "$name" --tail=4 2>/dev/null | grep -i "error")
         if [ ! -z "$pod_logs" ]; then
-            echo "FAIL: The following pod is actively triggering errors:"
-            echo "Pod Name: $name"
-            echo "Logs: $pod_logs"
-            echo ""
+            echo "FAIL: The following pod is actively triggering errors:" >> "$error_file"
+            echo "Pod Name: $name" >> "$error_file"
+            echo "Logs: $pod_logs" >> "$error_file"
+            echo "" >> "$error_file"
             error_pods+=("$name in namespace $namespace")
         fi
     }
 
     export -f check_pod_logs
+    export error_file
 
     # Process each pod in parallel to improve speed
     echo "$pods" | while IFS= read -r pod; do
@@ -39,14 +44,21 @@ check_pod_errors() {
     # Wait for all background jobs to complete
     wait
 
-    if [[ ${#error_pods[@]} -eq 0 ]]; then
+    # Check if the error file is empty or not
+    if [ -s "$error_file" ]; then
+        cat "$error_file"
+        result="FAIL"
+    fi
+
+    # Print the final result
+    if [ "$result" = "PASS" ]; then
         echo "PASS: There are no active pods which are triggering errors."
     else
-        echo "FAIL: The following pods are actively triggering errors:"
-        for pod in "${error_pods[@]}"; do
-            echo "    $pod"
-        done
+        echo "FAIL: There are active pods triggering errors."
     fi
+
+    # Cleanup
+    rm -f "$error_file"
 }
 
 # Execute the function
