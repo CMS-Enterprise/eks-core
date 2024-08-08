@@ -126,4 +126,4 @@ kubectl delete -f app-service.yaml > /dev/null 2>&1
 kubectl delete -f app-ingress.yaml > /dev/null 2>&1
 rm app-deployment.yaml app-service.yaml app-ingress.yaml > /dev/null 2>&1
 
-echo "Pass: LoadBalancer test passed"
+echo "PASS: LoadBalancer test passed"

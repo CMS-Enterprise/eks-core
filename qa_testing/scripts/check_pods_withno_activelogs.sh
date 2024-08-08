@@ -31,7 +31,7 @@ echo "Testcase name: Confirm, are there any pods which are not actively triggeri
 
 # Output the result
 if [[ "$result" == "PASS" ]]; then
-  echo "PASS: all pods are actively triggering logs"
+  echo "PASS: All pods are actively triggering logs"
 else
   echo -e "FAIL: $message"
 fi

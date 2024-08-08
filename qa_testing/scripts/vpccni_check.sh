@@ -29,7 +29,7 @@ else
 
     # Check if the subnets cover all zones
     SUBNET_ZONES=$(aws ec2 describe-subnets --subnet-ids $SUBNETS --query 'Subnets[*].AvailabilityZone' --output text | sort | uniq)
-    
+
     # Convert the output to arrays for comparison
     IFS=$'\t' read -r -a expected_zones <<< "$EXPECTED_ZONES"
     IFS=$'\t' read -r -a subnet_zones <<< "$SUBNET_ZONES"
