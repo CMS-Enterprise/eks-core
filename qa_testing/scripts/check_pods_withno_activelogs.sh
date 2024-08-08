@@ -13,7 +13,7 @@ kubectl get pods -A -o json | jq -r '
   select(.status.containerStatuses[]? | .state.waiting.reason == "CrashLoopBackOff" or .state.terminated.reason == "Error") |
   [.metadata.namespace, .metadata.name] | @tsv' | while IFS=$'\t' read -r namespace pod; do
   # Get logs for the pod and save to a temporary file
-  kubectl logs -n "$namespace" "$pod" --all-containers=true > "$temp_file" 2>&1
+  kubectl logs -n "$namespace" "$pod" --all-containers=true > "$temp_file"
 
   # If logs are empty, mark as FAIL and add to message
   if [ ! -s "$temp_file" ]; then
@@ -31,7 +31,7 @@ echo "Testcase name: Confirm, are there any pods which are not actively triggeri
 
 # Output the result
 if [[ "$result" == "PASS" ]]; then
-  echo "PASSED, all pods are actively triggering logs"
+  echo "PASS: all pods are actively triggering logs"
 else
   echo -e "FAIL: $message"
 fi

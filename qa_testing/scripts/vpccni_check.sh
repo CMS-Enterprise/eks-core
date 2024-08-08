@@ -9,7 +9,7 @@ fi
 CLUSTER_NAME=$1
 FAILED=0
 
-echo "*****************************************************************************************"
+echo "**************************************************************"
 echo "TestCase name: VPC CNI Addon: Validate health & functionality"
 
 # "*****************************************************************************************"
@@ -29,7 +29,7 @@ else
 
     # Check if the subnets cover all zones
     SUBNET_ZONES=$(aws ec2 describe-subnets --subnet-ids $SUBNETS --query 'Subnets[*].AvailabilityZone' --output text | sort | uniq)
-
+    
     # Convert the output to arrays for comparison
     IFS=$'\t' read -r -a expected_zones <<< "$EXPECTED_ZONES"
     IFS=$'\t' read -r -a subnet_zones <<< "$SUBNET_ZONES"
@@ -99,11 +99,7 @@ function ip_in_cidr() {
     local cidr="$2"
 
     # Use ipcalc to check if the IP is in the CIDR range
-    if ipcalc -c "$ip" "$cidr" &> /dev/null; then
-        return 0
-    else
-        return 1
-    fi
+    ipcalc -c "$ip" "$cidr" &> /dev/null
 }
 
 # Collect Pod IPs
