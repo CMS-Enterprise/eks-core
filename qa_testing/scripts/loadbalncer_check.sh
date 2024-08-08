@@ -83,15 +83,14 @@ spec:
               number: 80
 EOF
 sleep 5
-#chmod +x app-deployment.yaml app-service.yaml app-ingress.yaml
 
 # Apply the YAML files
-kubectl apply -f app-deployment.yaml
-kubectl apply -f app-service.yaml
-kubectl apply -f app-ingress.yaml
+kubectl apply -f app-deployment.yaml > /dev/null 2>&1
+kubectl apply -f app-service.yaml > /dev/null 2>&1
+kubectl apply -f app-ingress.yaml > /dev/null 2>&1
 sleep 5
 
-
+#get POD_NAME, NODE_NAME, NODE_IP, PORT.
 POD_NAME=$(kubectl get pods -l app=app-label -o jsonpath='{.items[0].metadata.name}')
 NODE_NAME=$(kubectl get pod $POD_NAME -o jsonpath='{.spec.nodeName}')
 NODE_IP=$(kubectl get node $NODE_NAME -o jsonpath='{.status.addresses[?(@.type=="InternalIP")].address}')
@@ -103,7 +102,7 @@ retry_interval=10
 retry_count=0
 
 while [ $retry_count -lt $max_retries ]; do
-  echo "Testing the endpoint (Attempt $((retry_count + 1))/$max_retries)..."
+  #echo "Testing the endpoint (Attempt $((retry_count + 1))/$max_retries)..."
   response=$(curl -s http://$NODE_IP:$PORT)
 
   if echo "$response" | grep -q "Welcome to nginx"; then
@@ -122,9 +121,9 @@ if [ $retry_count -eq $max_retries ]; then
 fi
 
 # Clean up YAML files
-kubectl delete -f app-deployment.yaml
-kubectl delete -f app-service.yaml
-kubectl delete -f app-ingress.yaml
-rm app-deployment.yaml app-service.yaml app-ingress.yaml
+kubectl delete -f app-deployment.yaml > /dev/null 2>&1
+kubectl delete -f app-service.yaml > /dev/null 2>&1
+kubectl delete -f app-ingress.yaml > /dev/null 2>&1
+rm app-deployment.yaml app-service.yaml app-ingress.yaml > /dev/null 2>&1
 
-echo "Pass: LoadBalancer passed"
+echo "Pass: LoadBalancer test passed"
