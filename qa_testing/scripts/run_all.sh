@@ -9,7 +9,6 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
-
 # Capture input parameter
 CLUSTER_NAME="$1"
 
