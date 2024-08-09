@@ -79,46 +79,34 @@ test_aws_efs_driver() {
     sleep 30
 
     # Test Case 1: Verification of StorageClass, PVC and POD creation
-    echo "*************************************************************************"
-    echo "TestCase name: Resource creation: Verification of health and functionality."
+    echo "TestCase name: EFSCSI Driver Addon: Verification of health and functionality."
     efs_csi_pods=$(kubectl get pods -n kube-system | grep efs-csi-controller | awk {'print $1'})
     if [[ -z "$efs_csi_pods" ]]; then
         echo "ERROR: Could retrieve EFS CSI controllers"
         return 1
     fi
 
-    echo
-
     # Test Case 2: Verification of PVC and EFS
-    echo "*************************************************************************"
-    echo "TestCase name: Volume Binding: Verification of health and functionality."
-    kubectl get pv --no-headers | grep efs-claim
+    kubectl get pv --no-headers | grep efs-claim 2>&1 >/dev/null
     if [ $? -ne 0 ]; then
         echo "ERROR: Volume not bound to PVC"
         return 1
     fi
-    kubectl get pvc --no-headers | grep efs-claim
+    kubectl get pvc --no-headers | grep efs-claim 2>&1 >/dev/null
     if [ $? -ne 0 ]; then
         echo "ERROR: PVC not configured"
         return 1
     fi
 
-    echo
-
     # Test Case 2: Verification of Running POD
-    echo "*********************************************************************"
-    echo "TestCase name: Pod Running: Verification of health and functionality."
-    kubectl get pods --no-headers -o wide | grep efs-app | grep Running
+    kubectl get pods --no-headers -o wide | grep efs-app | grep Running 2>&1 >/dev/null
     if [ $? -ne 0 ]; then
         echo "ERROR: Pod efs-app not running"
         return 1
     fi
 
-    echo
-
     # Test Case 4: Verification of Data persistence
-    echo "********************************************************************"
-    echo "TestCase name: EFS Volume: Verification of health and functionality."
+    echo "Verification of Data persistence"
     kubectl exec efs-app -- bash -c "tail -10 data/out"
     if [ $? -ne 0 ]; then
         echo "ERROR: EFS Volume not writeable"
