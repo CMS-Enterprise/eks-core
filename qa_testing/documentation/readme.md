@@ -81,7 +81,7 @@ Run from **_<repo-root>/<cluster-directory> $_**
 ```
 run_all.sh <target-cluster-name>
 ```
-Note: currently the run_all.sh Smoke Test will output its log file to the directory that it's executed from at the `<repo-root>/<cluster-directory>`  The file will be named `run_all.log`
+Note: The run_all.sh Smoke Test will output its log file to the following directory `<repo-root>/qa_testing/logs/`  The file will be named `run_all.log`
 
 #### List of Individual Validation Scripts:
 * check_cluster_health.sh
