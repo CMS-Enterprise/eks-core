@@ -26,7 +26,6 @@ done
 rm "$temp_file"
 
 # Test case name
-#echo "********************************************************"
 echo "Testcase name: Confirm, are there any pods which are not actively triggering logs?"
 
 # Output the result

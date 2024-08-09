@@ -84,7 +84,6 @@ check_resource() {
 }
 
 # List of resource types to check
-#echo "********************************************************"
 echo "Testcase name: Verify if all resources are running healthy?"
 resources=("pods" "deployments" "statefulsets" "daemonsets" "jobs" "hpa" "nodes" "namespaces")
 

@@ -6,7 +6,6 @@ test_pod_identity_agent() {
     local message=""
     local found_errors=false
 
-    #echo "*******************************************************************"
     echo "Testcase: Pod Identity Agent addon: Verify health and functionality"
 
     # Check Pod Identity Agent pods status
