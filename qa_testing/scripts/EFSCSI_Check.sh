@@ -76,7 +76,7 @@ test_aws_efs_driver() {
     # Apply YAML configurations
     kubectl apply -f pvc.yaml 2>&1 >/dev/null
     kubectl apply -f pod.yaml 2>&1 >/dev/null
-    sleep 10
+    sleep 30
 
     # Test Case 1: Verification of StorageClass, PVC and POD creation
     echo "*************************************************************************"
