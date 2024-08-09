@@ -11,7 +11,6 @@ NAMESPACE="amazon-cloudwatch"
 CLUSTER_NAME=$1
 TARGET_METRIC="node_cpu_utilization"
 
-echo "*************************************************************************"
 echo "TestCase name: Observability addon: Verification of health and functionality."
 
 # Check observability addon health

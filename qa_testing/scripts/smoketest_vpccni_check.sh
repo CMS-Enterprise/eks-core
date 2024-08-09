@@ -9,10 +9,9 @@ fi
 CLUSTER_NAME=$1
 FAILED=0
 
-echo "**************************************************************"
+
 echo "TestCase name: VPC CNI Addon: Validate health & functionality"
 
-# "*****************************************************************************************"
 # Sub-testcase1: verify whether security group, and subnet are populating for all three zones.
 
 # Retrieve subnets for the specified cluster
@@ -58,7 +57,7 @@ if [ -z "$SECURITY_GROUPS" ]; then
     FAILED=1
 fi
 
-# "*****************************************************************************************"
+
 # Sub-testcase2: Ensure pods are getting IP's from the container subnets
 
 # Get pods with the same IP as their nodes

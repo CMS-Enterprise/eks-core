@@ -80,7 +80,7 @@ Note: The run_all.sh Smoke Test will output its log file to the following direct
 
 ### Running an Individual Validation Script:
 
-* There is additional documentation on the confluence page regarding each individual smoke test at this link [Cluster Validation Key Test Cases](https://confluenceent.cms.gov/pages/viewpage.action?spaceKey=BATCAVE&title=Cluster+Validation+Key+Test+cases)
+* There is additional documentation on the confluence page regarding each individual smoke test at this link [Cluster Validation Key Test Cases](https://confluenceent.cms.gov/pages/viewpage.action?pageId=745525731)
 * The confluence page has a table for each individual validation script which shows the documentation, reference to each testcase, the script-name, and any parameters to pass.
 * Running the individual validation script will output its results to the terminal.
 

@@ -14,7 +14,6 @@ FLUENT_BIT_LABEL="fluent-bit"
 LOG_GROUP_NAME="/aws/containerinsights/$CLUSTER_NAME/application"
 
 # Test Case 1: Verification of FluentBit health
-echo "*************************************************************************"
 echo "TestCase name: Fluent-bit addon: Verification of health and functionality."
 
 # Check if FluentBit pods are running

@@ -2,7 +2,7 @@
 
 # Function to test CoreDNS
 test_coredns() {
-    echo "********************************************************"
+
     echo "Testcase: CoreDNS addon: Verify health and functionality"
    
     # Verify CoreDNS Pod Status
