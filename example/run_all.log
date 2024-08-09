@@ -1,0 +1,74 @@
+***************************************************
+Execute script-1: check_cluster_health.sh
+Testcase name: Verify if all resources are running healthy?
+PASS: All pods resources are healthy.
+PASS: All deployments resources are healthy.
+PASS: All statefulsets resources are healthy.
+PASS: All daemonsets resources are healthy.
+PASS: All jobs resources are healthy.
+PASS: All hpa resources are healthy.
+PASS: All nodes resources are healthy.
+PASS: All namespaces resources are healthy.
+***************************************************
+Execute script-2: check_pods_withno_activelogs.sh
+Testcase name: Confirm, are there any pods which are not actively triggering logs?
+PASS: All pods are actively triggering logs
+***************************************************
+Execute script-3: check_pods_triggering_errors.sh
+Testcase: Confirm, are there any pods which are actively triggering errors
+PASS: There are no active pods which are triggering errors.
+***************************************************
+Execute script-4: test_kubeproxy.sh
+Testcase: Kube-Proxy addon: Verify health and functionality
+PASS: Kube-proxy is running correctly.
+***************************************************
+Execute script-5: test_cordens.sh
+Testcase: CoreDNS addon: Verify health and functionality
+PASS: CoreDNS is running correctly.
+***************************************************
+Execute script-6: test_pod_identity_agent.sh
+Testcase: Pod Identity Agent addon: Verify health and functionality
+PASS: Pod Identity Agent is running correctly.
+***************************************************
+Execute script-7: fluentbit_check.sh
+TestCase name: Fluent-bit addon: Verification of health and functionality.
+PASS: Fluent-bit is running healthy and logs are forwarding to CloudWatch.
+***************************************************
+Execute script-8: observability_check_enhanced.sh
+TestCase name: Observability addon: Verification of health and functionality.
+PASS: Observability is running healthy and metrics are being delivered to CloudWatch.
+***************************************************
+Execute script-9: vpccni_check.sh
+TestCase name: VPC CNI Addon: Validate health & functionality
+PASS: VPC CNI Addon testcase passed.
+***************************************************
+Execute script-10: loadbalncer_check.sh
+Testcase name: Loadbalancer verificaiton
+Successfully received 'Welcome to nginx' message.
+PASS: LoadBalancer test passed
+***************************************************
+Execute script-11: check_aws_ebs_driver.sh
+TestCase name: EBSCSI Driver Addon: Verification of health and functionality.
+Verification of Data persistence.
+Fri Aug 9 05:26:14 UTC 2024
+Fri Aug 9 05:26:14 UTC 2024
+Fri Aug 9 05:26:14 UTC 2024
+Fri Aug 9 05:26:14 UTC 2024
+PASS: AWS EBS Driver functioning correctly
+***************************************************
+Execute script-12: check_aws_efs_driver.sh
+TestCase name: EFSCSI Driver Addon: Verification of health and functionality.
+Verification of Data persistence
+Fri Aug 9 05:22:10 UTC 2024
+Fri Aug 9 05:22:10 UTC 2024
+Fri Aug 9 05:22:10 UTC 2024
+Fri Aug 9 05:22:10 UTC 2024
+Fri Aug 9 05:22:10 UTC 2024
+Fri Aug 9 05:22:10 UTC 2024
+Fri Aug 9 05:22:10 UTC 2024
+Fri Aug 9 05:27:17 UTC 2024
+Fri Aug 9 05:27:17 UTC 2024
+Fri Aug 9 05:27:17 UTC 2024
+PASS: AWS EFS Driver functioning correctly
+***************************************************
+All Scripts Executed.
