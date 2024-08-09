@@ -10,7 +10,7 @@ fi
 
 CLUSTER_NAME=$1
 LOADBALANCER_NAME=$CLUSTER_NAME-captain
-echo "****************************************"
+#echo "****************************************"
 echo "Testcase name: Loadbalancer verificaiton"
 # Define YAML files
 cat <<EOF > app-deployment.yaml

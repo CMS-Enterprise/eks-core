@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "**************************************************************************"
+#echo "********************************************************"
 echo "Testcase: Confirm, are there any pods which are actively triggering errors"
 
 # Define the temporary file for error logs

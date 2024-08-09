@@ -3,7 +3,7 @@
 # Function to test kube-proxy
 test_kubeproxy() {
     local status_message=""
-    echo "***********************************************************"
+    #echo "***********************************************************"
     echo "Testcase: Kube-Proxy addon: Verify health and functionality"
 
     # Initialize an array to capture step logs
