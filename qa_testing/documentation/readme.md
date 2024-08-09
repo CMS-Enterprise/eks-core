@@ -27,6 +27,7 @@ The _**qa_testing framework**_ contains the following directories:
   * **Tail**
   * **Uniq**
 * **Grep** (version >= 3.7)
+* **Ipcalc** (version >= 0.5)
 * **Jq** (version >= 1.7)
 * **Kubectl** (version >= v1.30)
 * **Kustomize** (version >= v5.0)
@@ -35,10 +36,9 @@ The _**qa_testing framework**_ contains the following directories:
 * **Robot** Framework (version >= 6.1)
 * **Xargs** (version >= 4.8)
 
-
 ## Get set up
 
-1.) Clone and run locally the Energon-Kube repo
+1.) Clone and run locally the Energon-Kube repo from this location:
 
 ```git@github.com:CMS-Enterprise/Energon-Kube.git```
 
@@ -50,37 +50,68 @@ cd <repo-root>/qa_testing
 source .qa_bashrc
 ```
 
+### Pre-Execution Authentication
+* It is important to verify that your authentication to the target aws account is configured properly via your organizations process and that aws-cli and kubectl commands have the authentication enabled in the current bash shell.
+* If you do not have a current target cluster up and running to perform the **_Smoke Test_** validation against, you can stand up a new cluster using the QA Framework's python **_bringup_cluster_** function.  See **_Example: Bringing up a cluster_** command below, or if the target cluster is already up and running, then proceeding directly to the **_Smoke Test run all_** command is appropriate.
+
+
 ### Running the tools
 
 * Options in [ square ] brackets are optional
 * Options in \< diaganal \> brackets are required
 
-## QA Validation Bash Scripts
+## QA Bash Scripts
 
 Once the .qa_bashrc file has been sourced, change directory to the target cluster main configuration directory where everything is expected to be run.
 
 ```
 cd <repo-root>/<cluster-directory>  # This is the 'example' directory
 ```
-The QA scripts are now in the current bash shell path and can be called directly.
+The **_QA Bash Scripts_** are now in the current bash shell path and can be called directly.  There are **_three types of bash scripts_**:
 
-#### List Validation Scripts:
-* check_cluster_health.sh
-* check_pods_triggering_errors.sh
-* check_pods_withno_activities.sh
-* fluentbit_check.sh
-* observability_check_enhanced.sh
-* test_cordens.sh
-* test_kubeproxy.sh
-* test_pod_identity_agent.sh
+* Validation Scripts (Smoke Test)
+* Script to Call QA Python Tools 
+* Script to Call QA Robot Framework Tests
 
-### Example: Check Cluster Health
+## Validation Scripts (Smoke Test)
+There is a suite of validation scripts that can all be run from one command.  This is the preferred way to perform a complete **_Smoke Test_**:
+
+### Example: Smoke Test "Run All"
 Run from **_<repo-root>/<cluster-directory> $_**
 ```
-check_cluster_health.sh
+run_all.sh <target-cluster-name>
+```
+Note: currently the run_all.sh Smoke Test will output its log file to the directory that it's executed from at the `<repo-root>/<cluster-directory>`  The file will be named `run_all.log`
+
+#### List of Individual Validation Scripts:
+* check_cluster_health.sh
+* check_pods_triggering_errors.sh
+* check_pods_withno_activelogs.sh
+* check_pods_withno_activitylogs.sh
+* EBSCSI_Check.sh
+* EFSCSI_Check.sh
+* fluentbit_check.sh
+* loadbalncer_check.sh
+* observability_check_enhanced.sh
+* test_cordens.sh
+* test_coredns.sh
+* test_kubeproxy.sh
+* test_pod_identity_agent.sh
+* vpccni_check.sh
+
+### Running an Individual Validation Script:
+
+* There is additional documentation on the confluence page regarding each individual smoke test at this link [Cluster Validation Key Test Cases](https://confluenceent.cms.gov/pages/viewpage.action?spaceKey=BATCAVE&title=Cluster+Validation+Key+Test+cases)
+* The confluence page has a table for each individual validation script which shows the documentation, reference to each testcase, the script-name, and any parameters to pass.
+* Running the individual validation script will output its results to the terminal.
+
+### Example: <script-name.sh>
+Run from **_<repo-root>/<cluster-directory> $_**
+```
+<script-name.sh> <required-parameters> [optional-parameters]
 ```
 
-## QA Python Libraries
+## Calling QA Python Tools
 
 The QA Testing Framework self contains all the necessary python modules and by running the _**run_qa_python.sh**_ command the framework will generate a python virtual environment and pull down any necessary dependencies. Tab complete functionality is also added so by calling _**run_qa_python.sh**_ and then using tab, a complete list of available python scripts can be called.
 
@@ -98,7 +129,7 @@ Run from **_<repo-root>/<cluster-directory> $_**
 run_qa_python bringdown_cluster -t target_cluster
 ```
 
-## QA Robot Tests
+## Calling QA Robot Framework Tests
 
 The QA Testing Framework self contains all the necessary robot KubeLibrary Framework dependencies. By running the _**run_qa_robot.sh**_ and tab complete will list the available .robot test files in the `<repor-root>/qa_testing/robot/`
 
