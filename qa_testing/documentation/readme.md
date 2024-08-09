@@ -42,7 +42,7 @@ The _**qa_testing framework**_ contains the following directories:
 
 ```git@github.com:CMS-Enterprise/Energon-Kube.git```
 
-2.) Ensure that the terminal is running a _**bash**_ shell and then set up the current terminal to leverage the QA Testing Framework by sourcing the .qa_bashrc file.
+2.) Ensure that the terminal is running a _**bash**_ shell and then set up the current terminal to leverage the QA Testing Framework by sourcing the .qa_bashrc file.  This enables the ability to call the QA Testing Framework Tools from the main cluster directory "<repo-root>/<cluster-directory>"  It places in the shell path the bash scripts.  The bash scripts contain validation scripts and scripts to call the python and robot framework tools.
 
 ```
 bash
@@ -82,7 +82,7 @@ check_cluster_health.sh
 
 ## QA Python Libraries
 
-The QA Testing Framework self contains all the necessary python modules and by running the _**run_qa_python.sh**_ command the framework will generate a python virtual environment and pull down any necessary dependencies. Tab complete functinoality is also added so by calling _**run_qa_python.sh**_ and then using tab complete a list of available python scripts can be called.
+The QA Testing Framework self contains all the necessary python modules and by running the _**run_qa_python.sh**_ command the framework will generate a python virtual environment and pull down any necessary dependencies. Tab complete functionality is also added so by calling _**run_qa_python.sh**_ and then using tab, a complete list of available python scripts can be called.
 
 The virtual environment will be created in the `<repor-root>/qa_testing/.venv_qa_testing` directory and all the dependencies will be defined in the `<repor-root>/qa_testing/python/requirements.txt`
 
