@@ -2,7 +2,9 @@
 
 The _**qa_testing framework**_ is a collection of tools and scripts that can be used to test the quality of the codebase. The framework is designed with the end goal to be run in a CI/CD pipeline, but currently would be run locally against remote target clusters.
 
-The _**qa_testing directory**_ is a self-contained directory that is designed to be run from any directory within the repo, but specifically with the intent to be run from the 'cluster' ( currently the 'example' ) directory. All bash scripts, python code, robot tests, and dependencies for these tools dynamically pull any remote GitHub or other community resources and build store them locally, self-contained within the _qa_testing_ directory.
+The _**qa_testing directory**_ is a self-contained directory that is designed to be run from any directory within the repo, but specifically with the intent to be run from the 'cluster' ( currently the 'example' ) directory. All bash scripts, python code, robot tests, and dependencies for these tools are dynamically pulled from remote GitHub or other community resources and build store them locally, self-contained within the _qa_testing_ directory.
+ 
+_**Note:**_ A CI system will **_need_** internet access for the assumed functionality ro dynamically pull community resources.
 
 The _**qa_testing framework**_ contains the following directories:
 
@@ -17,24 +19,17 @@ The _**qa_testing framework**_ contains the following directories:
 
 
 ## System Requirements
-* **Awk** (version >= 5.1)
-* **Aws-cli** (version >= 2.17)
-* **Bash** (version >= 5.2)
-* **Git** (version >= 2.45)
-* **GNU** coreutils (version >= 8.32)
-  * **Readlink**
-  * **Sort**
-  * **Tail**
-  * **Uniq**
-* **Grep** (version >= 3.7)
-* **Ipcalc** (version >= 0.5)
-* **Jq** (version >= 1.7)
-* **Kubectl** (version >= v1.30)
-* **Kustomize** (version >= v5.0)
-* **Pip** (version >= 23.3)
-* **Python** (version >= 3.10)
-* **Robot** Framework (version >= 6.1)
-* **Xargs** (version >= 4.8)
+* **aws-cli** (version >= 2.17)
+* **bash** (version >= 5.2)
+* **git** (version >= 2.45)
+* **ipcalc** (version >= 0.5)
+* **jq** (version >= 1.7)
+* **kubectl** (version >= v1.30)
+* **kustomize** (version >= v5.0)
+* **pip** (version >= 23.3)
+* **python** (version >= 3.10)
+* **robot** Framework (version >= 6.1)
+* **xargs** (version >= 4.8)
 
 ## Get set up
 
@@ -79,25 +74,9 @@ There is a suite of validation scripts that can all be run from one command.  Th
 ### Example: Smoke Test "Run All"
 Run from **_<repo-root>/<cluster-directory> $_**
 ```
-run_all.sh <target-cluster-name>
+run_all.sh <target-cluster>
 ```
 Note: The run_all.sh Smoke Test will output its log file to the following directory `<repo-root>/qa_testing/logs/`  The file will be named `run_all.log`
-
-#### List of Individual Validation Scripts:
-* check_cluster_health.sh
-* check_pods_triggering_errors.sh
-* check_pods_withno_activelogs.sh
-* check_pods_withno_activitylogs.sh
-* EBSCSI_Check.sh
-* EFSCSI_Check.sh
-* fluentbit_check.sh
-* loadbalncer_check.sh
-* observability_check_enhanced.sh
-* test_cordens.sh
-* test_coredns.sh
-* test_kubeproxy.sh
-* test_pod_identity_agent.sh
-* vpccni_check.sh
 
 ### Running an Individual Validation Script:
 
@@ -108,7 +87,7 @@ Note: The run_all.sh Smoke Test will output its log file to the following direct
 ### Example: <script-name.sh>
 Run from **_<repo-root>/<cluster-directory> $_**
 ```
-<script-name.sh> <required-parameters> [optional-parameters]
+<script-name.sh> [options] <required-parameters>
 ```
 
 ## Calling QA Python Tools
@@ -120,13 +99,13 @@ The virtual environment will be created in the `<repor-root>/qa_testing/.venv_qa
 ### Example: Bringing up a cluster
 Run from **_<repo-root>/<cluster-directory> $_**
 ```
-run_qa_python bringup_cluster -t target_cluster
+run_qa_python bringup_cluster -t <target-cluster>
 ```
 
 ### Example: Destroying a cluster
 Run from **_<repo-root>/<cluster-directory> $_**
 ```
-run_qa_python bringdown_cluster -t target_cluster
+run_qa_python bringdown_cluster -t <target-cluster>
 ```
 
 ## Calling QA Robot Framework Tests
