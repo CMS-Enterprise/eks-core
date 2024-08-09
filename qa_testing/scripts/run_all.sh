@@ -9,11 +9,13 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
+
 # Capture input parameter
 CLUSTER_NAME="$1"
 
 # Initialize the counter
 SCRIPT_COUNTER=1
+ALL_PASS=0
 
 # Clear previous log file
 > "$LOG_FILE"
@@ -28,6 +30,7 @@ run_test_script() {
     # Execute the command and log both stdout and stderr
     if ! "$script_name" "$@" >> "$LOG_FILE" 2>&1; then
         echo "$script_name failed. Moving on to the next script." | tee -a "$LOG_FILE"
+        ALL_PASS=1
     fi
 
     # Increment the counter
@@ -49,5 +52,11 @@ run_test_script "EBSCSI_Check.sh" "$CLUSTER_NAME"
 run_test_script "EFSCSI_Check.sh" "$CLUSTER_NAME"
 
 echo "***************************************************" | tee -a "$LOG_FILE"
-echo "All Scripts Executed." | tee -a "$LOG_FILE"
+
+# Provide the final status based on the result
+if [ $ALL_PASS -eq 0 ]; then
+    echo "PASS: ALl smoke test scripts executed successfully" | tee -a "$LOG_FILE"
+else
+    echo "FAIL: One or more smoke test scripts failed" | tee -a "$LOG_FILE"
+fi
 echo "TestSuite logs are saved to $LOG_FILE"
