@@ -42,7 +42,7 @@ The _**qa_testing framework**_ contains the following directories:
 
 ```git@github.com:CMS-Enterprise/Energon-Kube.git```
 
-2.) Ensure that the terminal is running a _**bash**_ shell and then set up the current terminal to leverage the QA Testing Framework by sourcing the .qa_bashrc file.  This enables the ability to call the QA Testing Framework Tools from the main cluster directory "<repo-root>/<cluster-directory>"  It places in the shell path the bash scripts.  The bash scripts contain validation scripts and scripts to call the python and robot framework tools.
+2.) Ensure that the terminal is running a _**bash**_ shell and then set up the current terminal to leverage the QA Testing Framework by sourcing the .qa_bashrc file.  This enables the ability to call the QA Testing Framework Tools from the main cluster directory "<repo-root>/<cluster-directory>"  It places in the shell path the bash scripts.  The bash scripts contain validation scripts and scripts to call the python and robot framework tools.  The <repo-root> is the complete path to where **_Energon-Kube_** is cloned in the local system.
 
 ```
 bash
