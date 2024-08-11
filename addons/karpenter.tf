@@ -124,6 +124,8 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
       securityGroupSelectorTerms = [
         {
           id = var.eks_node_security_group_id
+        },
+        {
           id = var.eks_cluster_security_group_id
         }
       ]

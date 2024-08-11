@@ -131,7 +131,7 @@ module "eks_addons" {
   eks_cluster_cidr              = module.eks.cluster_service_cidr
   eks_cluster_ip_family         = module.eks.cluster_ip_family
   eks_cluster_name              = module.eks.cluster_name
-  eks_cluster_security_group_id = module.eks.cluster_security_group_id
+  eks_cluster_security_group_id = module.eks.cluster_primary_security_group_id
   eks_launch_template_name      = module.main_nodes.launch_template_name
   eks_node_iam_role_arn         = module.main_nodes.iam_role_arn
   eks_node_iam_role_name        = module.main_nodes.iam_role_name
