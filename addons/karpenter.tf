@@ -80,7 +80,7 @@ resource "kubectl_manifest" "karpenter_nodepool" {
             {
               key      = "karpenter.k8s.aws/instance-cpu"
               operator = "In"
-              values   = ["4", "8"]
+              values   = ["4", "8", "16", "32"]
             },
             {
               key      = "topology.kubernetes.io/zone"
@@ -124,6 +124,9 @@ resource "kubectl_manifest" "karpenter_ec2nodeclass" {
       securityGroupSelectorTerms = [
         {
           id = var.eks_node_security_group_id
+        },
+        {
+          id = var.eks_cluster_security_group_id
         }
       ]
       instanceProfile = local.iam_instance_profile_name[0]
