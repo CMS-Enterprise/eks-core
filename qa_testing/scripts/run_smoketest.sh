@@ -189,8 +189,10 @@ else
     # Extract the script name without extension for the log file name
     script_name_without_ext="${TEST_SCRIPT%.*}"
     NEW_LOG_FILE="${SCRIPT_LOCATION}/../logs/${TIMESTAMP}_smoketest_${script_name_without_ext}_on_${CLUSTER_NAME}${SUFFIX}.log"
-    NEW_LOG_FILE=$(echo "$NEW_LOG_FILE" | sed -e 's|/scripts/../|/|')
 fi
+
+# Remove the "scripts/../" portion from the log file path
+NEW_LOG_FILE=$(echo "$NEW_LOG_FILE" | sed -e 's|/scripts/../|/|')
 
 # Rename the log file adding date and time and the suffix based on pass/fail condition
 mv "$LOG_FILE" "$NEW_LOG_FILE"
