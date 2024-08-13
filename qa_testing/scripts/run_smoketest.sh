@@ -152,21 +152,6 @@ else
   run_test_script "$TEST_SCRIPT" "$CLUSTER_NAME"
 fi
 
-##Execute child scripts in the specified order
-#run_test_script "check_cluster_health.sh"
-#run_test_script "check_pods_withno_activelogs.sh"
-#run_test_script "check_pods_triggering_errors.sh"
-#run_test_script "check_kubeproxy.sh"
-#run_test_script "check_coredns.sh"
-#run_test_script "check_pod_identity_agent.sh"
-#run_test_script "check_fluentbit.sh" "$CLUSTER_NAME"
-#run_test_script "check_observability_enhanced.sh" "$CLUSTER_NAME"
-#run_test_script "check_vpccni.sh" "$CLUSTER_NAME"
-#run_test_script "check_loadbalncer.sh" "$CLUSTER_NAME"
-#run_test_script "check_ebscsi.sh" "$CLUSTER_NAME"
-#run_test_script "check_efscsi.sh" "$CLUSTER_NAME"
-
-
 echo "***************************************************" | tee -a "$LOG_FILE"
 # Provide the final status based on the result
 if [ $FAIL_COUNT -eq 0 ]; then
