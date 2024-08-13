@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Function to test Pod Identity Agent
 test_pod_identity_agent() {
@@ -42,6 +42,11 @@ test_pod_identity_agent() {
 
     # Output result message
     echo "$message"
+
+    # Exit with the appropriate status code
+    if [ "$result" == "FAIL" ]; then
+        exit 1
+    fi
 }
 
 # Run the test

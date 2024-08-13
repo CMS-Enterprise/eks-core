@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Function to test kube-proxy
 test_kubeproxy() {
@@ -51,4 +51,5 @@ if [ $result -eq 0 ]; then
     echo "PASS: Kube-proxy is running correctly."
 else
     echo "FAIL: Kube-proxy is not running correctly."
+    exit 1
 fi

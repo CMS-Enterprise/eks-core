@@ -74,9 +74,9 @@ There is a suite of validation scripts that can all be run from one command.  Th
 ### Example: Smoke Test "Run All"
 Run from **_<repo-root>/<cluster-directory> $_**
 ```
-run_all.sh <target-cluster>
+run_all_smoketest.sh <target-cluster>
 ```
-Note: The run_all.sh Smoke Test will output its log file to the following directory `<repo-root>/qa_testing/logs/`  The file will be named `run_all.log`
+Note: The run_all_smoketest.sh Smoke Test will output its log file to the following directory `<repo-root>/qa_testing/logs/`  The file will be named `run_all_smoketest.log`
 
 ### Running an Individual Validation Script:
 

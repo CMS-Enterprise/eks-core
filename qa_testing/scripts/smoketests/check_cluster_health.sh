@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# Initialize the overall result to "PASS"
+overall_result="PASS"
 
 # Function to check resource health
 check_resource() {
@@ -8,7 +11,6 @@ check_resource() {
 
     case $resource_type in
         "pods")
-            # Check if there are any pods first
             all_pods=$(kubectl get pods -A --no-headers)
             if [[ -z "$all_pods" ]]; then
                 message="No pods resources found."
@@ -80,6 +82,8 @@ check_resource() {
         echo "PASS: All $resource_type resources are healthy."
     else
         echo "$message"
+        # Set the overall result to FAIL if any check fails
+        overall_result="FAIL"
     fi
 }
 
@@ -91,3 +95,8 @@ resources=("pods" "deployments" "statefulsets" "daemonsets" "jobs" "hpa" "nodes"
 for resource in "${resources[@]}"; do
     check_resource "$resource"
 done
+
+# Exit with status 1 if any resource check failed
+if [[ "$overall_result" == "FAIL" ]]; then
+    exit 1
+fi

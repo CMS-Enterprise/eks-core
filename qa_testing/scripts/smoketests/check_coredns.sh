@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Function to test CoreDNS
 test_coredns() {
@@ -47,4 +47,5 @@ if [ $result -eq 0 ]; then
     echo "PASS: CoreDNS is running correctly."
 else
     echo "FAIL: CoreDNS is not running correctly."
+    exit 1
 fi

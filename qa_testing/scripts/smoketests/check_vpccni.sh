@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Check if the cluster name is provided
 if [ "$#" -ne 1 ]; then
@@ -127,4 +127,5 @@ if [ $FAILED -eq 0 ]; then
     echo "PASS: VPC CNI Addon testcase passed."
 else
     echo "FAIL: VPC CNI Addon testcase failed."
+    exit 1
 fi
