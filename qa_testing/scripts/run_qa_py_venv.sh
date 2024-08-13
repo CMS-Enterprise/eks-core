@@ -18,7 +18,7 @@ load_run_qa_py_venv() {
 
   # Source shared global generic library of functions and
   # variables
-  source "${SCRIPT_LOCATION}/gen_lib_funcs_vars.sh"
+  source "${SCRIPT_LOCATION}/libraries/general_funcs_vars.sh"
 
   # Set the name of the virtual environment and its path
   VENV_NAME=".venv_qa_testing"

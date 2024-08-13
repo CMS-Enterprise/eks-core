@@ -40,7 +40,7 @@ load_gen_libraries() {
 
   # Source shared global general library of functions and
   # variables for QA Testing
-  source "$(get_this_file_location)/gen_lib_color_formats.sh"
+  source "$(get_this_file_location)/color_formats.sh"
 
   # Command Status Legend
   MSG_NONE() { printf "%s %s\n" "   " "$1"; }

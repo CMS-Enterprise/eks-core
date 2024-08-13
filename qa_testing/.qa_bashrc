@@ -10,7 +10,7 @@ load_qa_bashrc() {
 
   # Source shared global generic library of functions and
   # variables for QA Testing environment
-  source "${SCRIPT_LOCATION}/scripts/gen_lib_funcs_vars.sh"
+  source "${SCRIPT_LOCATION}/scripts/libraries/general_funcs_vars.sh"
 
   PATH="${SCRIPT_LOCATION}/scripts:${PATH}"
 

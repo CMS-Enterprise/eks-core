@@ -21,7 +21,7 @@ load_run_qa_robot() {
 
   # Source shared global generic library of functions and
   # variables
-  source "${SCRIPT_LOCATION}/gen_lib_funcs_vars.sh"
+  source "${SCRIPT_LOCATION}/libraries/general_funcs_vars.sh"
 
   # Source the run_qa_py_venv.sh script
   source "${QA_SCRIPTS_DIR}/run_qa_py_venv.sh"
