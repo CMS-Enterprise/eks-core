@@ -192,7 +192,7 @@ else
 fi
 
 # Remove the "scripts/../" portion from the log file path
-NEW_LOG_FILE=$(echo "$NEW_LOG_FILE" | sed -e 's|/scripts/../|/|')
+NEW_LOG_FILE=$(realpath "$NEW_LOG_FILE")
 
 # Rename the log file adding date and time and the suffix based on pass/fail condition
 mv "$LOG_FILE" "$NEW_LOG_FILE"
