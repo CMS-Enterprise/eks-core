@@ -13,5 +13,7 @@ nodeClass:
     instanceProfile: "my-instance-profile"
     amiSelectorId: "ami-12345678"
     subnetTag: "private"
-    securityGroupID: "sg-063d7acfb4b06c82c"
+    securityGroupIDs:
+      - sg-0123456789abcdef0
+      - sg-0fedcba9876543210
     userData: "userData"

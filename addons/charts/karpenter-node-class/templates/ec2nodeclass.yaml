@@ -12,7 +12,9 @@ spec:
     - tags:
         Name: "{{ .Values.nodeClass.spec.subnetTag }}"
   securityGroupSelectorTerms:
-    - id: "{{ .Values.nodeClass.spec.securityGroupID }}"
+{{- range .Values.nodeClass.spec.securityGroupIDs }}
+    - id: "{{ . }}"
+{{- end }}
   instanceProfile: {{ .Values.nodeClass.spec.instanceProfile }}
   amiSelectorTerms:
     - id: {{ .Values.nodeClass.spec.amiSelectorId }}

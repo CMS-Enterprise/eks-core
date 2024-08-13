@@ -47,6 +47,7 @@ resource "helm_release" "karpenter-crd" {
   depends_on = [module.karpenter]
 }
 
+
 resource "helm_release" "karpenter_nodepool" {
   atomic    = true
   name      = "karpenter-node-pool"
@@ -73,4 +74,3 @@ resource "helm_release" "karpenter_ec2nodeclass" {
   depends_on = [helm_release.karpenter-crd]
 
 }
-

@@ -63,7 +63,7 @@ locals {
     instanceProfile     = local.iam_instance_profile_name[0]
     amiSelectorId       = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
     subnetTag           = "${var.ado}-*-${var.env}-private-*"
-    securityGroupID     = var.eks_node_security_group_id
+    securityGroupIDs    = [var.eks_node_security_group_id, var.eks_cluster_security_group_id]
     userData            = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
 
     tags = local.karpenter_nodeclass_tags
