@@ -99,14 +99,14 @@ test_aws_ebs_driver() {
     return 0
 }
 
+test_aws_ebs_driver $1
+result=$?
+
 # Cleanup YAML configurations
 kubectl delete -f pod.yaml 2>&1 >/dev/null
 kubectl delete -f pvc.yaml 2>&1 >/dev/null
 kubectl delete -f storageclass.yaml 2>&1 >/dev/null
 rm -f pod.yaml pvc.yaml storageclass.yaml 2>&1 >/dev/null
-
-test_aws_ebs_driver $1
-result=$?
 
 if [ $result -eq 0 ]; then
   echo "PASS: AWS EBS Driver functioning correctly"

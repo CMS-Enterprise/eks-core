@@ -116,13 +116,13 @@ test_aws_efs_driver() {
     return 0
 }
 
+test_aws_efs_driver $1
+result=$?
+
 # Cleanup YAML configurations
 kubectl delete -f pod.yaml 2>&1 >/dev/null
 kubectl delete -f pvc.yaml 2>&1 >/dev/null
 rm -f pod.yaml pvc.yaml 2>&1 >/dev/null
-
-test_aws_efs_driver $1
-result=$?
 
 if [ $result -eq 0 ]; then
   echo "PASS: AWS EFS Driver functioning correctly"
