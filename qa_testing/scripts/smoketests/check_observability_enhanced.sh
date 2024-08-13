@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Check if the cluster name is provided
 if [ "$#" -ne 1 ]; then

@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 
 echo "Testcase: Confirm, are there any pods which are actively triggering errors"
 
@@ -59,6 +58,11 @@ check_pod_errors() {
 
     # Cleanup
     rm -f "$error_file"
+
+    # Exit with the appropriate status code
+    if [ "$result" == "FAIL" ]; then
+        exit 1
+    fi
 }
 
 # Execute the function

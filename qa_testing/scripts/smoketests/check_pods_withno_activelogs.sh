@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Temporary file to store logs
 temp_file=$(mktemp)
@@ -33,4 +33,5 @@ if [[ "$result" == "PASS" ]]; then
   echo "PASS: All pods are actively triggering logs"
 else
   echo -e "FAIL: $message"
+  exit 1
 fi

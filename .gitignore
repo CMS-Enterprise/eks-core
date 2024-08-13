@@ -21,10 +21,8 @@ k8s/.terraform
 **/*.whl
 *.pkl.xz
 
-
-
-
 # QA Testing
 qa_testing/.3rd_party_tools/*/
+qa_testing/logs/*
 qa_testing/robot/*.html
 qa_testing/robot/*.xml

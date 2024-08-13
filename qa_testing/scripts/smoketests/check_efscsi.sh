@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #set -x
 
 # Load common utils
@@ -119,13 +119,15 @@ test_aws_efs_driver() {
 test_aws_efs_driver $1
 result=$?
 
-if [ $result -eq 0 ]; then
-  echo "PASS: AWS EFS Driver functioning correctly"
-else
-  echo "FAIL: AWS EFS Driver is not functioning correctly"
-fi
-
 # Cleanup YAML configurations
 kubectl delete -f pod.yaml 2>&1 >/dev/null
 kubectl delete -f pvc.yaml 2>&1 >/dev/null
 rm -f pod.yaml pvc.yaml 2>&1 >/dev/null
+
+if [ $result -eq 0 ]; then
+  echo "PASS: AWS EFS Driver functioning correctly"
+else
+  echo "FAIL: AWS EFS Driver is not functioning correctly"
+  exit 1
+fi
+
