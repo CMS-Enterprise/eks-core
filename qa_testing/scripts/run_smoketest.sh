@@ -35,7 +35,7 @@ fi
 
 # Get a list of all valid scripts in the smoketests subdirectory
 SMOKETEST_DIR="${SCRIPT_LOCATION}/smoketests"
-mapfile -t SMOKETEST_SCRIPTS < <(find "$SMOKETEST_DIR" -maxdepth 1 -type f -iname "check*.sh" -exec basename {} \;)
+mapfile -t SMOKETEST_SCRIPTS < <(find "$SMOKETEST_DIR" -maxdepth 1 -type f -iname "check*.sh" -exec basename {} \; | sort)
 
 # Check if the second argument is "all or valid script name"
 if [ "$TEST_SCRIPT" == "all" ]; then
