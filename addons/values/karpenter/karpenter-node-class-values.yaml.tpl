@@ -12,9 +12,9 @@ nodeClass:
     instanceProfile: "${instanceProfile}"
     amiSelectorId: "${amiSelectorId}"
     subnetTag: "${subnetTag}"
-    securityGroupSelectorTerms:
+    securityGroupIDs:
 %{ for sg_id in securityGroupIDs ~}
-      - id: "${sg_id}"
+      - "${sg_id}"
 %{ endfor ~}
     userData: "${userData}"
     tags:
