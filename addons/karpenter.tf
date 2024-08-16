@@ -47,110 +47,30 @@ resource "helm_release" "karpenter-crd" {
   depends_on = [module.karpenter]
 }
 
-resource "kubectl_manifest" "karpenter_nodepool" {
-  yaml_body = yamlencode({
-    apiVersion = "karpenter.sh/v1beta1"
-    kind       = "NodePool"
-    metadata = {
-      name = var.karpenter_nodepool_name == "" ? "default" : var.karpenter_nodepool_name
-    }
-    spec = {
-      template = {
-        spec = {
-          nodeClassRef = {
-            apiVersion = "karpenter.k8s.aws/v1beta1"
-            kind       = "EC2NodeClass"
-            name       = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
-          }
-          taints = [for key, value in var.karpenter_nodepool_taints : {
-            key    = key
-            effect = value
-          }]
-          requirements = [
-            {
-              key      = "karpenter.k8s.aws/instance-category"
-              operator = "In"
-              values   = ["c"]
-            },
-            {
-              key      = "karpenter.k8s.aws/instance-family"
-              operator = "In"
-              values   = ["c5"]
-            },
-            {
-              key      = "karpenter.k8s.aws/instance-cpu"
-              operator = "In"
-              values   = ["4", "8", "16", "32"]
-            },
-            {
-              key      = "topology.kubernetes.io/zone"
-              operator = "In"
-              values   = var.available_availability_zones
-            },
-            {
-              key      = "karpenter.sh/capacity-type"
-              operator = "In"
-              values   = ["on-demand"]
-            }
-          ]
-        }
-      }
-      disruption = {
-        consolidationPolicy = "WhenUnderutilized"
-        expireAfter         = "160h"
-      }
-    }
-  })
+
+resource "helm_release" "karpenter_nodepool" {
+  atomic    = true
+  name      = "karpenter-node-pool"
+  namespace = local.karpenter_namespace
+  chart     = "${path.module}/charts/karpenter-node-pool"
+
+  values = [
+    local.karpenter_node_pool_values
+  ]
 
   depends_on = [helm_release.karpenter-crd]
 }
 
-resource "kubectl_manifest" "karpenter_ec2nodeclass" {
-  yaml_body = yamlencode({
-    apiVersion = "karpenter.k8s.aws/v1beta1"
-    kind       = "EC2NodeClass"
-    metadata = {
-      name = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
-    }
-    spec = {
-      amiFamily = var.gold_image_ami_id != "" ? "Custom" : "AL2"
-      subnetSelectorTerms = [
-        {
-          tags = {
-            Name = "${var.ado}-*-${var.env}-private-*"
-          }
-        }
-      ]
-      securityGroupSelectorTerms = [
-        {
-          id = var.eks_node_security_group_id
-        },
-        {
-          id = var.eks_cluster_security_group_id
-        }
-      ]
-      instanceProfile = local.iam_instance_profile_name[0]
-      amiSelectorTerms = [
-        {
-          id = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
-        }
-      ]
-      userData = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
-      tags     = merge(var.karpenter_base_tags, { Name = "eks-karpenter-${var.eks_cluster_name}" })
-      blockDeviceMappings = [
-        {
-          deviceName = "/dev/xvda"
-          ebs = {
-            volumeSize          = "300G"
-            volumeType          = "gp3"
-            deleteOnTermination = true
-            encrypted           = true
-            kmsKeyId            = var.ebs_kms_key_id
-          }
-        }
-      ]
-    }
-  })
+resource "helm_release" "karpenter_ec2nodeclass" {
+  atomic    = true
+  lint      = true
+  name      = "karpenter-node-class"
+  namespace = local.karpenter_namespace
+  chart     = "${path.module}/charts/karpenter-node-class"
 
+  values = [
+    local.karpenter_node_class_values
+  ]
   depends_on = [helm_release.karpenter-crd]
+
 }

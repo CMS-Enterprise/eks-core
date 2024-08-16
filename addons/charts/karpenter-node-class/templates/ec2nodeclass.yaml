@@ -1,0 +1,49 @@
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: {{ .Values.nodeClass.metadata.name | quote }}
+  annotations:
+{{- range $key, $value := .Values.nodeClass.metadata.annotations }}
+    {{ $key }}: "{{ $value }}"
+{{- end }}
+spec:
+  amiFamily: {{ .Values.nodeClass.spec.amiFamily | default "AL2" | quote }}
+  subnetSelectorTerms:
+    - tags:
+        Name: "{{ .Values.nodeClass.spec.subnetTag }}"
+  securityGroupSelectorTerms:
+{{- range .Values.nodeClass.spec.securityGroupIDs }}
+    - id: "{{ . }}"
+{{- end }}
+  instanceProfile: {{ .Values.nodeClass.spec.instanceProfile }}
+  amiSelectorTerms:
+    - id: {{ .Values.nodeClass.spec.amiSelectorId }}
+  userData: |
+    #!/bin/bash
+    set -e
+{{ if .Values.nodeClass.spec.preBootstrapUserData }}
+    {{ .Values.nodeClass.spec.preBootstrapUserData | nindent 4 }}
+{{ end }}
+    B64_CLUSTER_CA={{ .Values.nodeClass.spec.b64ClusterCA }}
+    API_SERVER_URL={{ .Values.nodeClass.spec.clusterEndpoint }}
+{{ if .Values.nodeClass.spec.bootstrapExtraArgs }}
+    /etc/eks/bootstrap.sh {{ .Values.nodeClass.spec.clusterName }} {{ .Values.nodeClass.spec.bootstrapExtraArgs }} --b64-cluster-ca $B64_CLUSTER_CA --apiserver-endpoint $API_SERVER_URL --ip-family {{ .Values.nodeClass.spec.clusterIpFamily }} --service-{{ .Values.nodeClass.spec.clusterIpFamily }}-cidr {{ .Values.nodeClass.spec.clusterCIDR | quote }}
+{{ else }}
+    /etc/eks/bootstrap.sh {{ .Values.nodeClass.spec.clusterName }} --b64-cluster-ca $B64_CLUSTER_CA --apiserver-endpoint $API_SERVER_URL --ip-family {{ .Values.nodeClass.spec.clusterIpFamily }} --service-{{ .Values.nodeClass.spec.clusterIpFamily }}-cidr {{ .Values.nodeClass.spec.clusterCIDR | quote }}
+{{ end }}
+{{ if .Values.nodeClass.spec.postBootstrapUserData }}
+    {{ .Values.nodeClass.spec.postBootstrapUserData | nindent 4 }}
+{{ end }}
+  tags:
+{{- range $key, $value := .Values.nodeClass.spec.tags }}
+    {{ $key }}: "{{ $value }}"
+{{- end }}
+ 
+  blockDeviceMappings:
+    - deviceName: {{ .Values.nodeClass.spec.deviceName | default "/dev/xvda" }}
+      ebs:
+        volumeSize: {{ .Values.nodeClass.spec.volumeSize | default "300G" }}
+        volumeType: {{ .Values.nodeClass.spec.volumeType | default "gp3" }}
+        deleteOnTermination: {{ .Values.nodeClass.spec.deleteOnTermination | default true }}
+        encrypted: {{ .Values.nodeClass.spec.encrypted | default true }}
+        kmsKeyId: {{ .Values.nodeClass.spec.kmsKeyId }}

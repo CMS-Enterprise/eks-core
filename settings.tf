@@ -40,6 +40,42 @@ locals {
   gold_image_pre_bootstrap_script = "mkdir -p /var/log/journal && sysctl -w net.ipv4.ip_forward=1\n"
   k8s_alb_name                    = "alb-${local.cluster_name}"
 
+  ################################## Eni Config Settings ##################################
+
+  subnets_info = [
+    for subnet_id in data.aws_subnets.container.ids : {
+      id                = subnet_id
+      availability_zone = data.aws_subnet.container[subnet_id].availability_zone
+    }
+  ]
+
+  eni_configs_settings = {
+    subnets                           = local.subnets_info
+    cluster_primary_security_group_id = module.eks.cluster_primary_security_group_id
+
+  }
+
+  eni_config_values = templatefile("${path.module}/addons/values/eni-configs/eni-configs.yaml.tpl", local.eni_configs_settings)
+
+  ################################## EFS Storage Class Settings ##################################
+  efs_storage_class_settings = {
+    file_system_id        = aws_efs_file_system.main.id
+    directory_permissions = var.efs_directory_permissions
+
+  }
+
+  efs_storage_class_values = templatefile("${path.module}/addons/values/efs-storage-class/efs-storage-class.yaml.tpl", local.efs_storage_class_settings)
+
+  ################################## GP3 Storage Class Settings ##################################
+  gp3_settings = {
+    reclaim_policy      = var.eks_gp3_reclaim_policy
+    volume_binding_mode = var.eks_gp3_volume_binding_mode
+
+  }
+
+  gp3_values = templatefile("${path.module}/addons/values/gp3/gp3.yaml.tpl", local.gp3_settings)
+
+
   ################################### ALB ###################################
   alb_security_group_rules = {
     ingress_80 = {

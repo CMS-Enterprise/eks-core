@@ -1,0 +1,32 @@
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: {{ .Values.nodePool.metadata.name | default "default" | quote }}
+  annotations:
+{{- range $key, $value := .Values.nodePool.metadata.annotations }}
+    {{ $key }}: "{{ $value }}"
+{{- end }}
+spec:
+  template:
+    spec:
+      requirements:
+{{- range .Values.nodePool.spec.template.spec.requirements }}
+        - key: {{ .key | quote }}
+          operator: {{ .operator | quote }}
+          values: [{{ range $index, $value := .values }}{{ if $index }}, {{ end }}"{{ $value }}"{{ end }}]
+{{- end }}
+{{- if .Values.nodePool.spec.template.spec.taints }}
+      taints:
+{{- range .Values.nodePool.spec.template.spec.taints }}
+        - key: {{ .key | quote }}
+          value: {{ .value | quote }}
+          effect: {{ .effect | quote }}
+{{- end }}
+{{- end }}
+      nodeClassRef:
+        apiVersion: {{ .Values.nodePool.spec.template.spec.nodeClassRef.apiVersion | default "karpenter.k8s.aws/v1beta1" | quote }}
+        kind: {{ .Values.nodePool.spec.template.spec.nodeClassRef.kind | default "EC2NodeClass" | quote }}
+        name: {{ .Values.nodePool.spec.template.spec.nodeClassRef.name | default "default" | quote }}
+  disruption:
+    consolidationPolicy: {{ .Values.nodePool.consolidationPolicy | default "WhenUnderutilized" | quote }}
+    expireAfter: {{ .Values.nodePool.expireAfter | default "160h" | quote }}

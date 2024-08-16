@@ -1,0 +1,4 @@
+apiVersion: v2
+name: efs-storage-class
+description: A Helm chart for creating an EFS-backed StorageClass
+version: 1.0.0

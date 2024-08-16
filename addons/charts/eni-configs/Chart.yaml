@@ -1,0 +1,4 @@
+apiVersion: v2
+name: eni-config
+description: A Helm chart for creating ENIConfig resources
+version: 1.0.0
