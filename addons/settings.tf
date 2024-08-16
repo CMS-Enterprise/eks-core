@@ -22,18 +22,6 @@ locals {
   karpenter_namespace            = "karpenter"
   karpenter_service_account_name = "karpenter"
 
-  user_data = {
-    cluster_auth_base64        = var.cluster_ca_data
-    cluster_endpoint           = var.cluster_endpoint
-    cluster_cidr               = var.eks_cluster_cidr
-    cluster_ip_family          = var.eks_cluster_ip_family
-    cluster_name               = var.eks_cluster_name
-    enable_bootstrap_user_data = var.enable_bootstrap_user_data
-    pre_bootstrap_user_data    = var.pre_bootstrap_user_data
-    post_bootstrap_user_data   = var.post_bootstrap_user_data
-    bootstrap_extra_args       = var.bootstrap_extra_args
-  }
-
   kp_config_settings = {
     cluster_name = var.eks_cluster_name
   }
@@ -52,21 +40,27 @@ locals {
 
   karpenter_nodeclass_tags = merge(var.karpenter_base_tags, { Name = "eks-karpenter-${var.eks_cluster_name}" })
   kpnc_config_settings = {
-    name                = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
-    amiFamily           = var.gold_image_ami_id != "" ? "Custom" : "AL2"
-    deviceName          = "/dev/xvda"
-    volumeSize          = "300G"
-    volumeType          = "gp3"
-    deleteOnTermination = true
-    encrypted           = true
-    ebs_kms_key_id      = var.ebs_kms_key_id
-    instanceProfile     = local.iam_instance_profile_name[0]
-    amiSelectorId       = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
-    subnetTag           = "${var.ado}-*-${var.env}-private-*"
-    securityGroupIDs    = [var.eks_node_security_group_id, var.eks_cluster_security_group_id]
-    userData            = templatefile("${path.module}/linux_bootstrap.tpl", local.user_data)
-
-    tags = local.karpenter_nodeclass_tags
+    name                  = var.karpenter_ec2nodeclass_name == "" ? "default" : var.karpenter_ec2nodeclass_name
+    amiFamily             = var.gold_image_ami_id != "" ? "Custom" : "AL2"
+    deviceName            = "/dev/xvda"
+    volumeSize            = "300G"
+    volumeType            = "gp3"
+    deleteOnTermination   = true
+    encrypted             = true
+    ebs_kms_key_id        = var.ebs_kms_key_id
+    instanceProfile       = local.iam_instance_profile_name[0]
+    amiSelectorId         = var.gold_image_ami_id != "" ? var.gold_image_ami_id : var.custom_ami
+    subnetTag             = "${var.ado}-*-${var.env}-private-*"
+    securityGroupIDs      = [var.eks_node_security_group_id, var.eks_cluster_security_group_id]
+    preBootstrapUserData  = ""
+    bootstrapExtraArgs    = ""
+    postBootstrapUserData = ""
+    b64ClusterCA          = var.cluster_ca_data
+    clusterEndpoint       = var.cluster_endpoint
+    clusterName           = var.eks_cluster_name
+    clusterIpFamily       = var.eks_cluster_ip_family
+    clusterCIDR           = var.eks_cluster_cidr
+    tags                  = local.karpenter_nodeclass_tags
 
   }
 

@@ -16,7 +16,20 @@ nodeClass:
 %{ for sg_id in securityGroupIDs ~}
       - "${sg_id}"
 %{ endfor ~}
-    userData: "${userData}"
+%{ if preBootstrapUserData != "" ~}
+    preBootstrapUserData: "${preBootstrapUserData}"
+%{ endif ~}
+%{ if bootstrapExtraArgs != "" ~}
+    bootstrapExtraArgs: "${bootstrapExtraArgs}"
+%{ endif ~}
+%{ if postBootstrapUserData != "" ~}
+    postBootstrapUserData: "${postBootstrapUserData}"
+%{ endif ~}
+    b64ClusterCA: "${b64ClusterCA}"
+    clusterEndpoint: "${clusterEndpoint}"
+    clusterName: "${clusterName}"
+    clusterIpFamily: "${clusterIpFamily}"
+    clusterCIDR: "${clusterCIDR}"
     tags:
 %{ for key, value in tags ~}
       ${key}: ${value}
