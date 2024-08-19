@@ -60,11 +60,11 @@ source .qa_bashrc             # Source the file to add QA Testing Framework tool
 
 ## IV. QA Framework Bash Script Tools
 
-Once `.qa_bashrc` has been sourced, change to the target-cluster’s main configuration directory. This is where all commands are expected to be run.
+Once `.qa_bashrc` has been sourced, change to the target-cluster’s main configuration directory. The target-cluster directory is where the QA Testing Framework tools are run. The repository has an example  target-cluster configuration in the `example` directory. 
 
 
 ```
-cd <repo-root>/<target-cluster>  # Currently, this is the 'example' directory.
+cd <repo-root>/<target-cluster>           # Example configuration directory.
 ```
 
 The **_QA Bash scripts_** are now in the current Bash shell path and can be called directly. There are **_three types of Bash scripts_**:
@@ -79,10 +79,17 @@ The **_QA Bash scripts_** are now in the current Bash shell path and can be call
 There is a suite of validation scripts that can be run individually or all together using the **_run_smoketest.sh_** command.
 
 **Note:** The `run_smoketest.sh` script will output its log files to the following directory: `<repo-root>/qa_testing/logs/`
-* Running **all** tests will output a log file named:
+
+#### Running **all** tests will output a log file named:
   * `<Date-Time>_run_all_smoketests_on_<target-cluster>_<STATUS>.log`
-* Running an individual test will output a log file named:
+#### Running an individual test will output a log file named:
   * `<Date-Time>_run_<script-name>_on_<target-cluster>_<STATUS>.log`
+
+#### File Naming Convention:
+* `<Date-Time>`: Script run date and time in the format: `YYYYMMDDHHMMSS`.
+* `<script-name>`: Name of individual smoketest script being run.
+* `<target-cluster>`: Name of the target-cluster being tested.
+* `<STATUS>`: The status of the test(s) (i.e. **_PASS_** or **_FAIL_**).
 
 ### B.) Example: Executing the Smoketests
 
@@ -108,7 +115,7 @@ run_smoketest.sh <target-cluster> <script-name.sh>
 
 
 ```
-ls <repo-root>/qa_testing/scripts/smoketests`
+ls <repo-root>/qa_testing/scripts/smoketests
 ```
 
 #### Debugging
