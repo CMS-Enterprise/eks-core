@@ -31,7 +31,7 @@ The _**qa_testing framework**_ contains the following directories:
 * **robotframework** (version >= 6.1)
 * **xargs** (version >= 4.8)
 
-## III. Get Setup
+## III. Setup Procedures
 
 ### A.) Clone Repo & Source .qa_bashrc
 1.) Clone and run the Energon-Kube repository locally from this location:
