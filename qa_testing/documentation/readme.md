@@ -26,6 +26,7 @@ The _**qa_testing framework**_ contains the following directories:
 * **jq** (version >= 1.7)
 * **kubectl** (version >= v1.30)
 * **kustomize** (version >= 5.0)
+* **parallel** (version >= 20210822)
 * **pip** (version >= 23.3)
 * **python3** (version >= 3.10)
 * **robotframework** (version >= 6.1)
