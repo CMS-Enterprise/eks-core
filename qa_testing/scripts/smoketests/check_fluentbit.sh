@@ -47,7 +47,7 @@ fi
 # If no logs are found, it could indicate low activity rather than a configuration issue
 retry_count=0
 max_retries=3
-while [ $retry_count -lt $max_retries ]; do
+while [ $retry_count -le $max_retries ]; do
     LOG_STREAMS=$(aws logs describe-log-streams \
       --log-group-name "$LOG_GROUP_NAME" \
       --order-by "LastEventTime" \

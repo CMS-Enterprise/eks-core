@@ -35,7 +35,7 @@ test_coredns() {
     echo "$coredns_pods" | while read -r pod_name pod_status; do
         if [[ "$pod_status" != "Running" ]]; then
             echo "FAIL: CoreDNS pod '$pod_name' is not in Running state. Current state: $pod_status."
-            result=1
+            return 1
         fi
     done
 
