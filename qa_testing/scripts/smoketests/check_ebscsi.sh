@@ -20,8 +20,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/../libraries/general_funcs_vars.sh"
 
 # Check arguments
 if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <cluster-name>"
-  exit 1
+    echo "Usage: $0 <cluster-name>"
+    exit 1
 fi
 
 # Define YAML files
@@ -127,9 +127,9 @@ kubectl delete -f storageclass.yaml >/dev/null 2>&1
 rm -f pod.yaml pvc.yaml storageclass.yaml
 
 if [ $result -eq 0 ]; then
-  echo "PASS: AWS EBS Driver is functioning correctly."
+    echo "PASS: AWS EBS Driver is functioning correctly."
 else
-  echo "FAIL: AWS EBS Driver is not functioning correctly."
-  exit 1
+    echo "FAIL: AWS EBS Driver is not functioning correctly."
+    exit 1
 fi
 

@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+#######################################################################
+# Script Name: check_observability_enhanced.sh
+# Purpose: This script verifies the health and functionality of the
+#          Amazon CloudWatch observability addon within a Kubernetes cluster.
+#
+# The script performs the following checks:
+#   1. Confirms the availability of the observability namespace and its pods.
+#   2. Checks for any failed observability pods within the namespace.
+#   3. Verifies that the specified metric is being delivered to CloudWatch.
+#   4. Ensures that the target metric contains recent data points.
+#
+#######################################################################
+
 # Check if the cluster name is provided
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <cluster-name>"
@@ -14,23 +27,24 @@ TARGET_METRIC="node_cpu_utilization"
 echo "TestCase name: Observability addon: Verification of health and functionality."
 
 # Check observability addon health
-kubectl get pods -n $NAMESPACE > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "FAIL: Failed to get pods in namespace: $NAMESPACE"
+if ! kubectl get namespace "$NAMESPACE" >/dev/null 2>&1; then
+    echo "FAIL: Namespace $NAMESPACE does not exist or is not reachable."
     exit 1
 fi
 
-# Check for faild observability pods only
-FAILED_PODS=$(kubectl get pods -n $NAMESPACE -l app.kubernetes.io/name=amazon-cloudwatch-observability)
-if [ -z "$FAILED_PODS" ]; then
-  echo "FAIL : Could not retrieve observability pods."
-  exit 1
+# Check for failed observability pods specifically
+FAILED_PODS=$(kubectl get pods -n "$NAMESPACE" -l "app.kubernetes.io/name=amazon-cloudwatch-observability" -o json | jq -r '.items[] | select(.status.phase != "Running") | [.metadata.name, .status.phase] | @tsv')
+if [[ -n "$FAILED_PODS" ]]; then
+    echo "FAIL: The following observability pods are not in a Running state:"
+    echo "$FAILED_PODS"
+    exit 1
 fi
 
+
 # Retrieve metrics from CloudWatch
-METRICS=$(aws cloudwatch list-metrics --namespace ContainerInsights --dimensions Name=ClusterName,Value=$CLUSTER_NAME --output json | jq -r '.Metrics[].MetricName' | sort | uniq)
+METRICS=$(aws cloudwatch list-metrics --namespace ContainerInsights --dimensions Name=ClusterName,Value="$CLUSTER_NAME" --output json | jq -r '.Metrics[].MetricName' | sort | uniq)
 if [ -z "$METRICS" ]; then
-    echo "No metrics found in namespace: $NAMESPACE"
+    echo "FAIL: No metrics found in namespace $NAMESPACE."
     exit 1
 fi
 

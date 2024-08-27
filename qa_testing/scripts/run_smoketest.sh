@@ -71,6 +71,12 @@ else
   fi
 fi
 
+# Check if AWS CLI is installed and configured
+if ! command -v aws >/dev/null 2>&1; then
+  echo "FAIL: AWS CLI is not installed or not in the system PATH."
+  exit 1
+fi
+
 # Verify if the provided cluster name matches an accessible EKS cluster
 CLUSTERS=$(aws eks list-clusters --query clusters --output text)
 

@@ -24,8 +24,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/../libraries/general_funcs_vars.sh"
 
 # Check arguments
 if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <cluster-name>"
-  exit 1
+    echo "Usage: $0 <cluster-name>"
+    exit 1
 fi
 
 # Get EFS FileSystemId
@@ -153,8 +153,8 @@ kubectl delete -f pvc.yaml >/dev/null 2>&1
 rm -f pod.yaml pvc.yaml >/dev/null 2>&1
 
 if [ $result -eq 0 ]; then
-  echo "PASS: AWS EFS Driver functioning correctly."
+    echo "PASS: AWS EFS Driver functioning correctly."
 else
-  echo "FAIL: AWS EFS Driver is not functioning correctly."
-  exit 1
+    echo "FAIL: AWS EFS Driver is not functioning correctly."
+    exit 1
 fi

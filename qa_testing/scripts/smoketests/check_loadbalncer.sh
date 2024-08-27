@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+#######################################################################
+# Script Name: check_loadbalancer.sh
+# Purpose: This script verifies the health and functionality of a LoadBalancer
+#          associated with an AWS EKS cluster.
+#
+# The script performs the following checks:
+#   1. Deploys a sample NGINX app with a NodePort service.
+#   2. Configures an ingress resource with an Application Load Balancer (ALB).
+#   3. Attempts to access the NGINX app via the ALB and checks for the
+#      "Welcome to nginx" message.
+#   4. Cleans up all deployed resources after the test.
+#
+#######################################################################
+
 # Test Case: Verify Load Balancer
 
 # Input parameter for the EKS cluster name
@@ -11,8 +25,7 @@ fi
 CLUSTER_NAME=$1
 LOADBALANCER_NAME=$CLUSTER_NAME-captain
 
-echo "Testcase name: Loadbalancer verificaiton"
-# Define YAML files
+# Define YAML files for the deployment, service, and ingress resources
 cat <<EOF > app-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -82,21 +95,22 @@ spec:
             port:
               number: 80
 EOF
+
 sleep 5
 
-# Apply the YAML files
+# Apply the YAML files to deploy the resources
 kubectl apply -f app-deployment.yaml > /dev/null 2>&1
 kubectl apply -f app-service.yaml > /dev/null 2>&1
 kubectl apply -f app-ingress.yaml > /dev/null 2>&1
 sleep 5
 
-#get POD_NAME, NODE_NAME, NODE_IP, PORT.
+# Get the POD_NAME, NODE_NAME, NODE_IP, and PORT
 POD_NAME=$(kubectl get pods -l app=app-label -o jsonpath='{.items[0].metadata.name}')
-NODE_NAME=$(kubectl get pod $POD_NAME -o jsonpath='{.spec.nodeName}')
-NODE_IP=$(kubectl get node $NODE_NAME -o jsonpath='{.status.addresses[?(@.type=="InternalIP")].address}')
+NODE_NAME=$(kubectl get pod "$POD_NAME" -o jsonpath='{.spec.nodeName}')
+NODE_IP=$(kubectl get node "$NODE_NAME" -o jsonpath='{.status.addresses[?(@.type=="InternalIP")].address}')
 PORT=$(kubectl get svc app-service -o jsonpath='{.spec.ports[0].nodePort}')
 
-#Retry logic for curl
+# Retry logic for curl to access the NGINX app
 max_retries=10
 retry_interval=10
 retry_count=0
@@ -115,14 +129,16 @@ while [ $retry_count -lt $max_retries ]; do
   retry_count=$((retry_count + 1))
 done
 
-# Clean up YAML files
+# Clean up YAML files and resources
 kubectl delete -f app-deployment.yaml > /dev/null 2>&1
 kubectl delete -f app-service.yaml > /dev/null 2>&1
 kubectl delete -f app-ingress.yaml > /dev/null 2>&1
 rm app-deployment.yaml app-service.yaml app-ingress.yaml > /dev/null 2>&1
 
+# Handle failure cases after retries
 if [ $retry_count -eq $max_retries ]; then
-  echo "FAIL: To get 'Welcome to nginx' message after $max_retries attempts."
+  echo "FAIL: Could not get 'Welcome to nginx' message after $max_retries attempts."
   exit 1
 fi
+
 echo "PASS: LoadBalancer test passed"
