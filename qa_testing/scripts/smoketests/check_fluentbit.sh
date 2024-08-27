@@ -19,8 +19,6 @@ if [ "$#" -ne 1 ]; then
 fi
 
 CLUSTER_NAME="$1"
-NAMESPACE="amazon-cloudwatch"
-FLUENT_BIT_LABEL="fluent-bit"
 
 # Derive log group name from cluster name
 LOG_GROUP_NAME="/aws/containerinsights/$CLUSTER_NAME/application"
@@ -30,6 +28,9 @@ echo "TestCase name: Fluent-bit addon: Verification of health and functionality.
 
 # Check if Fluent Bit Pods are running in the expected namespace
 # Ensure the label "app.kubernetes.io/name=fluent-bit" is accurate for your deployment
+NAMESPACE="amazon-cloudwatch"
+FLUENT_BIT_LABEL="fluent-bit"
+
 if ! kubectl get pods -n "$NAMESPACE" -l "app.kubernetes.io/name=$FLUENT_BIT_LABEL,app=$FLUENT_BIT_LABEL" >/dev/null 2>&1; then
     echo "FAIL: Fluent Bit Pods are not running in namespace '$NAMESPACE'."
     exit 1
