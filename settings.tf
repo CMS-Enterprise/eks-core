@@ -114,9 +114,14 @@ data "aws_route53_zone" "main" {
 data "aws_ami" "gold_image" {
   count = var.gold_image_date != "" ? 1 : 0
 
-  most_recent = false
+  most_recent = true
   name_regex  = "^amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}*"
   owners      = ["743302140042"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-eks-${module.eks.cluster_version}-gi-${var.gold_image_date}*"]
+  }
 }
 
 data "aws_s3_bucket" "logs" {
