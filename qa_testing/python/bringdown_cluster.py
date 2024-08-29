@@ -1,7 +1,6 @@
 import argparse
 import configparser
 import os
-import sys  # Importing sys to use sys.exit(1)
 from qa_libraries.tf_cluster_commands import bringdown_cluster, get_repo_root, read_config_value
 
 if __name__ == "__main__":
@@ -21,6 +20,6 @@ if __name__ == "__main__":
         except KeyError as e:
             print(f"Error: {e}. No target cluster specified and no default found in setup.cfg.")
             parser.print_help()
-            sys.exit(1)
+            raise ValueError("A target cluster name must be specified or present in setup.cfg.")
 
     bringdown_cluster(target_cluster_name)

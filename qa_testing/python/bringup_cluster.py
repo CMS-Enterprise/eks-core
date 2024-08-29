@@ -21,6 +21,6 @@ if __name__ == "__main__":
         except KeyError as e:
             print(f"Error: {e}. No target cluster specified and no default found in setup.cfg.")
             parser.print_help()
-            sys.exit(1)
+            raise ValueError("A target cluster name must be specified or present in setup.cfg.")
 
     bringup_cluster(target_cluster_name)
