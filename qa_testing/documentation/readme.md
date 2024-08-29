@@ -168,7 +168,7 @@ Note: Run this script from the target cluster directory: `<repo-root>/<target-cl
 
 ### A.) Example: Bringing up a Cluster
 ```
-run_qa_python bringup_cluster -t <target-cluster>
+run_qa_py_venv bringup_cluster -t <target-cluster>
 ```
 
 ### B.) Example: Destroying a Cluster
