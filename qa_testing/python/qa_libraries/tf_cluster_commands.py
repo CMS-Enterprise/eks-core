@@ -155,22 +155,21 @@ def validate_current_tfstate_cluster_name(state_files: list, cluster_dir: str) -
     for state_file in state_files:
         cluster_name = extract_cluster_name(state_file, cluster_dir)
         if cluster_name:
-            log.info(f"Cluster name '{cluster_name}' extracted from '{state_file}'.")
-        else:
-            log.warning(f"No cluster name found in '{state_file}'.")
-        cluster_names.append(cluster_name)
+            cluster_names.append(cluster_name)
 
     # Remove None entries and verify that all state files have the same cluster name
-    cluster_names = [name for name in cluster_names if name is not None]
     unique_cluster_names = set(cluster_names)
 
-    if len(unique_cluster_names) != 1:
+    if len(unique_cluster_names) == 0:
+        log.error("No valid cluster names found in any state files.")
+        raise ValueError("No valid cluster names found in any state files.")
+    elif len(unique_cluster_names) > 1:
         log.error("Inconsistent cluster names found in state files.")
         raise ValueError("Inconsistent cluster names found in state files. Please review the tf state files manually.")
 
     # Log the validated cluster name
     validated_cluster_name = unique_cluster_names.pop()
-    log.info(f"Validated current terraform.tfstate cluster name: '{validated_cluster_name}'")
+    log.info(f"Current terraform state files contain a valid cluster name: '{validated_cluster_name}'")
 
     return validated_cluster_name
 
@@ -197,14 +196,12 @@ def create_tf_state_subdir(current_tf_statefile_cluster_name: str, cluster_dir: 
     return subdir_path
 
 
-def backup_tfstate_files(target_cluster: str, cluster_dir: str, always_backup: bool = False) -> str:
+def backup_tfstate_files(cluster_dir: str) -> Optional[str]:
     """
-    Back up existing Terraform state files if the current cluster differs from the target cluster or if always_backup is True.
+    Back up existing Terraform state files in the specified directory.
 
-    :param target_cluster: The target cluster name for which the Terraform state files are being set up.
     :param cluster_dir: The directory containing the Terraform files.
-    :param always_backup: Optional boolean flag to force a backup regardless of cluster matching. Default is False.
-    :return: The name of the backup directory created, or None if no backup was needed.
+    :return: The name of the backup directory created, or None if no state files were found.
     """
     # Check if any Terraform state files exist
     state_files = check_tf_state_files_exist(cluster_dir)
@@ -214,60 +211,69 @@ def backup_tfstate_files(target_cluster: str, cluster_dir: str, always_backup: b
 
     # Validate and extract the current cluster name from state files
     current_tfstate_cluster_name = validate_current_tfstate_cluster_name(state_files, cluster_dir)
+    if not current_tfstate_cluster_name:
+        log.error("Unable to determine cluster name from the state files. Backup aborted.")
+        raise RuntimeError("Failed to determine the cluster name from the state files.")
 
-    # If always_backup is True or the current cluster differs from the target cluster, perform backup
-    if always_backup or (current_tfstate_cluster_name and current_tfstate_cluster_name != target_cluster):
-        # Step 5: Create a backup directory and move the state files
-        backup_dir = create_tf_state_subdir(current_tfstate_cluster_name, cluster_dir)
-        for state_file in state_files:
-            src_file = os.path.join(cluster_dir, state_file)
-            dst_file = os.path.join(backup_dir, os.path.basename(state_file))
-
-            if os.path.exists(dst_file):
-                os.remove(dst_file)
-
-            shutil.copy(src_file, dst_file)
-
-        log.info(f"Backed up Terraform state files to {backup_dir}.")
-
-        return backup_dir
-
-    log.info("No backup was needed; the target cluster matches the current state.")
-    return None
-
-
-def restore_tfstate_files(previous_tfstate_backup_dir: str, cluster_dir: str):
-    """
-    Restore the Terraform state files from the backup directory to the main directory.
-
-    :param previous_tfstate_backup_dir: The backup directory containing the previous state files.
-    :param cluster_dir: The directory containing the Terraform files.
-    """
-    state_files = check_tf_state_files_exist(previous_tfstate_backup_dir)
-    if not state_files:
-        log.warning(f"No state files found in the backup directory '{previous_tfstate_backup_dir}'.")
-        return
+    # Create a backup directory based on the current cluster name
+    backup_dir = create_tf_state_subdir(current_tfstate_cluster_name, cluster_dir)
 
     for state_file in state_files:
-        shutil.copy2(os.path.join(previous_tfstate_backup_dir, state_file), cluster_dir)
-    log.info(f"Restored state files to '{cluster_dir}' from '{previous_tfstate_backup_dir}'.")
+        src_file = os.path.join(cluster_dir, state_file)
+        dst_file = os.path.join(backup_dir, os.path.basename(state_file))
+
+        if os.path.exists(dst_file):
+            os.remove(dst_file)
+
+        shutil.copy(src_file, dst_file)
+
+    log.info(f"Backed up Terraform state files to {backup_dir}.")
+    return backup_dir
 
 
-def revert_tfstate_files(target_cluster_name: str, previous_tfstate_backup_dir: str, cluster_dir: str):
+def restore_tfstate_files(requested_tfstate_backup_dir: str, cluster_dir: str) -> Optional[str]:
     """
-    Revert the Terraform state files to the previous state by backing up the current files
-    and restoring the old ones from the backup directory.
+    Backup the current Terraform state files and restore from the requested backup directory.
 
-    :param target_cluster_name: The name of the target cluster.
-    :param previous_tfstate_backup_dir: The backup directory containing the previous state files.
+    :param requested_tfstate_backup_dir: The backup directory containing the requested state files.
     :param cluster_dir: The directory containing the Terraform files.
+    :return: The path to the backup directory created before the restore, or None if no backup was made.
     """
-    # Step 1: Always back up the current state files before restoring the previous ones
-    log.info(f"Backing up current state files before restoring from {previous_tfstate_backup_dir}.")
-    _ = backup_tfstate_files(target_cluster_name, cluster_dir, always_backup=True)
+    log.info(f"Attempting to restore state files from backup directory: {requested_tfstate_backup_dir} to {cluster_dir}")
 
-    # Step 2: Restore the previous state files
-    restore_tfstate_files(previous_tfstate_backup_dir, cluster_dir)
+    # First, perform a backup of the current state files
+    backup_dir = backup_tfstate_files(cluster_dir)
+    if not backup_dir:
+        log.info("No current state files were found to backup.")
+
+    # Validate that the requested backup directory exists and contains state files
+    state_files = check_tf_state_files_exist(requested_tfstate_backup_dir)
+    if not state_files:
+        log.warning(f"No state files found in the requested backup directory '{requested_tfstate_backup_dir}'.")
+        return None
+
+    # Remove existing state files in the current directory to avoid mismatches
+    existing_state_files = check_tf_state_files_exist(cluster_dir)
+    if existing_state_files:
+        for state_file in existing_state_files:
+            try:
+                os.remove(state_file)
+                log.info(f"Deleted existing state file: {state_file}")
+            except OSError as e:
+                log.error(f"Failed to delete state file '{state_file}': {e}")
+                raise RuntimeError(f"Failed to delete existing state file '{state_file}'. Restoration aborted.")
+
+    # Copy the state files from the requested backup directory to the main directory
+    for state_file in state_files:
+        src_file = os.path.join(requested_tfstate_backup_dir, state_file)
+        dst_file = os.path.join(cluster_dir, os.path.basename(state_file))
+
+        log.info(f"Copying '{src_file}'")
+        shutil.copy2(src_file, dst_file)
+
+    log.info(f"Restored state files to '{cluster_dir}'.")
+
+    return backup_dir
 
 
 def set_target_cluster(target_cluster_name: str) -> (str, str):
@@ -390,10 +396,10 @@ def bringup_cluster(target_cluster_name: str):
     :return: None
     """
     initial_main_tf_cluster_setting, cluster_dir = set_target_cluster(target_cluster_name)
-    previous_tfstate_backup_dir = backup_tfstate_files(target_cluster_name, cluster_dir)
 
-    if not previous_tfstate_backup_dir:
-        log.info("No previous state files found; proceeding with cluster setup.")
+    # Perform restoration of the appropriate state files for the target cluster
+    requested_tfstate_backup_dir = os.path.join(cluster_dir, f"tf.state_{target_cluster_name}")
+    previous_tfstate_backup_dir = restore_tfstate_files(requested_tfstate_backup_dir, cluster_dir)
 
     try:
         commands = [
@@ -416,11 +422,11 @@ def bringup_cluster(target_cluster_name: str):
         log.error(f"Error: {e.stderr}")
     except Exception as e:
         log.error(f"An error occurred: {e}")
-    finally:
-        revert_target_cluster(initial_main_tf_cluster_setting, cluster_dir)
 
-        if previous_tfstate_backup_dir:
-            revert_tfstate_files(target_cluster_name, previous_tfstate_backup_dir, cluster_dir)
+    revert_target_cluster(initial_main_tf_cluster_setting, cluster_dir)
+
+    if previous_tfstate_backup_dir:
+        restore_tfstate_files(previous_tfstate_backup_dir, cluster_dir)
 
 
 def check_cluster_exists(cluster_name: str) -> bool:
@@ -461,34 +467,38 @@ def bringdown_cluster(target_cluster_name: str):
         return
 
     initial_main_tf_cluster_setting, cluster_dir = set_target_cluster(target_cluster_name)
-    previous_tfstate_backup_dir = backup_tfstate_files(target_cluster_name, cluster_dir)
 
-    if not previous_tfstate_backup_dir:
-        restore_tfstate_files(target_cluster_name, cluster_dir)
+    # Perform restoration of the appropriate state files for the target cluster
+    requested_tfstate_backup_dir = os.path.join(cluster_dir, f"tf.state_{target_cluster_name}")
+    previous_tfstate_backup_dir = restore_tfstate_files(requested_tfstate_backup_dir, cluster_dir)
 
-    try:
-        commands = [
-            f"aws eks update-kubeconfig --name {target_cluster_name} --region us-east-1",
-            "terraform init -upgrade",  # Initialize Terraform to update cache before destroying
-            "terraform destroy -auto-approve",
-            "aws eks list-clusters --query clusters"
-        ]
+    # Only proceed with the terraform commands if state files were restored
+    if check_tf_state_files_exist(cluster_dir):
+        try:
+            commands = [
+                f"aws eks update-kubeconfig --name {target_cluster_name} --region us-east-1",
+                "terraform init -upgrade",  # Initialize Terraform to update cache before destroying
+                "terraform destroy -auto-approve",
+                "aws eks list-clusters --query clusters"
+            ]
 
-        stdout_stderr_cache = ""
-        for command in commands:
-            stdout, stderr, return_code = run_command(command)
-            stdout_stderr_cache += stdout + stderr
-            if return_code != 0:
-                raise subprocess.CalledProcessError(return_code, command, output=stdout, stderr=stderr)
+            stdout_stderr_cache = ""
+            for command in commands:
+                stdout, stderr, return_code = run_command(command)
+                stdout_stderr_cache += stdout + stderr
+                if return_code != 0:
+                    raise subprocess.CalledProcessError(return_code, command, output=stdout, stderr=stderr)
 
-    except subprocess.CalledProcessError as e:
-        log.error(f"Command '{e.cmd}' failed with return code {e.returncode}")
-        log.error(f"Output: {e.output}")
-        log.error(f"Error: {e.stderr}")
-    except Exception as e:
-        log.error(f"An error occurred: {e}")
-    finally:
-        revert_target_cluster(initial_main_tf_cluster_setting, cluster_dir)
+        except subprocess.CalledProcessError as e:
+            log.error(f"Command '{e.cmd}' failed with return code {e.returncode}")
+            log.error(f"Output: {e.output}")
+            log.error(f"Error: {e.stderr}")
+        except Exception as e:
+            log.error(f"An error occurred: {e}")
+    else:
+        log.error("No restored Terraform state files found; aborting the cluster teardown.")
 
-        if previous_tfstate_backup_dir:
-            revert_tfstate_files(target_cluster_name, previous_tfstate_backup_dir, cluster_dir)
+    revert_target_cluster(initial_main_tf_cluster_setting, cluster_dir)
+
+    if previous_tfstate_backup_dir:
+        restore_tfstate_files(previous_tfstate_backup_dir, cluster_dir)
