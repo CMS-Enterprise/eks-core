@@ -206,21 +206,28 @@ def backup_tfstate_files(target_cluster: str, cluster_dir: str, always_backup: b
     :param always_backup: Optional boolean flag to force a backup regardless of cluster matching. Default is False.
     :return: The name of the backup directory created, or None if no backup was needed.
     """
-    # Step 1: Check if any Terraform state files exist
+    # Check if any Terraform state files exist
     state_files = check_tf_state_files_exist(cluster_dir)
     if not state_files:
         log.info("No Terraform state files found; no backup needed.")
         return None
 
-    # Step 2-3: Validate and extract the current cluster name from state files
+    # Validate and extract the current cluster name from state files
     current_tfstate_cluster_name = validate_current_tfstate_cluster_name(state_files, cluster_dir)
 
-    # Step 4: If always_backup is True or the current cluster differs from the target cluster, perform backup
+    # If always_backup is True or the current cluster differs from the target cluster, perform backup
     if always_backup or (current_tfstate_cluster_name and current_tfstate_cluster_name != target_cluster):
         # Step 5: Create a backup directory and move the state files
         backup_dir = create_tf_state_subdir(current_tfstate_cluster_name, cluster_dir)
         for state_file in state_files:
-            shutil.move(os.path.join(cluster_dir, state_file), backup_dir)
+            src_file = os.path.join(cluster_dir, state_file)
+            dst_file = os.path.join(backup_dir, os.path.basename(state_file))
+
+            if os.path.exists(dst_file):
+                os.remove(dst_file)
+
+            shutil.copy(src_file, dst_file)
+
         log.info(f"Backed up Terraform state files to {backup_dir}.")
 
         return backup_dir
@@ -461,6 +468,7 @@ def bringdown_cluster(target_cluster_name: str):
 
     try:
         commands = [
+            f"aws eks update-kubeconfig --name {target_cluster_name} --region us-east-1",
             "terraform init -upgrade",  # Initialize Terraform to update cache before destroying
             "terraform destroy -auto-approve",
             "aws eks list-clusters --query clusters"
