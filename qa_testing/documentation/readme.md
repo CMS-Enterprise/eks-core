@@ -26,12 +26,13 @@ The _**qa_testing framework**_ contains the following directories:
 * **jq** (version >= 1.7)
 * **kubectl** (version >= v1.30)
 * **kustomize** (version >= 5.0)
+* **parallel** (version >= 20210822)
 * **pip** (version >= 23.3)
 * **python3** (version >= 3.10)
 * **robotframework** (version >= 6.1)
 * **xargs** (version >= 4.8)
 
-## III. Get Setup
+## III. Setup Procedures
 
 ### A.) Clone Repo & Source .qa_bashrc
 1.) Clone and run the Energon-Kube repository locally from this location:
@@ -167,7 +168,7 @@ Note: Run this script from the target cluster directory: `<repo-root>/<target-cl
 
 ### A.) Example: Bringing up a Cluster
 ```
-run_qa_python bringup_cluster -t <target-cluster>
+run_qa_py_venv bringup_cluster -t <target-cluster>
 ```
 
 ### B.) Example: Destroying a Cluster

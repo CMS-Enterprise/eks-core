@@ -1,29 +1,12 @@
 #!/usr/bin/env bash
 
-# Log file path
-SCRIPT_LOCATION=$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]:-$0}")")" &> /dev/null && pwd)
-mkdir -p ${SCRIPT_LOCATION}/../logs
-LOG_FILE="${SCRIPT_LOCATION}/../logs/run_smoketest_temp.log"
-
-# Clear previous log file
-> "$LOG_FILE"
-
-# Check if the correct number of parameters are passed
-if [ "$#" -lt 2 ]; then
-  echo "Usage: $0 <CLUSTER_NAME> <all|script_name>"
+# Ensure the script is running in bash >= 5.2
+if ! bash --version | grep -qE 'version ([5-9]|[0-9]{2,})\.[2-9]'; then
+  echo "Error: This script requires bash version 5.2 or higher."
   exit 1
 fi
 
-# Get the cluster name and test script from the arguments
-CLUSTER_NAME="$1"
-TEST_SCRIPT="$2"
-AWS_REGION="us-east-1"
-
-# Initialize the counter
-SCRIPT_COUNTER=1
-FAIL_COUNT=0
-
-# Determine the correct date command for the system
+# Validate the OS and set the timestamp accordingly
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   TIMESTAMP=$(date +"%Y%m%d%H%M%S")
 elif [[ "$OSTYPE" == "darwin"* ]]; then
@@ -33,8 +16,33 @@ else
   exit 1
 fi
 
+# Check if the correct number of parameters are passed
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $0 <CLUSTER_NAME> <all|script_name>"
+  exit 1
+fi
+
+# Set argument variables
+CLUSTER_NAME="$1"
+TEST_SCRIPT="$2"
+
+# Set global variables
+SCRIPT_COUNTER=1
+FAIL_COUNT=0
+AWS_REGION="us-east-1"
+
+# Log file path
+SCRIPT_LOCATION=$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]:-$0}")")" &> /dev/null && pwd)
+mkdir -p ${SCRIPT_LOCATION}/../logs
+LOG_FILE="${SCRIPT_LOCATION}/../logs/run_smoketest_temp.log"
+
+# Clear previous log file
+: > "$LOG_FILE"
+
 # Get a list of all valid scripts in the smoketests subdirectory
 SMOKETEST_DIR="${SCRIPT_LOCATION}/smoketests"
+
+# Validate if the provided script parameter is valid (all or specific script name)
 mapfile -t SMOKETEST_SCRIPTS < <(find "$SMOKETEST_DIR" -maxdepth 1 -type f -iname "check*.sh" -exec basename {} \; | sort)
 
 # Check if the second argument is "all or valid script name"
@@ -42,28 +50,31 @@ if [ "$TEST_SCRIPT" == "all" ]; then
   RUN_ALL=true
 else
   RUN_ALL=false
-  # Flag to track if the script is found
   script_exists=false
 
-  # Loop through each script in the SMOKETEST_SCRIPTS array
   for script in "${SMOKETEST_SCRIPTS[@]}"; do
-      if [ "$script" == "$TEST_SCRIPT" ]; then
-          script_exists=true
-          break
-      fi
+    if [ "$script" == "$TEST_SCRIPT" ]; then
+      script_exists=true
+      break
+    fi
   done
 
-  # If the script was not found, show the usage statement
   if [ "$script_exists" = false ]; then
-      echo "Invalid Smoketest Script: $TEST_SCRIPT"
-      echo "Available Smoketest Scripts are:"
-      for script in "${SMOKETEST_SCRIPTS[@]}"; do
-          echo "    - $script"
-      done
-      echo ""
-      echo "Usage: $0 <CLUSTER_NAME> <all|smoketest_script_name>"
-      exit 1
+    echo "Invalid Smoketest Script: $TEST_SCRIPT"
+    echo "Available Smoketest Scripts are:"
+    for script in "${SMOKETEST_SCRIPTS[@]}"; do
+      echo "    - $script"
+    done
+    echo ""
+    echo "Usage: $0 <CLUSTER_NAME> <all|smoketest_script_name>"
+    exit 1
   fi
+fi
+
+# Check if AWS CLI is installed and configured
+if ! command -v aws >/dev/null 2>&1; then
+  echo "FAIL: AWS CLI is not installed or not in the system PATH."
+  exit 1
 fi
 
 # Verify if the provided cluster name matches an accessible EKS cluster
@@ -82,6 +93,18 @@ if [ "$cluster_found" = false ]; then
     echo "Available EKS clusters:"
     echo "$CLUSTERS"
     exit 1
+fi
+
+# Validate network access to AWS EKS endpoint using curl
+if ! curl -s --connect-timeout 5 https://eks.${AWS_REGION}.amazonaws.com >/dev/null 2>&1; then
+  echo "Error: Network connectivity issue detected. Unable to reach the AWS EKS endpoint."
+  exit 1
+fi
+
+# Validate access to AWS account
+if ! aws sts get-caller-identity >/dev/null 2>&1; then
+  echo "Error: Unable to access AWS. Please ensure your credentials are valid and properly configured."
+  exit 1
 fi
 
 # Check the current kubeconfig context
@@ -143,12 +166,10 @@ run_test_script() {
 
 # Run the appropriate scripts
 if [ "$RUN_ALL" = true ]; then
-  # Run all scripts in the smoketests directory
   for script in "${SMOKETEST_SCRIPTS[@]}"; do
     run_test_script "$script" "$CLUSTER_NAME"
   done
 else
-  # Run the specified script
   run_test_script "$TEST_SCRIPT" "$CLUSTER_NAME"
 fi
 
@@ -169,11 +190,10 @@ fi
 
 # Construct the new log file name based on the second argument
 if [ "$TEST_SCRIPT" == "all" ]; then
-    NEW_LOG_FILE="${SCRIPT_LOCATION}/../logs/${TIMESTAMP}_run_all_smoketests_on_${CLUSTER_NAME}${SUFFIX}.log"
+  NEW_LOG_FILE="${SCRIPT_LOCATION}/../logs/${TIMESTAMP}_run_all_smoketests_on_${CLUSTER_NAME}${SUFFIX}.log"
 else
-    # Extract the script name without extension for the log file name
-    script_name_without_ext="${TEST_SCRIPT%.*}"
-    NEW_LOG_FILE="${SCRIPT_LOCATION}/../logs/${TIMESTAMP}_smoketest_${script_name_without_ext}_on_${CLUSTER_NAME}${SUFFIX}.log"
+  script_name_without_ext="${TEST_SCRIPT%.*}"
+  NEW_LOG_FILE="${SCRIPT_LOCATION}/../logs/${TIMESTAMP}_smoketest_${script_name_without_ext}_on_${CLUSTER_NAME}${SUFFIX}.log"
 fi
 
 # Remove the "scripts/../" portion from the log file path

@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
+#######################################################################
+# Script Name: check_pods_triggering_errors.sh
+# Purpose: This script checks for any Kubernetes pods that are actively
+#          generating errors in their logs.
+#
+# The script performs the following steps:
+#   1. Retrieves all pod names and namespaces across all namespaces.
+#   2. Checks the logs of each pod for errors.
+#   3. Reports any pods that are actively triggering errors.
+#
+#######################################################################
+
 echo "Testcase: Confirm, are there any pods which are actively triggering errors"
 
 # Define the temporary file for error logs
@@ -8,10 +20,9 @@ error_file=$(mktemp)
 # Function to check if pods are actively triggering errors
 check_pod_errors() {
     local result="PASS"
-    local error_pods=()
 
-    # Get all pod names and their namespaces
-    pods=$(kubectl get pods -A --no-headers -o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name)
+    # Get all pod names and their namespaces using jq
+    pods=$(kubectl get pods -A -o json | jq -r '.items[] | "\(.metadata.namespace) \(.metadata.name)"')
 
     # Function to check logs for a specific pod
     check_pod_logs() {
@@ -19,29 +30,20 @@ check_pod_errors() {
         local name=$2
         local pod_logs
         pod_logs=$(kubectl logs -n "$namespace" "$name" --tail=4 2>/dev/null | grep -i "error")
-        if [ ! -z "$pod_logs" ]; then
+        if [ -n "$pod_logs" ]; then
             echo "FAIL: The following pod is actively triggering errors:" >> "$error_file"
             echo "Pod Name: $name" >> "$error_file"
             echo "Logs: $pod_logs" >> "$error_file"
             echo "" >> "$error_file"
-            error_pods+=("$name in namespace $namespace")
         fi
     }
 
-    export -f check_pod_logs
-    export error_file
-
-    # Process each pod in parallel to improve speed
-    echo "$pods" | while IFS= read -r pod; do
-        namespace=$(echo "$pod" | awk '{print $1}')
-        name=$(echo "$pod" | awk '{print $2}')
-
-        # Using xargs to run checks in parallel
-        echo "$namespace $name" | xargs -n2 -P10 bash -c 'check_pod_logs "$@"' _
-    done
-
-    # Wait for all background jobs to complete
-    wait
+    # Process each pod sequentially
+    while IFS= read -r pod; do
+        namespace=$(echo "$pod" | cut -d ' ' -f 1)
+        name=$(echo "$pod" | cut -d ' ' -f 2)
+        check_pod_logs "$namespace" "$name"
+    done <<< "$pods"
 
     # Check if the error file is empty or not
     if [ -s "$error_file" ]; then

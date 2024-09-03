@@ -1,7 +1,9 @@
 import os
 
+
 def print_colored(text: str, color_code: int, style_code: str = "") -> None:
     print(f"\033[{style_code}38;5;{color_code}m{text}\033[0m")
+
 
 def load_gen_lib_color_formats() -> None:
     sample_text = "This is a sample text."
@@ -25,6 +27,7 @@ def load_gen_lib_color_formats() -> None:
 
     for style_name, style_code in styles.items():
         print_colored(f"{style_name}: {sample_text}", 255, style_code)
+
 
 if __name__ == "__main__":
     load_gen_lib_color_formats()
