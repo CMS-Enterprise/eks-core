@@ -202,3 +202,6 @@ module "main-eks" {
   okta_client_secret  = "OKTA client secret"
 }
 ```
+
+### Notes:
+- Collaborated with and co-developed with Leidos whom is an IUSG contractor.
