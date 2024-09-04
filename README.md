@@ -202,3 +202,6 @@ module "main-eks" {
   okta_client_secret  = "OKTA client secret"
 }
 ```
+
+### Notes:
+- This EKS core module was co-developed with other IUSG cloud engineering contractors such as Leidos and Samtek.
