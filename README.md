@@ -204,4 +204,4 @@ module "main-eks" {
 ```
 
 ### Notes:
-- Collaborated with and co-developed with Leidos whom is an IUSG contractor.
+- This EKS core module was co developed with other IUSG cloud engineering contractors such as Leidos and Samtek.
