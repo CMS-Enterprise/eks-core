@@ -23,7 +23,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../libraries/general_funcs_vars.sh"
 # Initialize the overall result to "PASS"
 overall_result="PASS"
 
-# Function to check resource health with batch processing and parallelization
+# Function to check resource health
 check_resource_batch() {
     local resource_type=$1
     local resources=$2
@@ -93,11 +93,11 @@ check_resource_batch() {
             ;;
     esac
 
-    if [[ "$result" == "PASS" ]]; then
-        echo "PASS: All $resource_type resources are healthy."
-    else
+    if [[ "$result" == "FAIL" ]]; then
         echo -e "$message"
         overall_result="FAIL"
+    else
+        echo "PASS: All $resource_type resources are healthy."
     fi
 }
 
@@ -105,32 +105,11 @@ check_resource_batch() {
 echo "Testcase name: Verify if all resources are running healthy?"
 resources=("pods" "deployments" "statefulsets" "daemonsets" "jobs" "hpa" "nodes" "namespaces")
 
-# Fetch all resources in one batch to reduce the number of API calls
-fetch_resources() {
-    local resource_type=$1
-    case $resource_type in
-        "pods") kubectl get pods -A -o json ;;
-        "deployments") kubectl get deployments -A -o json ;;
-        "statefulsets") kubectl get statefulsets -A -o json ;;
-        "daemonsets") kubectl get daemonsets -A -o json ;;
-        "jobs") kubectl get jobs -A -o json ;;
-        "hpa") kubectl get hpa -A -o json ;;
-        "nodes") kubectl get nodes -o json ;;
-        "namespaces") kubectl get namespaces -o json ;;
-        *) echo "{}" ;;  # Empty JSON for unknown resource type
-    esac
-}
-
-# Run checks in parallel with a batch size for better performance
-parallel_check() {
-    local resource_type=$1
-    local resources
-    resources=$(fetch_resources "$resource_type")
+# Fetch all resources and check health sequentially
+for resource_type in "${resources[@]}"; do
+    resources=$(kubectl get "$resource_type" -A -o json)
     check_resource_batch "$resource_type" "$resources"
-}
-
-export -f check_resource_batch fetch_resources parallel_check
-parallel -j 4 parallel_check ::: "${resources[@]}"
+done
 
 # Exit with status 1 if any resource check failed
 if [[ "$overall_result" == "FAIL" ]]; then
